@@ -1,6 +1,21 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Alert, Button, Col, Container, Form, Pagination, Row, Spinner, Table } from 'react-bootstrap'
+import { Alert, Badge, Button, Card, Col, Container, Form, Pagination, Row, Spinner, Table } from 'react-bootstrap'
 import { api, mensajeError } from '../api'
+import EncabezadoPagina from '../components/EncabezadoPagina'
+import EstadoVacio from '../components/EstadoVacio'
+
+const COLOR_ACCION = {
+  LOGIN: 'success',
+  LOGIN_FALLIDO: 'danger',
+  LOGOUT: 'secondary',
+  CREAR: 'primary',
+  MODIFICAR: 'info',
+  ELIMINAR: 'danger',
+  CERRAR: 'dark',
+  REABRIR: 'warning',
+  CONTABILIZAR: 'success',
+  REVERTIR: 'warning',
+}
 
 const ACCIONES = [
   ['', 'Todas'],
@@ -74,17 +89,23 @@ export default function Bitacora() {
   const totalPaginas = datos ? Math.max(1, Math.ceil(datos.count / 50)) : 1
 
   return (
-    <Container fluid="lg">
-      <h1 className="h4 mb-3">Bitácora de auditoría</h1>
-      <Form onSubmit={buscar} className="mb-3">
+    <Container fluid className="px-0">
+      <EncabezadoPagina
+        titulo="Bitácora de auditoría"
+        descripcion="Registro inmutable de acciones sensibles: quién, qué, cuándo y valores anterior y nuevo."
+        migas={[{ texto: 'Control' }, { texto: 'Bitácora de auditoría' }]}
+      />
+      <Card className="mb-3">
+        <Card.Body>
+      <Form onSubmit={buscar}>
         <Row className="g-2 align-items-end">
           <Col xs={12} md={3}>
-            <Form.Label>Usuario</Form.Label>
-            <Form.Control value={filtros.usuario} onChange={cambiar('usuario')} />
+            <Form.Label className="small text-suave mb-1">Usuario</Form.Label>
+            <Form.Control size="sm" value={filtros.usuario} onChange={cambiar('usuario')} />
           </Col>
           <Col xs={12} md={3}>
-            <Form.Label>Acción</Form.Label>
-            <Form.Select value={filtros.accion} onChange={cambiar('accion')}>
+            <Form.Label className="small text-suave mb-1">Acción</Form.Label>
+            <Form.Select size="sm" value={filtros.accion} onChange={cambiar('accion')}>
               {ACCIONES.map(([valor, texto]) => (
                 <option key={valor} value={valor}>
                   {texto}
@@ -93,20 +114,22 @@ export default function Bitacora() {
             </Form.Select>
           </Col>
           <Col xs={6} md={2}>
-            <Form.Label>Desde</Form.Label>
-            <Form.Control type="date" value={filtros.desde} onChange={cambiar('desde')} />
+            <Form.Label className="small text-suave mb-1">Desde</Form.Label>
+            <Form.Control size="sm" type="date" value={filtros.desde} onChange={cambiar('desde')} />
           </Col>
           <Col xs={6} md={2}>
-            <Form.Label>Hasta</Form.Label>
-            <Form.Control type="date" value={filtros.hasta} onChange={cambiar('hasta')} />
+            <Form.Label className="small text-suave mb-1">Hasta</Form.Label>
+            <Form.Control size="sm" type="date" value={filtros.hasta} onChange={cambiar('hasta')} />
           </Col>
           <Col xs={12} md={2}>
-            <Button type="submit" className="w-100">
-              Filtrar
+            <Button size="sm" type="submit" className="w-100">
+              <i className="bi bi-funnel me-1" /> Filtrar
             </Button>
           </Col>
         </Row>
       </Form>
+        </Card.Body>
+      </Card>
 
       {error && <Alert variant="danger">{error}</Alert>}
       {!datos ? (
@@ -114,8 +137,9 @@ export default function Bitacora() {
       ) : (
         <>
           <div className="text-muted small mb-2">{datos.count} registro(s)</div>
+          <Card className="mb-3">
           <div className="table-responsive">
-            <Table striped bordered hover size="sm">
+            <Table hover size="sm" className="align-middle">
               <thead>
                 <tr>
                   <th>Fecha</th>
@@ -130,9 +154,13 @@ export default function Bitacora() {
               <tbody>
                 {datos.results.map((r) => (
                   <tr key={r.id}>
-                    <td className="text-nowrap">{formatoFecha.format(new Date(r.fecha))}</td>
+                    <td className="text-nowrap small">{formatoFecha.format(new Date(r.fecha))}</td>
                     <td>{r.nombre_usuario || '—'}</td>
-                    <td>{r.accion_display}</td>
+                    <td className="text-nowrap">
+                      <Badge bg={`${COLOR_ACCION[r.accion] || 'secondary'}-subtle`} text={`${COLOR_ACCION[r.accion] || 'secondary'}-emphasis`}>
+                        {r.accion_display}
+                      </Badge>
+                    </td>
                     <td>{r.entidad ? `${r.entidad} #${r.objeto_id}` : ''}</td>
                     <td>{r.descripcion}</td>
                     <td>
@@ -143,16 +171,17 @@ export default function Bitacora() {
                 ))}
                 {datos.results.length === 0 && (
                   <tr>
-                    <td colSpan={7} className="text-center text-muted">
-                      Sin registros
+                    <td colSpan={7}>
+                      <EstadoVacio icono="bi-shield">Sin registros para el filtro.</EstadoVacio>
                     </td>
                   </tr>
                 )}
               </tbody>
             </Table>
           </div>
+          </Card>
           {totalPaginas > 1 && (
-            <Pagination>
+            <Pagination size="sm">
               <Pagination.Prev disabled={pagina === 1} onClick={() => setPagina(pagina - 1)} />
               <Pagination.Item active>
                 {pagina} / {totalPaginas}

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { Alert, Badge, Card, Container, Form, Row, Col, Spinner, Table } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
 import { api, mensajeError } from '../api'
+import EncabezadoPagina from '../components/EncabezadoPagina'
 import { AccionesReporte, CamposRango, rangoPorDefecto } from '../components/FiltroRango'
 import { descargarCSV } from '../exportar'
 import { formatoFecha, formatoMonto } from '../formato'
@@ -52,13 +53,12 @@ export default function Balanza() {
     )
 
   return (
-    <Container fluid="xl">
-      <div className="mb-3">
-        <h1 className="h4 mb-0">Balanza de comprobación</h1>
-        <div className="text-muted small no-imprimir">
-          Saldos y movimientos de los asientos contabilizados. Haga clic en una cuenta para ver su libro mayor.
-        </div>
-      </div>
+    <Container fluid className="px-0">
+      <EncabezadoPagina
+        titulo="Balanza de comprobación"
+        descripcion="Saldos y movimientos de los asientos contabilizados. Haga clic en una cuenta para ver su libro mayor."
+        migas={[{ texto: 'Libros' }, { texto: 'Balanza de comprobación' }]}
+      />
 
       <Card className="mb-3 shadow-sm no-imprimir">
         <Card.Body>

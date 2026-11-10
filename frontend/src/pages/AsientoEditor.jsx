@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Alert, Badge, Button, Card, Col, Container, Form, Row, Spinner, Table } from 'react-bootstrap'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { api } from '../api'
+import EncabezadoPagina from '../components/EncabezadoPagina'
 import SelectorCuenta from '../components/SelectorCuenta'
 import { aCentavos, centavosATexto, hoyISO } from '../formato'
 
@@ -139,18 +140,16 @@ export default function AsientoEditor() {
   }
 
   return (
-    <Container fluid="lg">
-      <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-        <div>
-          <h1 className="h4 mb-0">{asientoId ? 'Editar borrador' : 'Nuevo asiento'}</h1>
-          <div className="text-muted small">
-            Puede guardar un borrador descuadrado; para contabilizar, los cargos deben igualar a los abonos.
-          </div>
-        </div>
-        <Button as={Link} to={asientoId ? `/asientos/${asientoId}` : '/asientos'} variant="outline-secondary" size="sm">
-          Volver
+    <Container fluid className="px-0">
+      <EncabezadoPagina
+        titulo={asientoId ? 'Editar borrador' : 'Nuevo asiento'}
+        descripcion="Puede guardar un borrador descuadrado; para contabilizar, los cargos deben igualar a los abonos."
+        migas={[{ texto: 'Asientos', a: '/asientos' }, { texto: asientoId ? 'Editar borrador' : 'Nuevo' }]}
+      >
+        <Button as={Link} to={asientoId ? `/asientos/${asientoId}` : '/asientos'} variant="outline-secondary">
+          <i className="bi bi-arrow-left me-1" /> Volver
         </Button>
-      </div>
+      </EncabezadoPagina>
 
       {errores.length > 0 && (
         <Alert variant="danger">

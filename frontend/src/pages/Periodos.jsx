@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Alert, Badge, Button, Col, Container, Form, Modal, Row, Spinner, Table } from 'react-bootstrap'
+import { Alert, Badge, Button, Card, Col, Container, Form, Modal, Row, Spinner, Table } from 'react-bootstrap'
 import { api, mensajeError } from '../api'
 import { useAuth } from '../auth/AuthContext'
 import { ROLES, tieneRol } from '../auth/roles'
+import EncabezadoPagina from '../components/EncabezadoPagina'
 
 const formatoFecha = (iso) => {
   const [a, m, d] = iso.split('-')
@@ -103,9 +104,12 @@ export default function Periodos() {
   const resumen = ejercicios?.find((e) => e.anio === anio)
 
   return (
-    <Container fluid="lg">
-      <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-        <h1 className="h4 mb-0">Periodos contables</h1>
+    <Container fluid className="px-0">
+      <EncabezadoPagina
+        titulo="Periodos contables"
+        descripcion="Apertura y cierre mensual del ejercicio. Los periodos se cierran en orden."
+        migas={[{ texto: 'Configuración' }, { texto: 'Periodos contables' }]}
+      >
         {esContador && (
           <Button
             onClick={() => {
@@ -113,10 +117,10 @@ export default function Periodos() {
               setNuevoAnio(String(maximo))
             }}
           >
-            Crear ejercicio
+            <i className="bi bi-calendar-plus me-1" /> Crear ejercicio
           </Button>
         )}
-      </div>
+      </EncabezadoPagina>
 
       {error && (
         <Alert variant="danger" dismissible onClose={() => setError('')}>
@@ -160,8 +164,9 @@ export default function Periodos() {
           {!periodos ? (
             <Spinner animation="border" />
           ) : (
+            <Card className="mb-4">
             <div className="table-responsive">
-              <Table hover size="sm" className="align-middle">
+              <Table hover className="align-middle">
                 <thead>
                   <tr>
                     <th>Periodo</th>
@@ -179,7 +184,17 @@ export default function Periodos() {
                       <td>{formatoFecha(p.fecha_inicio)}</td>
                       <td>{formatoFecha(p.fecha_fin)}</td>
                       <td>
-                        <Badge bg={p.estado === 'ABIERTO' ? 'success' : 'secondary'}>{p.estado_display}</Badge>
+                        {p.estado === 'ABIERTO' ? (
+                          <Badge bg="success-subtle" text="success-emphasis">
+                            <i className="bi bi-unlock me-1" />
+                            Abierto
+                          </Badge>
+                        ) : (
+                          <Badge bg="secondary-subtle" text="secondary-emphasis">
+                            <i className="bi bi-lock me-1" />
+                            Cerrado
+                          </Badge>
+                        )}
                       </td>
                       <td className="small">
                         {p.cerrado_en ? `${p.cerrado_por} · ${formatoFechaHora.format(new Date(p.cerrado_en))}` : '—'}
@@ -208,6 +223,7 @@ export default function Periodos() {
                 </tbody>
               </Table>
             </div>
+            </Card>
           )}
         </>
       )}

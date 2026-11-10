@@ -1,11 +1,369 @@
-/* Estilos globales complementarios a Bootstrap. */
+/* =============================================================================
+   Tema del Sistema Contable (T1.5)
+   Complementa Bootstrap 5.3 sobrescribiendo sus variables CSS.
+   ============================================================================= */
+
+:root {
+  --sc-marino: #0f2a47;
+  --sc-marino-2: #163a5f;
+  --sc-primario: #1f5fae;
+  --sc-primario-oscuro: #184c8c;
+  --sc-primario-suave: #e8f0fb;
+  --sc-fondo: #f3f5f9;
+  --sc-borde: #e3e7ee;
+  --sc-texto-suave: #6b7686;
+  --sc-ancho-menu: 248px;
+  --sc-alto-barra: 60px;
+
+  --bs-body-font-family: 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
+  --bs-body-bg: var(--sc-fondo);
+  --bs-body-color: #1d2733;
+  --bs-primary: var(--sc-primario);
+  --bs-primary-rgb: 31, 95, 174;
+  --bs-link-color: var(--sc-primario);
+  --bs-link-color-rgb: 31, 95, 174;
+  --bs-link-hover-color: var(--sc-primario-oscuro);
+  --bs-border-color: var(--sc-borde);
+  --bs-border-radius: 0.5rem;
+  --bs-card-border-color: var(--sc-borde);
+}
+
+body {
+  background: var(--sc-fondo);
+}
+
+/* --- Botones ---------------------------------------------------------------- */
+.btn {
+  font-weight: 500;
+}
+.btn-primary {
+  --bs-btn-bg: var(--sc-primario);
+  --bs-btn-border-color: var(--sc-primario);
+  --bs-btn-hover-bg: var(--sc-primario-oscuro);
+  --bs-btn-hover-border-color: var(--sc-primario-oscuro);
+  --bs-btn-active-bg: var(--sc-primario-oscuro);
+  --bs-btn-active-border-color: var(--sc-primario-oscuro);
+  --bs-btn-disabled-bg: var(--sc-primario);
+  --bs-btn-disabled-border-color: var(--sc-primario);
+}
+.btn-outline-primary {
+  --bs-btn-color: var(--sc-primario);
+  --bs-btn-border-color: var(--sc-primario);
+  --bs-btn-hover-bg: var(--sc-primario);
+  --bs-btn-hover-border-color: var(--sc-primario);
+  --bs-btn-active-bg: var(--sc-primario-oscuro);
+}
+.form-control:focus,
+.form-select:focus {
+  border-color: #8fb3e3;
+  box-shadow: 0 0 0 0.2rem rgba(31, 95, 174, 0.15);
+}
+.pagination {
+  --bs-pagination-active-bg: var(--sc-primario);
+  --bs-pagination-active-border-color: var(--sc-primario);
+  --bs-pagination-color: var(--sc-primario);
+}
+
+/* --- Tarjetas y tablas ------------------------------------------------------ */
+.card {
+  border-color: var(--sc-borde);
+  border-radius: 0.6rem;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04) !important;
+}
+.table {
+  --bs-table-hover-bg: #f5f8fd;
+  margin-bottom: 0;
+}
+.table > thead > tr > th,
+.table thead.table-light th {
+  background: #f8fafc;
+  color: var(--sc-texto-suave);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-bottom-width: 1px;
+  white-space: nowrap;
+}
+.table tfoot td {
+  background: #f8fafc;
+}
+.card > .table-responsive:first-child .table thead th:first-child {
+  border-top-left-radius: 0.6rem;
+}
+.card > .table-responsive:first-child .table thead th:last-child {
+  border-top-right-radius: 0.6rem;
+}
 
 .monto {
   font-family: var(--bs-font-monospace);
+  font-variant-numeric: tabular-nums;
   text-align: right;
   white-space: nowrap;
 }
 
+code {
+  color: var(--sc-marino-2);
+  font-weight: 600;
+}
+
+.text-suave {
+  color: var(--sc-texto-suave) !important;
+}
+
+/* --- Layout de la aplicación ------------------------------------------------ */
+.app-menu {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: var(--sc-ancho-menu);
+  background: linear-gradient(180deg, var(--sc-marino) 0%, #0b2038 100%);
+  color: #c9d5e3;
+  display: flex;
+  flex-direction: column;
+  z-index: 1030;
+}
+.app-menu-marca {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 1.1rem 1.25rem;
+  color: #fff;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.app-menu-marca:hover {
+  color: #fff;
+}
+.app-logo {
+  width: 36px;
+  height: 36px;
+  border-radius: 0.5rem;
+  background: linear-gradient(135deg, #2f7de1, #1f5fae);
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 1.15rem;
+  flex-shrink: 0;
+}
+.app-menu-marca .titulo {
+  font-weight: 700;
+  line-height: 1.1;
+}
+.app-menu-marca .subtitulo {
+  font-size: 0.72rem;
+  color: #8fa6c0;
+}
+.app-menu-cuerpo {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.75rem 0.75rem 1rem;
+}
+.app-menu-seccion {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #7189a6;
+  padding: 1rem 0.75rem 0.4rem;
+}
+.app-menu-enlace {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 2px;
+  border-radius: 0.45rem;
+  color: #c9d5e3;
+  text-decoration: none;
+  font-size: 0.92rem;
+}
+.app-menu-enlace i {
+  font-size: 1.05rem;
+  width: 1.2rem;
+  text-align: center;
+  opacity: 0.85;
+}
+.app-menu-enlace:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+}
+.app-menu-enlace.active {
+  background: rgba(47, 125, 225, 0.22);
+  color: #fff;
+  box-shadow: inset 3px 0 0 #4b95f0;
+}
+.app-menu-pie {
+  padding: 0.85rem 1.25rem;
+  font-size: 0.72rem;
+  color: #7189a6;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.app-principal {
+  margin-left: var(--sc-ancho-menu);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.app-barra {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 1020;
+  height: var(--sc-alto-barra);
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid var(--sc-borde);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0 1.5rem;
+}
+.app-contenido {
+  flex: 1;
+  padding: 1.5rem;
+  max-width: 1440px;
+  width: 100%;
+}
+.app-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--sc-primario-suave);
+  color: var(--sc-primario);
+  font-weight: 700;
+  font-size: 0.85rem;
+  display: grid;
+  place-items: center;
+}
+
+/* Menú como panel deslizable en pantallas pequeñas */
+@media (max-width: 991.98px) {
+  .app-menu {
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+  }
+  .app-menu.abierto {
+    transform: translateX(0);
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.35);
+  }
+  .app-principal {
+    margin-left: 0;
+  }
+  .app-contenido {
+    padding: 1rem;
+  }
+  .app-velo {
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 20, 35, 0.4);
+    z-index: 1025;
+  }
+}
+
+/* --- Encabezado de página ---------------------------------------------------- */
+.encabezado-pagina {
+  margin-bottom: 1.25rem;
+}
+.encabezado-pagina h1 {
+  font-size: 1.4rem;
+  font-weight: 650;
+  margin: 0;
+  color: #13233a;
+}
+.encabezado-pagina .migas {
+  font-size: 0.8rem;
+  color: var(--sc-texto-suave);
+  margin-bottom: 0.25rem;
+}
+.encabezado-pagina .migas a {
+  color: var(--sc-texto-suave);
+  text-decoration: none;
+}
+.encabezado-pagina .migas a:hover {
+  color: var(--sc-primario);
+}
+
+/* --- Tablero ------------------------------------------------------------------ */
+.indicador .icono {
+  width: 42px;
+  height: 42px;
+  border-radius: 0.6rem;
+  display: grid;
+  place-items: center;
+  font-size: 1.25rem;
+}
+.indicador .valor {
+  font-size: 1.6rem;
+  font-weight: 650;
+  line-height: 1.1;
+}
+.indicador .etiqueta {
+  font-size: 0.78rem;
+  color: var(--sc-texto-suave);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* --- Estado vacío ------------------------------------------------------------- */
+.estado-vacio {
+  text-align: center;
+  padding: 2.5rem 1rem;
+  color: var(--sc-texto-suave);
+}
+.estado-vacio i {
+  font-size: 2rem;
+  opacity: 0.5;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+/* --- Login -------------------------------------------------------------------- */
+.login {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+.login-marca {
+  background: radial-gradient(circle at 20% 20%, #1f5fae 0%, var(--sc-marino) 55%, #081a2e 100%);
+  color: #e3ecf7;
+  padding: 3rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.login-marca h2 {
+  color: #fff;
+  font-weight: 700;
+}
+.login-marca .rasgo {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+.login-marca .rasgo i {
+  font-size: 1.25rem;
+  color: #7fb2f0;
+}
+.login-formulario {
+  display: grid;
+  place-items: center;
+  padding: 2rem 1rem;
+  background: #fff;
+}
+@media (max-width: 767.98px) {
+  .login {
+    grid-template-columns: 1fr;
+  }
+  .login-marca {
+    padding: 2rem 1.5rem;
+  }
+  .login-marca .rasgos {
+    display: none;
+  }
+}
+
+/* --- Impresión ---------------------------------------------------------------- */
 .encabezado-reporte {
   display: none;
 }
@@ -15,35 +373,38 @@
     size: landscape;
     margin: 12mm;
   }
-
   body {
     font-size: 10pt;
+    background: #fff;
   }
-
-  .navbar,
+  .app-menu,
+  .app-barra,
+  .app-velo,
   .no-imprimir {
     display: none !important;
   }
-
+  .app-principal {
+    margin-left: 0;
+  }
+  .app-contenido {
+    padding: 0;
+    max-width: none;
+  }
   .encabezado-reporte {
     display: block;
     margin-bottom: 8pt;
   }
-
   .card {
     border: none !important;
     box-shadow: none !important;
   }
-
   .table-responsive {
     overflow: visible !important;
   }
-
   a {
     color: inherit;
     text-decoration: none;
   }
-
   tr {
     break-inside: avoid;
   }

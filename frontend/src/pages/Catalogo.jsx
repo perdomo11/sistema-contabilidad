@@ -1,9 +1,10 @@
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
-import { Alert, Badge, Button, ButtonGroup, Col, Container, Form, Modal, Row, Spinner, Table } from 'react-bootstrap'
+import { Alert, Badge, Button, ButtonGroup, Card, Col, Container, Form, Modal, Row, Spinner, Table } from 'react-bootstrap'
 import { api, mensajeError } from '../api'
 import { useAuth } from '../auth/AuthContext'
 import { ROLES, tieneRol } from '../auth/roles'
 import CuentaFormModal, { NOMBRE_TIPO, TIPOS } from '../components/CuentaFormModal'
+import EncabezadoPagina from '../components/EncabezadoPagina'
 
 const normalizar = (texto) =>
   texto
@@ -120,27 +121,39 @@ export default function Catalogo() {
   if (arbol) agregarFilas(arbol)
 
   return (
-    <Container fluid="lg">
-      <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-        <h1 className="h4 mb-0">Catálogo de cuentas</h1>
+    <Container fluid className="px-0">
+      <EncabezadoPagina
+        titulo="Catálogo de cuentas"
+        descripcion="Estructura jerárquica de cuentas. Solo las cuentas de detalle reciben movimientos."
+        migas={[{ texto: 'Configuración' }, { texto: 'Catálogo de cuentas' }]}
+      >
         {puedeEditar && (
-          <Button onClick={() => setFormulario({ show: true, cuenta: null, padre: null })}>Nueva cuenta raíz</Button>
+          <Button onClick={() => setFormulario({ show: true, cuenta: null, padre: null })}>
+            <i className="bi bi-plus-lg me-1" /> Nueva cuenta raíz
+          </Button>
         )}
-      </div>
+      </EncabezadoPagina>
 
-      <Row className="g-2 mb-3 align-items-end">
+      <Card className="mb-3">
+        <Card.Body>
+      <Row className="g-2 align-items-end">
         <Col xs={12} md={5}>
-          <Form.Label htmlFor="busqueda">Buscar</Form.Label>
+          <Form.Label htmlFor="busqueda" className="small text-suave mb-1">
+            Buscar
+          </Form.Label>
           <Form.Control
             id="busqueda"
+            size="sm"
             placeholder="Código o nombre"
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
           />
         </Col>
         <Col xs={12} md={4}>
-          <Form.Label htmlFor="filtro-tipo">Tipo</Form.Label>
-          <Form.Select id="filtro-tipo" value={tipo} onChange={(e) => setTipo(e.target.value)}>
+          <Form.Label htmlFor="filtro-tipo" className="small text-suave mb-1">
+            Tipo
+          </Form.Label>
+          <Form.Select id="filtro-tipo" size="sm" value={tipo} onChange={(e) => setTipo(e.target.value)}>
             <option value="">Todos</option>
             {TIPOS.map(([valor, texto]) => (
               <option key={valor} value={valor}>
@@ -150,16 +163,18 @@ export default function Catalogo() {
           </Form.Select>
         </Col>
         <Col xs={12} md={3}>
-          <ButtonGroup className="w-100">
+          <ButtonGroup className="w-100" size="sm">
             <Button variant="outline-secondary" onClick={() => expandirTodo(true)} disabled={filtrando}>
-              Expandir todo
+              <i className="bi bi-arrows-expand me-1" /> Expandir
             </Button>
             <Button variant="outline-secondary" onClick={() => expandirTodo(false)} disabled={filtrando}>
-              Contraer
+              <i className="bi bi-arrows-collapse me-1" /> Contraer
             </Button>
           </ButtonGroup>
         </Col>
       </Row>
+        </Card.Body>
+      </Card>
 
       {error && (
         <Alert variant="danger" dismissible onClose={() => setError('')}>
@@ -179,6 +194,7 @@ export default function Catalogo() {
           <div className="text-muted small mb-2">
             {total} cuenta(s) en el catálogo{filtrando && ` · ${visibles.size} coinciden con el filtro`}
           </div>
+          <Card className="mb-4">
           <div className="table-responsive">
             <Table hover size="sm" className="align-middle">
               <thead>
@@ -284,6 +300,7 @@ export default function Catalogo() {
               </tbody>
             </Table>
           </div>
+          </Card>
         </>
       )}
 

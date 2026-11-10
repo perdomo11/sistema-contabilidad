@@ -4,6 +4,7 @@ import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { api, mensajeError } from '../api'
 import { useAuth } from '../auth/AuthContext'
 import { ROLES, tieneRol } from '../auth/roles'
+import EncabezadoPagina from '../components/EncabezadoPagina'
 import EstadoAsiento from '../components/EstadoAsiento'
 import { formatoFecha, formatoFechaHora, formatoMonto, hoyISO } from '../formato'
 
@@ -97,41 +98,43 @@ export default function AsientoDetalle() {
   const puedeRevertir = !esBorrador && asiento.tipo !== 'REVERSION' && !asiento.revertido_por
 
   return (
-    <Container fluid="lg">
-      <div className="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
-        <div>
-          <div className="small text-muted">
-            <Link to="/asientos">Asientos</Link> / {asiento.codigo}
-          </div>
-          <h1 className="h4 mb-1">
-            {asiento.numero ? `Asiento ${asiento.codigo}` : 'Asiento en borrador'} <EstadoAsiento asiento={asiento} />
-          </h1>
-          <div className="text-muted">{asiento.concepto}</div>
-        </div>
-        {puedeEditar && (
-          <div className="d-flex flex-wrap gap-2">
-            {esBorrador && (
-              <>
-                <Button as={Link} to={`/asientos/${asiento.id}/editar`} variant="outline-secondary">
-                  Editar
-                </Button>
-                <Button variant="outline-danger" onClick={() => setModal('eliminar')}>
-                  Eliminar
-                </Button>
-                <Button onClick={contabilizar} disabled={trabajando || !asiento.cuadrado} title={asiento.cuadrado ? '' : 'El asiento no está cuadrado'}>
-                  {trabajando && <Spinner animation="border" size="sm" className="me-2" />}
-                  Contabilizar
-                </Button>
-              </>
-            )}
-            {puedeRevertir && (
-              <Button variant="outline-warning" onClick={() => setModal('revertir')}>
-                Revertir
-              </Button>
-            )}
-          </div>
+    <Container fluid className="px-0">
+      <EncabezadoPagina
+        titulo={
+          <span className="d-inline-flex flex-wrap align-items-center gap-2">
+            {asiento.numero ? `Asiento ${asiento.codigo}` : 'Asiento en borrador'}
+            <span className="fs-6">
+              <EstadoAsiento asiento={asiento} />
+            </span>
+          </span>
+        }
+        descripcion={asiento.concepto}
+        migas={[{ texto: 'Asientos', a: '/asientos' }, { texto: asiento.codigo }]}
+      >
+        {puedeEditar && esBorrador && (
+          <>
+            <Button as={Link} to={`/asientos/${asiento.id}/editar`} variant="outline-secondary">
+              <i className="bi bi-pencil me-1" /> Editar
+            </Button>
+            <Button variant="outline-danger" onClick={() => setModal('eliminar')}>
+              <i className="bi bi-trash me-1" /> Eliminar
+            </Button>
+            <Button
+              onClick={contabilizar}
+              disabled={trabajando || !asiento.cuadrado}
+              title={asiento.cuadrado ? '' : 'El asiento no está cuadrado'}
+            >
+              {trabajando ? <Spinner animation="border" size="sm" className="me-2" /> : <i className="bi bi-check2-circle me-1" />}
+              Contabilizar
+            </Button>
+          </>
         )}
-      </div>
+        {puedeEditar && puedeRevertir && (
+          <Button variant="outline-warning" onClick={() => setModal('revertir')}>
+            <i className="bi bi-arrow-counterclockwise me-1" /> Revertir
+          </Button>
+        )}
+      </EncabezadoPagina>
 
       {error && (
         <Alert variant="danger" dismissible onClose={() => setError('')}>

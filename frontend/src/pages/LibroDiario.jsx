@@ -2,6 +2,7 @@ import { Fragment, useCallback, useEffect, useState } from 'react'
 import { Alert, Badge, Card, Container, Form, Pagination, Row, Spinner, Table } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
 import { api, mensajeError } from '../api'
+import EncabezadoPagina from '../components/EncabezadoPagina'
 import { AccionesReporte, CamposRango, rangoPorDefecto } from '../components/FiltroRango'
 import { descargarCSV } from '../exportar'
 import { formatoFecha, formatoMonto } from '../formato'
@@ -58,11 +59,12 @@ export default function LibroDiario() {
   const totalPaginas = datos ? Math.max(1, Math.ceil(datos.count / TAMANO_PAGINA)) : 1
 
   return (
-    <Container fluid="xl">
-      <div className="mb-3">
-        <h1 className="h4 mb-0">Libro diario</h1>
-        <div className="text-muted small no-imprimir">Asientos contabilizados en orden cronológico.</div>
-      </div>
+    <Container fluid className="px-0">
+      <EncabezadoPagina
+        titulo="Libro diario"
+        descripcion="Asientos contabilizados en orden cronológico."
+        migas={[{ texto: 'Libros' }, { texto: 'Libro diario' }]}
+      />
 
       <Card className="mb-3 shadow-sm no-imprimir">
         <Card.Body>

@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { api, mensajeError } from '../api'
 import { useAuth } from '../auth/AuthContext'
 import { ROLES, tieneRol } from '../auth/roles'
+import EncabezadoPagina from '../components/EncabezadoPagina'
 import EstadoAsiento from '../components/EstadoAsiento'
 import { formatoFecha, formatoMonto } from '../formato'
 
@@ -51,18 +52,18 @@ export default function Asientos() {
   const totalPaginas = datos ? Math.max(1, Math.ceil(datos.count / TAMANO_PAGINA)) : 1
 
   return (
-    <Container fluid="lg">
-      <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-        <div>
-          <h1 className="h4 mb-0">Asientos contables</h1>
-          <div className="text-muted small">Libro de asientos de diario: borradores, contabilizados y reversiones.</div>
-        </div>
+    <Container fluid className="px-0">
+      <EncabezadoPagina
+        titulo="Asientos contables"
+        descripcion="Asientos de diario: borradores, contabilizados y reversiones."
+        migas={[{ texto: 'Contabilidad' }, { texto: 'Asientos' }]}
+      >
         {puedeEditar && (
           <Button as={Link} to="/asientos/nuevo">
-            Nuevo asiento
+            <i className="bi bi-plus-lg me-1" /> Nuevo asiento
           </Button>
         )}
-      </div>
+      </EncabezadoPagina>
 
       <Card className="mb-3 shadow-sm">
         <Card.Body>

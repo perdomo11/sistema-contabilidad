@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { Alert, Card, Col, Container, Form, Row, Spinner, Table } from 'react-bootstrap'
 import { Link, useSearchParams } from 'react-router-dom'
 import { api, mensajeError } from '../api'
+import EncabezadoPagina from '../components/EncabezadoPagina'
 import { AccionesReporte, CamposRango, rangoPorDefecto } from '../components/FiltroRango'
 import SelectorCuenta from '../components/SelectorCuenta'
 import { descargarCSV } from '../exportar'
@@ -86,13 +87,12 @@ export default function LibroMayor() {
   const esAgrupacion = datos && !datos.cuenta.acepta_movimientos
 
   return (
-    <Container fluid="xl">
-      <div className="mb-3">
-        <h1 className="h4 mb-0">Libro mayor</h1>
-        <div className="text-muted small no-imprimir">
-          Movimientos y saldo corriente de una cuenta. En cuentas de agrupación se incluyen todas sus subcuentas.
-        </div>
-      </div>
+    <Container fluid className="px-0">
+      <EncabezadoPagina
+        titulo="Libro mayor"
+        descripcion="Movimientos y saldo corriente de una cuenta. En cuentas de agrupación se incluyen todas sus subcuentas."
+        migas={[{ texto: 'Libros' }, { texto: 'Libro mayor' }]}
+      />
 
       <Card className="mb-3 shadow-sm no-imprimir">
         <Card.Body>

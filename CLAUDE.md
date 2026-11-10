@@ -76,7 +76,8 @@ docker compose exec backend python manage.py test
 - [x] T1.2 Periodos contables (ver `docs/tareas/T1.2.md`)
 - [x] T1.3 Asientos con partida doble, inmutabilidad y reversión (ver `docs/tareas/T1.3.md`)
 - [x] T1.4 Libro diario, mayor y balanza de comprobación (ver `docs/tareas/T1.4.md`)
-- Siguiente: T1.5 Rediseño visual (pedido por el usuario; ver `docs/PLAN_TAREAS.md`)
+- [x] T1.5 Rediseño visual (ver `docs/tareas/T1.5.md`)
+- Siguiente: T2.1 Jerarquía de centros de costo
 
 Notas de implementación:
 - Roles = grupos de Django (`usuarios/roles.py`). Proteger vistas con `permission_classes = [TieneRol(roles.X)]` (`usuarios/permissions.py`).
@@ -86,6 +87,7 @@ Notas de implementación:
 - Periodos: T1.3 debe llamar a `contabilidad.services.validar_fecha_registrable(fecha)` al contabilizar y agregar a `cerrar_periodo` la verificación de asientos en borrador. Reabrir es solo para superusuario (`usuarios.permissions.EsSuperusuario`).
 - Asientos: solo los `CONTABILIZADO` cuentan para libros y reportes. Triggers Oracle `TRG_ASIENTO_REGLAS` y `TRG_LINEA_ASIENTO_INMUTABLE` (migración `contabilidad/0004`). T2.1 debe agregar `centro_costo` a `LineaAsiento` (obligatorio salvo `cuenta.exenta_centro_costo`) y validarlo en `_normalizar_lineas` y `_contabilizar`.
 - Libros (diario, mayor, balanza): servicios de solo lectura en `contabilidad/libros.py` (separados de `services.py`). Saldos acumulados desde el inicio; las cuentas de resultado se ponen en cero con un asiento de cierre, no en el reporte. Agrupaciones = descendientes reales del árbol (no prefijo de código).
+- Frontend (T1.5): las pantallas viven dentro de `layout/Layout.jsx` (menú lateral en `MENU`, agregar ahí los módulos nuevos). Cada página usa `EncabezadoPagina` (título, descripción, migas, acciones), filtros en `Card`, tablas dentro de `Card`, montos con clase `monto`, insignias en tonos `*-subtle`, íconos `bootstrap-icons` y `EstadoVacio` para listas vacías. Estilos del tema en `src/estilos.css`.
 - Usuarios de prueba: `docker compose exec backend python manage.py crear_usuarios_demo` (contraseña `Demo_2026!`).
 - Desde Git Bash en Windows, anteponer `MSYS_NO_PATHCONV=1` a `docker compose exec` con rutas absolutas del contenedor.
 
