@@ -130,3 +130,130 @@ class ReglaAsignacion(models.Model):
 
     def __str__(self):
         return f"{self.criterio} → {self.centro_costo.codigo}"
+
+
+# =============================================================================
+# Prorrateo (T2.3). Reglas y cálculo en `centros_costo/prorrateo.py`.
+# =============================================================================
+
+MEDIDA = {"max_digits": 18, "decimal_places": 4}
+
+
+class BaseProrrateo(models.Model):
+    """Base de distribución configurable (m², personal ocupado, transacciones…)."""
+
+    codigo = models.CharField(
+        max_length=20,
+        unique=True,
+        validators=[RegexValidator(r"^[A-Z0-9_]+$", "El código admite mayúsculas, dígitos y guion bajo.")],
+    )
+    nombre = models.CharField(max_length=100)
+    unidad = models.CharField(max_length=30)
+    activa = models.BooleanField(default=True)
+
+    creado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="+")
+    creado_en = models.DateTimeField(auto_now_add=True)
+    modificado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="+")
+    modificado_en = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "base de prorrateo"
+        verbose_name_plural = "bases de prorrateo"
+        ordering = ["codigo"]
+
+    def __str__(self):
+        return f"{self.nombre} ({self.unidad})"
+
+
+class MedidaBase(models.Model):
+    """Valor de una base para un centro en un periodo contable."""
+
+    base = models.ForeignKey(BaseProrrateo, on_delete=models.PROTECT, related_name="medidas")
+    centro_costo = models.ForeignKey(CentroCosto, on_delete=models.PROTECT, related_name="medidas_base")
+    periodo = models.ForeignKey("contabilidad.PeriodoContable", on_delete=models.PROTECT, related_name="medidas_base")
+    valor = models.DecimalField(**MEDIDA)
+
+    modificado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="+")
+    modificado_en = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "medida de base"
+        verbose_name_plural = "medidas de base"
+        constraints = [
+            models.UniqueConstraint(fields=["base", "centro_costo", "periodo"], name="medida_base_unica"),
+            models.CheckConstraint(condition=Q(valor__gte=0), name="medida_valor_no_negativo"),
+        ]
+
+    def __str__(self):
+        return f"{self.base.codigo} {self.centro_costo.codigo} {self.periodo_id}: {self.valor}"
+
+
+class ReglaProrrateo(models.Model):
+    """Distribuye los costos de un centro de servicio (origen) hacia sus centros receptores."""
+
+    nombre = models.CharField(max_length=150)
+    orden = models.PositiveSmallIntegerField(
+        default=1, help_text="Método escalonado: se ejecutan de menor a mayor orden."
+    )
+    centro_origen = models.ForeignKey(CentroCosto, on_delete=models.PROTECT, related_name="prorrateos_origen")
+    cuentas = models.ManyToManyField(
+        "contabilidad.Cuenta", related_name="reglas_prorrateo", help_text="Una cuenta de agrupación incluye sus subcuentas."
+    )
+    base = models.ForeignKey(BaseProrrateo, on_delete=models.PROTECT, related_name="reglas")
+    destinos = models.ManyToManyField(CentroCosto, related_name="prorrateos_destino")
+    activa = models.BooleanField(default=True)
+
+    creado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="+")
+    creado_en = models.DateTimeField(auto_now_add=True)
+    modificado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="+")
+    modificado_en = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "regla de prorrateo"
+        verbose_name_plural = "reglas de prorrateo"
+        ordering = ["orden", "id"]
+
+    def __str__(self):
+        return self.nombre
+
+
+class EstadoEjecucion(models.TextChoices):
+    EJECUTADA = "EJECUTADA", "Ejecutada"
+    ANULADA = "ANULADA", "Anulada"
+
+
+class EjecucionProrrateo(models.Model):
+    """Resultado de aplicar una regla en un periodo: el asiento generado y los datos usados."""
+
+    Estado = EstadoEjecucion
+
+    regla = models.ForeignKey(ReglaProrrateo, on_delete=models.PROTECT, related_name="ejecuciones")
+    periodo = models.ForeignKey("contabilidad.PeriodoContable", on_delete=models.PROTECT, related_name="prorrateos")
+    asiento = models.OneToOneField(
+        "contabilidad.Asiento", on_delete=models.PROTECT, related_name="ejecucion_prorrateo"
+    )
+    estado = models.CharField(max_length=10, choices=EstadoEjecucion.choices, default=EstadoEjecucion.EJECUTADA)
+    total_distribuido = models.DecimalField(max_digits=18, decimal_places=2)
+    detalle = models.JSONField(help_text="Base, medidas y porcentajes usados en el cálculo.")
+    ejecutado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="+")
+    ejecutado_en = models.DateTimeField(auto_now_add=True)
+    anulado_por = models.ForeignKey(
+        settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.PROTECT, related_name="+"
+    )
+    anulado_en = models.DateTimeField(null=True, blank=True)
+    motivo_anulacion = models.CharField(max_length=250, blank=True)
+
+    class Meta:
+        verbose_name = "ejecución de prorrateo"
+        verbose_name_plural = "ejecuciones de prorrateo"
+        ordering = ["-ejecutado_en", "-id"]
+        constraints = [
+            models.CheckConstraint(condition=Q(estado__in=EstadoEjecucion.values), name="ejecucion_estado_valido"),
+            models.CheckConstraint(
+                condition=Q(estado=EstadoEjecucion.EJECUTADA) | Q(anulado_por__isnull=False, anulado_en__isnull=False),
+                name="ejecucion_anulada_con_responsable",
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.regla} {self.periodo_id} {self.estado}"

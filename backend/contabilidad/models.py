@@ -146,6 +146,7 @@ class PeriodoContable(models.Model):
 class TipoAsiento(models.TextChoices):
     DIARIO = "DIARIO", "Diario"
     REVERSION = "REVERSION", "Reversión"
+    PRORRATEO = "PRORRATEO", "Prorrateo"
 
 
 class EstadoAsiento(models.TextChoices):

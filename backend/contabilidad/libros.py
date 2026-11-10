@@ -61,7 +61,9 @@ def libro_diario(*, desde, hasta):
         .prefetch_related(
             Prefetch(
                 "lineas",
-                queryset=LineaAsiento.objects.select_related("cuenta", "centro_costo").order_by("numero_linea"),
+                queryset=LineaAsiento.objects.select_related("cuenta", "centro_costo", "linea_origen__asiento").order_by(
+                    "numero_linea"
+                ),
             )
         )
         .order_by("fecha", "ejercicio", "numero")

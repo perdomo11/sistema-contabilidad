@@ -22,6 +22,12 @@ export default function EstadoAsiento({ asiento }) {
           Reversión
         </Badge>
       )}
+      {asiento.tipo === 'PRORRATEO' && (
+        <Badge bg="primary-subtle" text="primary-emphasis">
+          <i className="bi bi-shuffle me-1" />
+          Prorrateo
+        </Badge>
+      )}
       {asiento.revertido_por && (
         <Badge bg="secondary-subtle" text="secondary-emphasis">
           Revertido

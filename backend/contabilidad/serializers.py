@@ -124,13 +124,15 @@ class LineaAsientoSerializer(serializers.ModelSerializer):
     centro_codigo = serializers.CharField(source="centro_costo.codigo", read_only=True, default=None)
     centro_nombre = serializers.CharField(source="centro_costo.nombre", read_only=True, default=None)
     asignacion = serializers.CharField(read_only=True)
+    origen_asiento = serializers.IntegerField(source="linea_origen.asiento_id", read_only=True, default=None)
+    origen_asiento_codigo = serializers.CharField(source="linea_origen.asiento.codigo", read_only=True, default=None)
 
     class Meta:
         model = LineaAsiento
         fields = [
             "id", "numero_linea", "cuenta", "cuenta_codigo", "cuenta_nombre", "cuenta_exenta_centro_costo",
             "centro_costo", "centro_codigo", "centro_nombre", "regla_asignacion", "asignacion", "descripcion", "debe",
-            "haber", "linea_origen",
+            "haber", "linea_origen", "origen_asiento", "origen_asiento_codigo",
         ]
         read_only_fields = fields
 

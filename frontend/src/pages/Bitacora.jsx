@@ -15,6 +15,8 @@ const COLOR_ACCION = {
   REABRIR: 'warning',
   CONTABILIZAR: 'success',
   REVERTIR: 'warning',
+  PRORRATEAR: 'primary',
+  ANULAR: 'danger',
 }
 
 const ACCIONES = [
@@ -29,6 +31,8 @@ const ACCIONES = [
   ['REABRIR', 'Reapertura'],
   ['CONTABILIZAR', 'Contabilización'],
   ['REVERTIR', 'Reversión'],
+  ['PRORRATEAR', 'Prorrateo'],
+  ['ANULAR', 'Anulación'],
 ]
 
 const FILTROS_VACIOS = { usuario: '', accion: '', desde: '', hasta: '' }

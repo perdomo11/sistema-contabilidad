@@ -87,6 +87,7 @@ export default function Asientos() {
                   <option value="">Todos</option>
                   <option value="DIARIO">Diario</option>
                   <option value="REVERSION">Reversión</option>
+                  <option value="PRORRATEO">Prorrateo</option>
                 </Form.Select>
               </Col>
               <Col xs={6} lg={1}>

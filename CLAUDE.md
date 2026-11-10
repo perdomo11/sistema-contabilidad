@@ -79,7 +79,8 @@ docker compose exec backend python manage.py test
 - [x] T1.5 Rediseño visual (ver `docs/tareas/T1.5.md`)
 - [x] T2.1 Jerarquía de centros de costo y centro en líneas de asiento (ver `docs/tareas/T2.1.md`)
 - [x] T2.2 Asignación directa y por regla: cuenta→centro, proveedor→centro (ver `docs/tareas/T2.2.md`)
-- Siguiente: T2.3 Motor de prorrateo con bases configurables (m², personal, transacciones)
+- [x] T2.3 Motor de prorrateo con bases configurables y trazabilidad (ver `docs/tareas/T2.3.md`)
+- Siguiente: T3.1 Estado de resultados por centro (costeo absorbente)
 
 Notas de implementación:
 - Roles = grupos de Django (`usuarios/roles.py`). Proteger vistas con `permission_classes = [TieneRol(roles.X)]` (`usuarios/permissions.py`).
@@ -91,6 +92,7 @@ Notas de implementación:
 - Centros de costo: app `centros_costo`; ejemplo con `cargar_centros_base --usuario contador`. Reestructurar = cerrar vigencia y crear unidad nueva (código y padre inmutables).
 - Asignación (T2.2): `centros_costo.ReglaAsignacion` (cuenta y/o proveedor → centro, con vigencia) y `services.resolver_regla` (proveedor+cuenta > proveedor > cuenta, ancestro más cercano). `_normalizar_lineas` la aplica al guardar el borrador si la línea no trae centro; `LineaAsiento.regla_asignacion` la traza (vacía = directa). Ejemplo: `cargar_asignacion_base --usuario contador`.
 - Tesorería: app `tesoreria` con catálogo básico `Proveedor` (T2.2; Contador o Tesorero). `Asiento.proveedor` opcional. T5.1 agrega cuentas por pagar y vencimientos sobre ese modelo.
+- Prorrateo (T2.3): `centros_costo/prorrateo.py` (bases, medidas por centro y periodo, reglas, ejecución). Método escalonado por `orden`; cada ejecución genera un asiento tipo `PRORRATEO` contabilizado con `linea_origen` en cada línea y guarda el detalle usado (JSON). Se anula con reversión desde Prorrateo (`revertir_asiento(..., permitir_prorrateo=True)`); desde Asientos está bloqueado. Ejemplo: `cargar_prorrateo_base --usuario contador --anio 2026`.
 - Libros (diario, mayor, balanza): servicios de solo lectura en `contabilidad/libros.py` (separados de `services.py`). Saldos acumulados desde el inicio; las cuentas de resultado se ponen en cero con un asiento de cierre, no en el reporte. Agrupaciones = descendientes reales del árbol (no prefijo de código).
 - Frontend (T1.5): las pantallas viven dentro de `layout/Layout.jsx` (menú lateral en `MENU`, agregar ahí los módulos nuevos). Cada página usa `EncabezadoPagina` (título, descripción, migas, acciones), filtros en `Card`, tablas dentro de `Card`, montos con clase `monto`, insignias en tonos `*-subtle`, íconos `bootstrap-icons` y `EstadoVacio` para listas vacías. Estilos del tema en `src/estilos.css`.
 - Usuarios de prueba: `docker compose exec backend python manage.py crear_usuarios_demo` (contraseña `Demo_2026!`).

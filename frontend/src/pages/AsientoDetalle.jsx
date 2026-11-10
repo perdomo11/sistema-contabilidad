@@ -95,7 +95,7 @@ export default function AsientoDetalle() {
   }
 
   const esBorrador = asiento.estado === 'BORRADOR'
-  const puedeRevertir = !esBorrador && asiento.tipo !== 'REVERSION' && !asiento.revertido_por
+  const puedeRevertir = !esBorrador && !['REVERSION', 'PRORRATEO'].includes(asiento.tipo) && !asiento.revertido_por
 
   return (
     <Container fluid className="px-0">
@@ -240,6 +240,15 @@ export default function AsientoDetalle() {
                             Regla
                           </Badge>
                         )}
+                      </div>
+                    )}
+                    {l.origen_asiento && l.origen_asiento !== asiento.reversion_de?.id && (
+                      <div className="small text-suave">
+                        <i className="bi bi-link-45deg me-1" />
+                        Origen:{' '}
+                        <Link to={`/asientos/${l.origen_asiento}`}>
+                          <code>{l.origen_asiento_codigo}</code>
+                        </Link>
                       </div>
                     )}
                   </td>

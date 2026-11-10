@@ -32,6 +32,8 @@ class Bitacora(models.Model):
         REABRIR = "REABRIR", "Reapertura"
         CONTABILIZAR = "CONTABILIZAR", "Contabilización"
         REVERTIR = "REVERTIR", "Reversión"
+        PRORRATEAR = "PRORRATEAR", "Prorrateo"
+        ANULAR = "ANULAR", "Anulación"
 
     usuario = models.ForeignKey(
         settings.AUTH_USER_MODEL,

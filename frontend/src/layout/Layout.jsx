@@ -25,6 +25,7 @@ const MENU = [
     items: [
       { a: '/centros-costo', icono: 'bi-diagram-2', texto: 'Estructura de centros', exacto: true },
       { a: '/centros-costo/reglas', icono: 'bi-signpost-split', texto: 'Reglas de asignación' },
+      { a: '/centros-costo/prorrateo', icono: 'bi-shuffle', texto: 'Prorrateo' },
     ],
   },
   {

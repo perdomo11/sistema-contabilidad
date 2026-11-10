@@ -128,6 +128,11 @@ export default function LibroDiario() {
                               Reversión
                             </Badge>
                           )}
+                          {a.tipo === 'PRORRATEO' && (
+                            <Badge bg="primary-subtle" text="primary-emphasis" className="ms-2">
+                              Prorrateo
+                            </Badge>
+                          )}
                         </td>
                       </tr>
                       {a.lineas.map((l) => (

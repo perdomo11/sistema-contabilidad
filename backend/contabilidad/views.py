@@ -132,7 +132,7 @@ class AsientoViewSet(viewsets.GenericViewSet):
         return [IsAuthenticated(), TieneRol(roles.CONTADOR)()]
 
     def _detalle(self, asiento, codigo=status.HTTP_200_OK):
-        asiento = self.get_queryset().prefetch_related("lineas__cuenta", "lineas__centro_costo").get(pk=asiento.pk)
+        asiento = self.get_queryset().prefetch_related("lineas__cuenta", "lineas__centro_costo", "lineas__linea_origen__asiento").get(pk=asiento.pk)
         return Response(AsientoDetalleSerializer(asiento).data, status=codigo)
 
     def list(self, request):

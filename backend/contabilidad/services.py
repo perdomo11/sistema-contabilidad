@@ -713,7 +713,7 @@ def contabilizar_asiento(asiento, *, usuario, request=None):
 
 
 @transaction.atomic
-def revertir_asiento(asiento, *, usuario, motivo, fecha=None, request=None):
+def revertir_asiento(asiento, *, usuario, motivo, fecha=None, request=None, permitir_prorrateo=False):
     """Registra y contabiliza el asiento de reversión del asiento indicado. Devuelve la reversión."""
     motivo = (motivo or "").strip()
     if not motivo:
@@ -725,6 +725,8 @@ def revertir_asiento(asiento, *, usuario, motivo, fecha=None, request=None):
         raise ValidationError("Solo se revierten asientos contabilizados; un borrador se edita o se elimina.")
     if original.tipo == TipoAsiento.REVERSION:
         raise ValidationError("Un asiento de reversión no se revierte. Si es necesario, registre un asiento nuevo.")
+    if original.tipo == TipoAsiento.PRORRATEO and not permitir_prorrateo:
+        raise ValidationError("Es un asiento de prorrateo: anúlelo desde Centros de costo → Prorrateo.")
     existente = Asiento.objects.filter(reversion_de=original).first()
     if existente:
         raise ValidationError(f"El asiento {original.codigo} ya fue revertido por {existente.codigo}.")

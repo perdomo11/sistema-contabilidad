@@ -15,6 +15,7 @@ import LibroMayor from './pages/LibroMayor'
 import Login from './pages/Login'
 import Periodos from './pages/Periodos'
 import Proveedores from './pages/Proveedores'
+import Prorrateo from './pages/Prorrateo'
 import ReglasAsignacion from './pages/ReglasAsignacion'
 
 const soloContador = (pagina) => <RutaProtegida roles={[ROLES.CONTADOR]}>{pagina}</RutaProtegida>
@@ -40,6 +41,7 @@ export default function App() {
         <Route path="libros/balanza" element={<Balanza />} />
         <Route path="centros-costo" element={<CentrosCosto />} />
         <Route path="centros-costo/reglas" element={<ReglasAsignacion />} />
+        <Route path="centros-costo/prorrateo" element={<Prorrateo />} />
         <Route path="proveedores" element={<Proveedores />} />
         <Route path="catalogo" element={<Catalogo />} />
         <Route path="periodos" element={<Periodos />} />
