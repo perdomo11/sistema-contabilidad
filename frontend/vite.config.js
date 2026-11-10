@@ -9,8 +9,9 @@ export default defineConfig({
     watch: { usePolling: true },
     proxy: {
       // changeOrigin: false conserva el Host original (localhost), que ya
-      // está en ALLOWED_HOSTS de Django.
-      '/api': { target: 'http://backend:8000', changeOrigin: false },
+      // está en ALLOWED_HOSTS de Django. xfwd agrega X-Forwarded-For para que
+      // la bitácora registre la IP real del cliente.
+      '/api': { target: 'http://backend:8000', changeOrigin: false, xfwd: true },
     },
   },
 })

@@ -20,6 +20,18 @@ La primera vez Oracle XE tarda de 2 a 4 minutos en quedar *healthy*; el backend 
 | Backend  | http://localhost:8000/api/health/ |
 | Oracle   | localhost:1521, servicio `XEPDB1` |
 
+## Usuarios y roles
+```bash
+docker compose exec backend python manage.py createsuperuser       # administrador (/admin/)
+docker compose exec backend python manage.py crear_usuarios_demo   # contador, tesorero, jefe, auditor
+```
+Roles: Contador, Tesorero, Jefe de área, Auditor. Se asignan en http://localhost:8000/admin/.
+
+## Pruebas
+```bash
+docker compose exec backend python manage.py test
+```
+
 ## Estructura
 - `backend/`: Django 5.2 + Django REST Framework (proyecto `config`)
 - `frontend/`: React 18 + Vite + React-Bootstrap

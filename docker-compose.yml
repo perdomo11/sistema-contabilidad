@@ -10,6 +10,7 @@ services:
       APP_USER_PASSWORD: ${DB_PASSWORD}
     volumes:
       - oracle-data:/opt/oracle/oradata
+      - ./docker/oracle-init:/container-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD", "healthcheck.sh"]
       interval: 10s

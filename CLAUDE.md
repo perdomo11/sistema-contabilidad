@@ -71,6 +71,13 @@ docker compose exec backend python manage.py test
 
 ## Estado actual
 - [x] T0.1 Entorno (ver `docs/tareas/T0.1.md`)
-- Siguiente: T0.2 Autenticación, roles y bitácora
+- [x] T0.2 Autenticación JWT, roles y bitácora (ver `docs/tareas/T0.2.md`)
+- Siguiente: T1.1 Catálogo de cuentas jerárquico
+
+Notas de implementación:
+- Roles = grupos de Django (`usuarios/roles.py`). Proteger vistas con `permission_classes = [TieneRol(roles.X)]` (`usuarios/permissions.py`).
+- Registrar acciones sensibles con `usuarios.services.registrar_evento(...)`. La bitácora es inmutable (modelo + trigger Oracle).
+- Usuarios de prueba: `docker compose exec backend python manage.py crear_usuarios_demo` (contraseña `Demo_2026!`).
+- Desde Git Bash en Windows, anteponer `MSYS_NO_PATHCONV=1` a `docker compose exec` con rutas absolutas del contenedor.
 
 (Actualiza esta lista al cerrar cada tarea.)
