@@ -26,6 +26,9 @@ export default function BarraNavegacion() {
                 <Nav.Link as={NavLink} to="/" end>
                   Inicio
                 </Nav.Link>
+                <Nav.Link as={NavLink} to="/catalogo">
+                  Catálogo de cuentas
+                </Nav.Link>
                 {tieneRol(usuario, ROLES.AUDITOR) && (
                   <Nav.Link as={NavLink} to="/bitacora">
                     Bitácora

@@ -3,6 +3,7 @@ import RutaProtegida from './auth/RutaProtegida'
 import { ROLES } from './auth/roles'
 import BarraNavegacion from './components/BarraNavegacion'
 import Bitacora from './pages/Bitacora'
+import Catalogo from './pages/Catalogo'
 import Inicio from './pages/Inicio'
 import Login from './pages/Login'
 
@@ -17,6 +18,14 @@ export default function App() {
           element={
             <RutaProtegida>
               <Inicio />
+            </RutaProtegida>
+          }
+        />
+        <Route
+          path="/catalogo"
+          element={
+            <RutaProtegida>
+              <Catalogo />
             </RutaProtegida>
           }
         />
