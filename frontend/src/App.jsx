@@ -8,6 +8,7 @@ import Asientos from './pages/Asientos'
 import Balanza from './pages/Balanza'
 import Bitacora from './pages/Bitacora'
 import Catalogo from './pages/Catalogo'
+import CentrosCosto from './pages/CentrosCosto'
 import Inicio from './pages/Inicio'
 import LibroDiario from './pages/LibroDiario'
 import LibroMayor from './pages/LibroMayor'
@@ -35,6 +36,7 @@ export default function App() {
         <Route path="libros/diario" element={<LibroDiario />} />
         <Route path="libros/mayor" element={<LibroMayor />} />
         <Route path="libros/balanza" element={<Balanza />} />
+        <Route path="centros-costo" element={<CentrosCosto />} />
         <Route path="catalogo" element={<Catalogo />} />
         <Route path="periodos" element={<Periodos />} />
         <Route path="bitacora" element={<RutaProtegida roles={[ROLES.AUDITOR]}>{<Bitacora />}</RutaProtegida>} />

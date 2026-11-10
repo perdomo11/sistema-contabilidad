@@ -8,6 +8,7 @@ from django.db import transaction
 from django.db.models import Count, Exists, Max, OuterRef, Q
 from django.utils import timezone
 
+from centros_costo.models import CentroCosto
 from usuarios.models import Bitacora
 from usuarios.services import registrar_evento
 
@@ -458,22 +459,37 @@ def _validar_cuenta_imputable(cuenta, n, errores, permitir_inactivas=False):
         errores.append(f"Línea {n}: la cuenta {cuenta.codigo} está inactiva.")
 
 
-def _normalizar_lineas(lineas):
-    """Valida las líneas de un borrador ({cuenta, descripcion, debe, haber}).
+def _validar_centro(cuenta, centro, fecha, n, errores):
+    """Regla 3: centro obligatorio salvo cuenta exenta; si se indica, de detalle y vigente en la fecha."""
+    if centro is None:
+        if cuenta is not None and not cuenta.exenta_centro_costo:
+            errores.append(f"Línea {n}: la cuenta {cuenta.codigo} exige centro de costo.")
+        return
+    if not centro.acepta_movimientos:
+        errores.append(f"Línea {n}: el centro {centro.codigo} es de agrupación y no recibe movimientos.")
+    elif not centro.vigente_en(fecha):
+        errores.append(f"Línea {n}: el centro {centro.codigo} no está vigente el {fecha:%d/%m/%Y}.")
+
+
+def _normalizar_lineas(lineas, fecha):
+    """Valida las líneas de un borrador ({cuenta, centro_costo, descripcion, debe, haber}).
 
     Un borrador puede estar descuadrado; la partida doble se exige al contabilizar.
     """
     if not lineas:
         raise ValidationError({"lineas": "El asiento debe tener al menos una línea."})
     errores, normalizadas = [], []
-    # Se releen las cuentas para validar su estado actual (no el de un objeto en memoria).
-    ids = [l["cuenta"].pk for l in lineas if l.get("cuenta") is not None]
-    cuentas = Cuenta.objects.in_bulk(ids)
+    # Se releen cuentas y centros para validar su estado actual (no el de un objeto en memoria).
+    cuentas = Cuenta.objects.in_bulk([l["cuenta"].pk for l in lineas if l.get("cuenta") is not None])
+    centros = CentroCosto.objects.in_bulk([l["centro_costo"].pk for l in lineas if l.get("centro_costo") is not None])
     for n, linea in enumerate(lineas, start=1):
         cuenta = linea.get("cuenta")
         cuenta = cuentas.get(cuenta.pk) if cuenta is not None else None
-        linea = {**linea, "cuenta": cuenta}
+        centro = linea.get("centro_costo")
+        centro = centros.get(centro.pk) if centro is not None else None
+        linea = {**linea, "cuenta": cuenta, "centro_costo": centro}
         _validar_cuenta_imputable(cuenta, n, errores)
+        _validar_centro(cuenta, centro, fecha, n, errores)
         debe, error_debe = _monto(linea.get("debe"))
         haber, error_haber = _monto(linea.get("haber"))
         if error_debe:
@@ -485,6 +501,7 @@ def _normalizar_lineas(lineas):
         normalizadas.append(
             {
                 "cuenta": linea.get("cuenta"),
+                "centro_costo": linea.get("centro_costo"),
                 "descripcion": (linea.get("descripcion") or "").strip()[:200],
                 "debe": debe,
                 "haber": haber,
@@ -515,8 +532,14 @@ def instantanea_asiento(asiento):
         "total_debe": str(asiento.total_debe),
         "total_haber": str(asiento.total_haber),
         "lineas": [
-            {"cuenta": l.cuenta.codigo, "descripcion": l.descripcion, "debe": str(l.debe), "haber": str(l.haber)}
-            for l in asiento.lineas.select_related("cuenta").order_by("numero_linea")
+            {
+                "cuenta": l.cuenta.codigo,
+                "centro_costo": l.centro_costo.codigo if l.centro_costo_id else None,
+                "descripcion": l.descripcion,
+                "debe": str(l.debe),
+                "haber": str(l.haber),
+            }
+            for l in asiento.lineas.select_related("cuenta", "centro_costo").order_by("numero_linea")
         ],
     }
 
@@ -533,7 +556,7 @@ def crear_asiento(*, usuario, fecha, concepto, lineas, referencia="", request=No
     """Crea un asiento en borrador."""
     concepto, referencia = _validar_encabezado(concepto, referencia)
     periodo = validar_fecha_registrable(fecha)
-    normalizadas, total_debe, total_haber = _normalizar_lineas(lineas)
+    normalizadas, total_debe, total_haber = _normalizar_lineas(lineas, fecha)
     asiento = Asiento(
         fecha=fecha,
         periodo=periodo,
@@ -577,7 +600,7 @@ def actualizar_asiento(asiento, *, usuario, fecha, concepto, lineas, referencia=
     antes = instantanea_asiento(asiento)
     concepto, referencia = _validar_encabezado(concepto, referencia)
     asiento.periodo = validar_fecha_registrable(fecha)
-    normalizadas, asiento.total_debe, asiento.total_haber = _normalizar_lineas(lineas)
+    normalizadas, asiento.total_debe, asiento.total_haber = _normalizar_lineas(lineas, fecha)
     asiento.fecha = fecha
     asiento.concepto = concepto
     asiento.referencia = referencia
@@ -615,19 +638,24 @@ def eliminar_asiento(asiento, *, usuario, request=None):
     )
 
 
-def _contabilizar(asiento, usuario, *, permitir_cuentas_inactivas=False):
-    """Valida partida doble, periodo y cuentas; asigna número. Debe ejecutarse en una transacción."""
+def _contabilizar(asiento, usuario, *, es_reversion=False):
+    """Valida partida doble, periodo, cuentas y centros; asigna número. Debe ejecutarse en una transacción.
+
+    Las reversiones reflejan un hecho ya válido: no revalidan cuentas inactivas ni vigencia de centros.
+    """
     # Bloquea los periodos del ejercicio: serializa la numeración y evita cierres simultáneos.
     list(PeriodoContable.objects.select_for_update().filter(anio=asiento.fecha.year).values_list("id", flat=True))
     asiento = _bloquear_borrador(asiento)
     asiento.periodo = validar_fecha_registrable(asiento.fecha)
 
-    lineas = list(asiento.lineas.select_related("cuenta").order_by("numero_linea"))
+    lineas = list(asiento.lineas.select_related("cuenta", "centro_costo").order_by("numero_linea"))
     errores = []
     if len(lineas) < 2:
         errores.append("El asiento debe tener al menos dos líneas.")
     for linea in lineas:
-        _validar_cuenta_imputable(linea.cuenta, linea.numero_linea, errores, permitir_cuentas_inactivas)
+        _validar_cuenta_imputable(linea.cuenta, linea.numero_linea, errores, permitir_inactivas=es_reversion)
+        if not es_reversion:
+            _validar_centro(linea.cuenta, linea.centro_costo, asiento.fecha, linea.numero_linea, errores)
     total_debe = sum((l.debe for l in lineas), CERO)
     total_haber = sum((l.haber for l in lineas), CERO)
     if total_debe != total_haber:
@@ -708,6 +736,7 @@ def revertir_asiento(asiento, *, usuario, motivo, fecha=None, request=None):
             asiento=reversion,
             numero_linea=linea.numero_linea,
             cuenta_id=linea.cuenta_id,
+            centro_costo_id=linea.centro_costo_id,
             descripcion=linea.descripcion,
             debe=linea.haber,
             haber=linea.debe,
@@ -715,8 +744,8 @@ def revertir_asiento(asiento, *, usuario, motivo, fecha=None, request=None):
         )
         for linea in original.lineas.order_by("numero_linea")
     )
-    # La reversión se permite aunque alguna cuenta se haya desactivado después.
-    reversion = _contabilizar(reversion, usuario, permitir_cuentas_inactivas=True)
+    # La reversión se permite aunque alguna cuenta se haya desactivado o un centro haya cerrado su vigencia.
+    reversion = _contabilizar(reversion, usuario, es_reversion=True)
     registrar_evento(
         Bitacora.Accion.REVERTIR,
         usuario=usuario,

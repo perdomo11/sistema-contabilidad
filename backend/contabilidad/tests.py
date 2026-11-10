@@ -23,6 +23,23 @@ def crear_usuario(username, *nombres_roles):
     return usuario
 
 
+def crear_centro_prueba(usuario, codigo="01", **kwargs):
+    """Centro de costo de detalle vigente desde 2020 (para las pruebas de asientos y libros)."""
+    from datetime import date as _date
+
+    from centros_costo.models import CentroCosto
+    from centros_costo.services import crear_centro
+
+    datos = {
+        "nombre": "Contabilidad",
+        "tipo": CentroCosto.Tipo.COSTO,
+        "clase": CentroCosto.Clase.DEPARTAMENTO,
+        "vigente_desde": _date(2020, 1, 1),
+        **kwargs,
+    }
+    return crear_centro(usuario=usuario, codigo=codigo, **datos)
+
+
 class BaseCuentas(TestCase):
     def setUp(self):
         self.contador = crear_usuario("contador", roles.CONTADOR)
@@ -446,10 +463,13 @@ class BaseAsientos(TestCase):
         )
         self.salarios = services.crear_cuenta(usuario=c, codigo="5201", nombre="Salarios", padre=self.agrupacion)
         services.crear_ejercicio(usuario=c, anio=2026)
+        self.centro = crear_centro_prueba(c)
 
     def lineas(self, *pares):
         """pares: (cuenta, debe, haber)"""
-        return [{"cuenta": cuenta, "debe": debe, "haber": haber} for cuenta, debe, haber in pares]
+        return [
+            {"cuenta": cuenta, "centro_costo": self.centro, "debe": debe, "haber": haber} for cuenta, debe, haber in pares
+        ]
 
     def borrador(self, fecha=date(2026, 3, 15), lineas=None, concepto="Pago de planilla"):
         lineas = lineas or self.lineas((self.salarios, "1500.00", 0), (self.caja, 0, "1500.00"))
@@ -690,8 +710,8 @@ class AsientosApiTests(BaseAsientos):
             "concepto": "Pago de energía",
             "referencia": "FAC-123",
             "lineas": [
-                {"cuenta": self.salarios.pk, "debe": debe, "haber": "0", "descripcion": "Abril"},
-                {"cuenta": self.caja.pk, "debe": "", "haber": haber},
+                {"cuenta": self.salarios.pk, "centro_costo": self.centro.pk, "debe": debe, "haber": "0", "descripcion": "Abril"},
+                {"cuenta": self.caja.pk, "centro_costo": self.centro.pk, "debe": "", "haber": haber},
             ],
         }
 
@@ -776,6 +796,7 @@ class BaseLibros(TestCase):
         self.salarios = crear(codigo="5201", nombre="Salarios", padre=gastos)
         crear(codigo="9", nombre="Orden sin uso", tipo=T.ORDEN)
         services.crear_ejercicio(usuario=c, anio=2026)
+        self.centro = crear_centro_prueba(c)
 
         self.registrar(date(2026, 2, 10), (self.caja, "1000", 0), (self.depositos, 0, "1000"))
         self.registrar(date(2026, 3, 5), (self.salarios, "300", 0), (self.caja, 0, "300"))
@@ -787,7 +808,7 @@ class BaseLibros(TestCase):
             usuario=self.contador,
             fecha=fecha,
             concepto=f"Movimiento {fecha}",
-            lineas=[{"cuenta": cta, "debe": d, "haber": h} for cta, d, h in pares],
+            lineas=[{"cuenta": cta, "centro_costo": self.centro, "debe": d, "haber": h} for cta, d, h in pares],
         )
         if contabilizar:
             asiento = services.contabilizar_asiento(asiento, usuario=self.contador)
@@ -908,3 +929,67 @@ class LibrosApiTests(BaseLibros):
     def test_requiere_sesion(self):
         self.client.force_authenticate(None)
         self.assertEqual(self.client.get("/api/libros/balanza/", {"desde": "2026-01-01", "hasta": "2026-12-31"}).status_code, 401)
+
+
+# =============================================================================
+# Regla 3: centro de costo en las líneas (T2.1)
+# =============================================================================
+
+
+class CentroEnLineasTests(BaseAsientos):
+    def sin_centro(self, *pares):
+        return [{"cuenta": c, "centro_costo": None, "debe": d, "haber": h} for c, d, h in pares]
+
+    def test_cuenta_no_exenta_exige_centro(self):
+        with self.assertRaisesMessage(ValidationError, "exige centro de costo"):
+            self.borrador(lineas=self.sin_centro((self.salarios, "10", 0), (self.caja, 0, "10")))
+
+    def test_cuenta_exenta_no_exige_centro(self):
+        services.actualizar_cuenta(self.caja, usuario=self.contador, datos={"exenta_centro_costo": True})
+        lineas = [
+            {"cuenta": self.salarios, "centro_costo": self.centro, "debe": "10", "haber": 0},
+            {"cuenta": self.caja, "centro_costo": None, "debe": 0, "haber": "10"},
+        ]
+        asiento = services.contabilizar_asiento(self.borrador(lineas=lineas), usuario=self.contador)
+        self.assertEqual(asiento.estado, EA.CONTABILIZADO)
+
+    def test_centro_de_agrupacion_o_no_vigente(self):
+        agrupacion = crear_centro_prueba(self.contador, codigo="02", nombre="Agencia", acepta_movimientos=False)
+        futuro = crear_centro_prueba(self.contador, codigo="03", nombre="Nueva", vigente_desde=date(2026, 6, 1))
+        for centro, mensaje in ((agrupacion, "agrupación"), (futuro, "no está vigente")):
+            lineas = [
+                {"cuenta": self.salarios, "centro_costo": centro, "debe": "10", "haber": 0},
+                {"cuenta": self.caja, "centro_costo": self.centro, "debe": 0, "haber": "10"},
+            ]
+            with self.subTest(centro=centro.codigo), self.assertRaisesMessage(ValidationError, mensaje):
+                self.borrador(lineas=lineas)
+
+    def test_trigger_exige_centro(self):
+        asiento = self.borrador()
+        LineaAsiento.objects.filter(asiento=asiento).update(centro_costo=None)  # borrador: permitido en BD
+        with self.assertRaises(DatabaseError), transaction.atomic():
+            Asiento.objects.filter(pk=asiento.pk).update(
+                estado=EA.CONTABILIZADO,
+                ejercicio=2026,
+                numero=99,
+                total_debe=D("1500"),
+                total_haber=D("1500"),
+                contabilizado_por=self.contador,
+                contabilizado_en=timezone.now(),
+            )
+
+    def test_reversion_copia_el_centro_aunque_ya_no_este_vigente(self):
+        from centros_costo.services import actualizar_centro
+
+        original = self.contabilizado()
+        actualizar_centro(self.centro, usuario=self.contador, datos={"vigente_hasta": date(2026, 3, 31)})
+        reversion = services.revertir_asiento(original, usuario=self.contador, motivo="x", fecha=date(2026, 4, 10))
+        self.assertEqual(reversion.estado, EA.CONTABILIZADO)
+        self.assertTrue(all(l.centro_costo_id == self.centro.pk for l in reversion.lineas.all()))
+
+    def test_salida_api_incluye_centro(self):
+        asiento = self.contabilizado()
+        client = APIClient()
+        client.force_authenticate(self.contador)
+        linea = client.get(f"/api/asientos/{asiento.pk}/").data["lineas"][0]
+        self.assertEqual((linea["centro_costo"], linea["centro_codigo"]), (self.centro.pk, "01"))

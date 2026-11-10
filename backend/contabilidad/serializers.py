@@ -1,5 +1,7 @@
 from rest_framework import serializers
 
+from centros_costo.models import CentroCosto
+
 from .models import Asiento, Cuenta, LineaAsiento, PeriodoContable
 
 
@@ -117,10 +119,16 @@ class AsientoResumenSerializer(serializers.Serializer):
 class LineaAsientoSerializer(serializers.ModelSerializer):
     cuenta_codigo = serializers.CharField(source="cuenta.codigo", read_only=True)
     cuenta_nombre = serializers.CharField(source="cuenta.nombre", read_only=True)
+    cuenta_exenta_centro_costo = serializers.BooleanField(source="cuenta.exenta_centro_costo", read_only=True)
+    centro_codigo = serializers.CharField(source="centro_costo.codigo", read_only=True, default=None)
+    centro_nombre = serializers.CharField(source="centro_costo.nombre", read_only=True, default=None)
 
     class Meta:
         model = LineaAsiento
-        fields = ["id", "numero_linea", "cuenta", "cuenta_codigo", "cuenta_nombre", "descripcion", "debe", "haber", "linea_origen"]
+        fields = [
+            "id", "numero_linea", "cuenta", "cuenta_codigo", "cuenta_nombre", "cuenta_exenta_centro_costo",
+            "centro_costo", "centro_codigo", "centro_nombre", "descripcion", "debe", "haber", "linea_origen",
+        ]
         read_only_fields = fields
 
 
@@ -190,6 +198,9 @@ class AsientoDetalleSerializer(AsientoSerializer):
 
 class LineaEntradaSerializer(serializers.Serializer):
     cuenta = serializers.PrimaryKeyRelatedField(queryset=Cuenta.objects.all(), allow_null=True)
+    centro_costo = serializers.PrimaryKeyRelatedField(
+        queryset=CentroCosto.objects.all(), required=False, allow_null=True, default=None
+    )
     descripcion = serializers.CharField(max_length=200, required=False, allow_blank=True, default="")
     # Se reciben como texto y se validan en el servicio (2 decimales, no negativos, máximo NUMBER(18,2)).
     debe = serializers.CharField(required=False, allow_blank=True, allow_null=True, default="0")

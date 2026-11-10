@@ -21,6 +21,10 @@ const MENU = [
     ],
   },
   {
+    seccion: 'Centros de costo',
+    items: [{ a: '/centros-costo', icono: 'bi-diagram-2', texto: 'Estructura de centros' }],
+  },
+  {
     seccion: 'Configuración',
     items: [
       { a: '/catalogo', icono: 'bi-diagram-3', texto: 'Catálogo de cuentas' },

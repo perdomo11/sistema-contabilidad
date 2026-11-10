@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.generics import ListAPIView
@@ -72,3 +73,17 @@ class BitacoraListView(ListAPIView):
         filtros = FiltroBitacoraSerializer(data=self.request.query_params)
         filtros.is_valid(raise_exception=True)
         return services.consultar_bitacora(**filtros.validated_data)
+
+
+class UsuariosView(APIView):
+    """Usuarios activos con sus roles (por ejemplo, para elegir el responsable de un centro).
+    Filtro opcional `?rol=`."""
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        usuarios = User.objects.filter(is_active=True).prefetch_related("groups").order_by("first_name", "username")
+        rol = request.query_params.get("rol")
+        if rol:
+            usuarios = usuarios.filter(groups__name=rol)
+        return Response([services.datos_usuario(u) for u in usuarios])

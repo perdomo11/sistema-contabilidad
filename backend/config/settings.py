@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt.token_blacklist",
     "usuarios",
     "contabilidad",
+    "centros_costo",
 ]
 
 MIDDLEWARE = [

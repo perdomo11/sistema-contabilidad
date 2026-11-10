@@ -136,6 +136,12 @@ export default function LibroDiario() {
                           <td className={Number(l.haber) ? 'ps-4' : ''}>
                             <code className="me-2">{l.cuenta_codigo}</code>
                             {l.cuenta_nombre}
+                            {l.centro_codigo && (
+                              <span className="small text-suave ms-2">
+                                <i className="bi bi-diagram-3 me-1" />
+                                {l.centro_codigo}
+                              </span>
+                            )}
                           </td>
                           <td className="small text-muted">{l.descripcion}</td>
                           <td className="monto">{formatoMonto(l.debe, { vacioSiCero: true })}</td>

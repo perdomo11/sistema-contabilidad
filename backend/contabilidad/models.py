@@ -236,7 +236,10 @@ class LineaAsiento(models.Model):
     linea_origen = models.ForeignKey(
         "self", null=True, blank=True, on_delete=models.PROTECT, related_name="lineas_derivadas"
     )
-    # T2.1 agregará: centro_costo (obligatorio salvo cuentas exentas).
+    # Regla 3: obligatorio salvo cuentas exentas (validado en el servicio y en TRG_ASIENTO_REGLAS).
+    centro_costo = models.ForeignKey(
+        "centros_costo.CentroCosto", null=True, blank=True, on_delete=models.PROTECT, related_name="lineas"
+    )
 
     class Meta:
         verbose_name = "línea de asiento"

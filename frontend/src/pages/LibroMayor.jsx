@@ -184,6 +184,12 @@ export default function LibroMayor() {
                       <td>
                         {m.concepto}
                         {m.descripcion && <div className="small text-muted">{m.descripcion}</div>}
+                        {m.centro_codigo && (
+                          <div className="small text-suave">
+                            <i className="bi bi-diagram-3 me-1" />
+                            {m.centro_codigo}
+                          </div>
+                        )}
                       </td>
                       {esAgrupacion && (
                         <td className="small">

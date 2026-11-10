@@ -13,7 +13,16 @@ const etiqueta = (c) => (c ? `${c.codigo} · ${c.nombre}` : '')
  * Buscador de cuentas de detalle por código o nombre.
  * `cuentas`: [{id, codigo, nombre}], `valor`: cuenta seleccionada ({id, codigo, nombre}) o null.
  */
-export default function SelectorCuenta({ cuentas, valor, onChange, isInvalid, id }) {
+export default function SelectorCuenta({
+  cuentas,
+  valor,
+  onChange,
+  isInvalid,
+  id,
+  placeholder = 'Código o nombre de la cuenta',
+  disabled = false,
+  permitirVacio = false,
+}) {
   const [texto, setTexto] = useState(etiqueta(valor))
   const [abierto, setAbierto] = useState(false)
   const [activo, setActivo] = useState(0)
@@ -24,7 +33,7 @@ export default function SelectorCuenta({ cuentas, valor, onChange, isInvalid, id
   const opciones = useMemo(() => {
     const q = normalizar(texto.trim())
     if (!q || texto === etiqueta(valor)) return cuentas.slice(0, 50)
-    return cuentas.filter((c) => c.codigo.startsWith(q) || normalizar(c.nombre).includes(q)).slice(0, 50)
+    return cuentas.filter((c) => normalizar(c.codigo).startsWith(q) || normalizar(c.nombre).includes(q)).slice(0, 50)
   }, [texto, cuentas, valor])
 
   const elegir = (cuenta) => {
@@ -36,7 +45,11 @@ export default function SelectorCuenta({ cuentas, valor, onChange, isInvalid, id
   const alSalir = (e) => {
     if (contenedor.current?.contains(e.relatedTarget)) return
     setAbierto(false)
-    setTexto(etiqueta(valor)) // descarta texto que no corresponde a una cuenta
+    if (permitirVacio && texto.trim() === '' && valor) {
+      onChange(null) // se borró el texto: quitar la selección
+      return
+    }
+    setTexto(etiqueta(valor)) // descarta texto que no corresponde a un elemento
   }
 
   const teclado = (e) => {
@@ -61,7 +74,8 @@ export default function SelectorCuenta({ cuentas, valor, onChange, isInvalid, id
         id={id}
         size="sm"
         value={texto}
-        placeholder="Código o nombre de la cuenta"
+        placeholder={placeholder}
+        disabled={disabled}
         isInvalid={isInvalid}
         autoComplete="off"
         onFocus={(e) => {

@@ -7,14 +7,30 @@ import SelectorCuenta from '../components/SelectorCuenta'
 import { aCentavos, centavosATexto, hoyISO } from '../formato'
 
 let siguienteClave = 1
-const lineaVacia = () => ({ clave: siguienteClave++, cuenta: null, descripcion: '', debe: '', haber: '' })
+const lineaVacia = () => ({ clave: siguienteClave++, cuenta: null, centro: null, descripcion: '', debe: '', haber: '' })
 
 /** Aplana el árbol del catálogo y deja solo cuentas de detalle activas. */
 function cuentasImputables(arbol) {
   const resultado = []
   const recorrer = (nodos) =>
     nodos.forEach((n) => {
-      if (n.acepta_movimientos && n.activa) resultado.push({ id: n.id, codigo: n.codigo, nombre: n.nombre })
+      if (n.acepta_movimientos && n.activa) {
+        resultado.push({ id: n.id, codigo: n.codigo, nombre: n.nombre, exenta: n.exenta_centro_costo })
+      }
+      recorrer(n.hijos)
+    })
+  recorrer(arbol)
+  return resultado
+}
+
+/** Aplana el árbol de centros y deja solo unidades de detalle (con su vigencia). */
+function centrosImputables(arbol) {
+  const resultado = []
+  const recorrer = (nodos) =>
+    nodos.forEach((n) => {
+      if (n.acepta_movimientos) {
+        resultado.push({ id: n.id, codigo: n.codigo, nombre: n.nombre, desde: n.vigente_desde, hasta: n.vigente_hasta })
+      }
       recorrer(n.hijos)
     })
   recorrer(arbol)
@@ -42,6 +58,7 @@ export default function AsientoEditor() {
   const navegar = useNavigate()
   const [asientoId, setAsientoId] = useState(id ? Number(id) : null)
   const [cuentas, setCuentas] = useState(null)
+  const [centros, setCentros] = useState(null)
   const [cargando, setCargando] = useState(Boolean(id))
   const [errores, setErrores] = useState([])
   const [guardando, setGuardando] = useState(false)
@@ -53,7 +70,14 @@ export default function AsientoEditor() {
 
   useEffect(() => {
     api('/api/cuentas/arbol/').then(async (r) => setCuentas(r.ok ? cuentasImputables(await r.json()) : []))
+    api('/api/centros-costo/arbol/').then(async (r) => setCentros(r.ok ? centrosImputables(await r.json()) : []))
   }, [])
+
+  // Solo se ofrecen los centros vigentes en la fecha del asiento.
+  const centrosVigentes = useMemo(
+    () => (centros || []).filter((c) => c.desde <= fecha && (!c.hasta || c.hasta >= fecha)),
+    [centros, fecha],
+  )
 
   useEffect(() => {
     if (!id) return
@@ -70,7 +94,8 @@ export default function AsientoEditor() {
       setLineas(
         a.lineas.map((l) => ({
           clave: siguienteClave++,
-          cuenta: { id: l.cuenta, codigo: l.cuenta_codigo, nombre: l.cuenta_nombre },
+          cuenta: { id: l.cuenta, codigo: l.cuenta_codigo, nombre: l.cuenta_nombre, exenta: l.cuenta_exenta_centro_costo },
+          centro: l.centro_costo ? { id: l.centro_costo, codigo: l.centro_codigo, nombre: l.centro_nombre } : null,
           descripcion: l.descripcion,
           debe: Number(l.debe) ? l.debe : '',
           haber: Number(l.haber) ? l.haber : '',
@@ -101,6 +126,7 @@ export default function AsientoEditor() {
       .filter((l) => l.cuenta || l.debe || l.haber || l.descripcion)
       .map((l) => ({
         cuenta: l.cuenta?.id ?? null,
+        centro_costo: l.cuenta?.exenta ? null : (l.centro?.id ?? null),
         descripcion: l.descripcion,
         debe: l.debe.replace(/,/g, '') || '0',
         haber: l.haber.replace(/,/g, '') || '0',
@@ -131,7 +157,7 @@ export default function AsientoEditor() {
     navegar(`/asientos/${guardado.id}`, { state: { aviso: contabilizar ? 'Asiento contabilizado.' : 'Borrador guardado.' } })
   }
 
-  if (cargando || !cuentas) {
+  if (cargando || !cuentas || !centros) {
     return (
       <Container className="py-5 text-center">
         <Spinner animation="border" />
@@ -208,8 +234,9 @@ export default function AsientoEditor() {
             <thead className="table-light">
               <tr className="small text-uppercase text-muted">
                 <th style={{ width: '2.5rem' }}>#</th>
-                <th style={{ minWidth: '18rem' }}>Cuenta</th>
-                <th style={{ minWidth: '12rem' }}>Descripción</th>
+                <th style={{ minWidth: '17rem' }}>Cuenta</th>
+                <th style={{ minWidth: '14rem' }}>Centro de costo</th>
+                <th style={{ minWidth: '10rem' }}>Descripción</th>
                 <th className="text-end" style={{ width: '10rem' }}>
                   Cargo
                 </th>
@@ -229,6 +256,17 @@ export default function AsientoEditor() {
                       cuentas={cuentas}
                       valor={l.cuenta}
                       onChange={(cuenta) => actualizarLinea(l.clave, { cuenta })}
+                    />
+                  </td>
+                  <td>
+                    <SelectorCuenta
+                      id={`centro-${l.clave}`}
+                      cuentas={centrosVigentes}
+                      valor={l.cuenta?.exenta ? null : l.centro}
+                      onChange={(centro) => actualizarLinea(l.clave, { centro })}
+                      placeholder={l.cuenta?.exenta ? 'No requiere (cuenta exenta)' : 'Centro de costo'}
+                      disabled={Boolean(l.cuenta?.exenta)}
+                      permitirVacio
                     />
                   </td>
                   <td>
@@ -277,7 +315,7 @@ export default function AsientoEditor() {
             </tbody>
             <tfoot className="table-light">
               <tr>
-                <td colSpan={3}>
+                <td colSpan={4}>
                   <Button size="sm" variant="outline-primary" onClick={() => setLineas((ls) => [...ls, lineaVacia()])}>
                     + Agregar línea
                   </Button>
@@ -287,7 +325,7 @@ export default function AsientoEditor() {
                 <td />
               </tr>
               <tr>
-                <td colSpan={3} className="text-end small text-muted">
+                <td colSpan={4} className="text-end small text-muted">
                   Diferencia
                 </td>
                 <td colSpan={2} className="text-end">

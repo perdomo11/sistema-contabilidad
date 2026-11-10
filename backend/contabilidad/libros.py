@@ -59,7 +59,10 @@ def libro_diario(*, desde, hasta):
         Asiento.objects.filter(estado=Asiento.Estado.CONTABILIZADO, fecha__gte=desde, fecha__lte=hasta)
         .select_related("reversion_de")
         .prefetch_related(
-            Prefetch("lineas", queryset=LineaAsiento.objects.select_related("cuenta").order_by("numero_linea"))
+            Prefetch(
+                "lineas",
+                queryset=LineaAsiento.objects.select_related("cuenta", "centro_costo").order_by("numero_linea"),
+            )
         )
         .order_by("fecha", "ejercicio", "numero")
     )
@@ -84,7 +87,7 @@ def libro_mayor(*, cuenta, desde, hasta):
     total_debe = total_haber = CERO
     lineas = (
         base.filter(asiento__fecha__gte=desde, asiento__fecha__lte=hasta)
-        .select_related("asiento", "cuenta")
+        .select_related("asiento", "cuenta", "centro_costo")
         .order_by("asiento__fecha", "asiento__ejercicio", "asiento__numero", "numero_linea")
     )
     for linea in lineas:
@@ -100,6 +103,7 @@ def libro_mayor(*, cuenta, desde, hasta):
                 "descripcion": linea.descripcion,
                 "cuenta_codigo": linea.cuenta.codigo,
                 "cuenta_nombre": linea.cuenta.nombre,
+                "centro_codigo": linea.centro_costo.codigo if linea.centro_costo_id else None,
                 "debe": _texto(linea.debe),
                 "haber": _texto(linea.haber),
                 "saldo": _texto(saldo),

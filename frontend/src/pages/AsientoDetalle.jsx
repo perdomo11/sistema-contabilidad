@@ -225,6 +225,12 @@ export default function AsientoDetalle() {
                   <td>
                     <code className="me-2">{l.cuenta_codigo}</code>
                     {l.cuenta_nombre}
+                    {l.centro_codigo && (
+                      <div className="small text-suave">
+                        <i className="bi bi-diagram-3 me-1" />
+                        {l.centro_codigo} {l.centro_nombre}
+                      </div>
+                    )}
                   </td>
                   <td className="small text-muted">{l.descripcion}</td>
                   <td className="text-end font-monospace">{formatoMonto(l.debe, { vacioSiCero: true })}</td>
