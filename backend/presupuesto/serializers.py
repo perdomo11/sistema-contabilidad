@@ -108,3 +108,10 @@ class CambioDistribucionSerializer(serializers.ModelSerializer):
 
     def get_variacion(self, obj):
         return f"{obj.monto_nuevo - obj.monto_anterior:.2f}"
+
+
+# T4.3: ejecución vs. presupuesto
+class FiltroEjecucionSerializer(serializers.Serializer):
+    corte = serializers.IntegerField(required=False, min_value=1, max_value=12, allow_null=True, default=None)
+    umbral = serializers.DecimalField(max_digits=5, decimal_places=2, required=False, min_value=0, max_value=100, allow_null=True, default=None)
+    centro = serializers.PrimaryKeyRelatedField(queryset=CentroCosto.objects.all(), required=False, allow_null=True, default=None)

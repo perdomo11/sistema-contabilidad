@@ -8,13 +8,14 @@ from centros_costo.models import CentroCosto
 from usuarios import roles
 from usuarios.permissions import TieneRol
 
-from . import distribucion, services
+from . import distribucion, ejecucion, services
 from .models import PresupuestoInstitucional
 from .serializers import (
     AprobarSerializer,
     AsignarDepartamentoSerializer,
     CambiarMontoSerializer,
     CambioDistribucionSerializer,
+    FiltroEjecucionSerializer,
     FiltroHistorialSerializer,
     GuardarDetalleSerializer,
     PresupuestoActualizarSerializer,
@@ -111,3 +112,12 @@ class PresupuestoViewSet(viewsets.GenericViewSet):
         filtros.is_valid(raise_exception=True)
         cambios = distribucion.historial_distribucion(self.get_object(), **filtros.validated_data)[:500]
         return Response(CambioDistribucionSerializer(cambios, many=True).data)
+
+    # ------------------------------------------------------------------
+    # T4.3: ejecución vs. presupuesto y alertas
+    # ------------------------------------------------------------------
+    @action(detail=True, methods=["get"])
+    def ejecucion(self, request, pk=None):
+        filtros = FiltroEjecucionSerializer(data=request.query_params)
+        filtros.is_valid(raise_exception=True)
+        return Response(ejecucion.ejecucion_presupuesto(self.get_object(), **filtros.validated_data))

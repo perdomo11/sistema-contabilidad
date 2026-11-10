@@ -41,6 +41,7 @@ const MENU = [
     items: [
       { a: '/presupuesto', icono: 'bi-wallet2', texto: 'Presupuesto institucional', exacto: true },
       { a: '/presupuesto/distribucion', icono: 'bi-diagram-2', texto: 'Distribución a departamentos' },
+      { a: '/presupuesto/ejecucion', icono: 'bi-activity', texto: 'Ejecución vs. presupuesto' },
     ],
   },
   {

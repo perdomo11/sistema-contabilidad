@@ -10,6 +10,7 @@ import Bitacora from './pages/Bitacora'
 import Catalogo from './pages/Catalogo'
 import CentrosCosto from './pages/CentrosCosto'
 import DistribucionPresupuesto from './pages/DistribucionPresupuesto'
+import EjecucionPresupuesto from './pages/EjecucionPresupuesto'
 import EnfoqueContribucion from './pages/EnfoqueContribucion'
 import EstadoResultados from './pages/EstadoResultados'
 import IndicadoresRentabilidad from './pages/IndicadoresRentabilidad'
@@ -52,6 +53,7 @@ export default function App() {
         <Route path="centros-costo/prorrateo" element={<Prorrateo />} />
         <Route path="presupuesto" element={<PresupuestoInstitucional />} />
         <Route path="presupuesto/distribucion" element={<DistribucionPresupuesto />} />
+        <Route path="presupuesto/ejecucion" element={<EjecucionPresupuesto />} />
         <Route path="proveedores" element={<Proveedores />} />
         <Route path="catalogo" element={<Catalogo />} />
         <Route path="periodos" element={<Periodos />} />
