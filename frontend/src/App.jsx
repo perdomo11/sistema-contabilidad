@@ -9,6 +9,7 @@ import Balanza from './pages/Balanza'
 import Bitacora from './pages/Bitacora'
 import Catalogo from './pages/Catalogo'
 import CentrosCosto from './pages/CentrosCosto'
+import EnfoqueContribucion from './pages/EnfoqueContribucion'
 import EstadoResultados from './pages/EstadoResultados'
 import Inicio from './pages/Inicio'
 import LibroDiario from './pages/LibroDiario'
@@ -41,6 +42,7 @@ export default function App() {
         <Route path="libros/mayor" element={<LibroMayor />} />
         <Route path="libros/balanza" element={<Balanza />} />
         <Route path="reportes/estado-resultados" element={<EstadoResultados />} />
+        <Route path="reportes/enfoque-contribucion" element={<EnfoqueContribucion />} />
         <Route path="centros-costo" element={<CentrosCosto />} />
         <Route path="centros-costo/reglas" element={<ReglasAsignacion />} />
         <Route path="centros-costo/prorrateo" element={<Prorrateo />} />

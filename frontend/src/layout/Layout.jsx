@@ -30,7 +30,10 @@ const MENU = [
   },
   {
     seccion: 'Reportes',
-    items: [{ a: '/reportes/estado-resultados', icono: 'bi-graph-up', texto: 'Estado de resultados' }],
+    items: [
+      { a: '/reportes/estado-resultados', icono: 'bi-graph-up', texto: 'Estado de resultados' },
+      { a: '/reportes/enfoque-contribucion', icono: 'bi-pie-chart', texto: 'Enfoque de contribución' },
+    ],
   },
   {
     seccion: 'Tesorería',

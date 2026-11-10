@@ -14,7 +14,7 @@ from tesoreria.services import validar_proveedor_activo
 from usuarios.models import Bitacora
 from usuarios.services import registrar_evento
 
-from .models import Asiento, Cuenta, LineaAsiento, PeriodoContable
+from .models import RUBROS_GASTO, RUBROS_INGRESO, Asiento, Cuenta, LineaAsiento, PeriodoContable
 
 # =============================================================================
 # Catálogo de cuentas
@@ -30,7 +30,10 @@ NATURALEZA_POR_TIPO = {
 }
 
 # Campos que se pueden modificar después de crear la cuenta.
-CAMPOS_EDITABLES = {"nombre", "naturaleza", "acepta_movimientos", "exenta_centro_costo", "activa"}
+CAMPOS_EDITABLES = {
+    "nombre", "naturaleza", "acepta_movimientos", "exenta_centro_costo", "activa",
+    "rubro_resultado", "comportamiento_costo", "controlable",
+}
 CAMPOS_INMUTABLES = {"codigo", "padre", "tipo", "nivel"}
 
 ENTIDAD = "cuenta"
@@ -48,6 +51,9 @@ def instantanea(cuenta):
         "acepta_movimientos": cuenta.acepta_movimientos,
         "exenta_centro_costo": cuenta.exenta_centro_costo,
         "activa": cuenta.activa,
+        "rubro_resultado": cuenta.rubro_resultado or None,
+        "comportamiento_costo": cuenta.comportamiento_costo or None,
+        "controlable": cuenta.controlable,
     }
 
 
@@ -56,6 +62,22 @@ def _validar_exencion(tipo, exenta):
         raise ValidationError(
             {"exenta_centro_costo": "Solo las cuentas de balance pueden quedar exentas de centro de costo."}
         )
+
+
+def _validar_clasificacion(tipo, rubro, comportamiento, controlable):
+    """Clasificación para reportes (T3.2/T3.3): solo en cuentas de resultado y coherente con su tipo."""
+    errores = {}
+    if rubro:
+        validos = RUBROS_INGRESO if tipo == Cuenta.Tipo.INGRESO else RUBROS_GASTO if tipo == Cuenta.Tipo.GASTO else ()
+        if rubro not in validos:
+            errores["rubro_resultado"] = "El rubro no corresponde al tipo de la cuenta (solo ingresos y gastos se clasifican)."
+    if tipo != Cuenta.Tipo.GASTO:
+        if comportamiento:
+            errores["comportamiento_costo"] = "Solo las cuentas de gasto son variables o fijas."
+        if controlable is not None:
+            errores["controlable"] = "Solo las cuentas de gasto se clasifican como controlables."
+    if errores:
+        raise ValidationError(errores)
 
 
 @transaction.atomic
@@ -69,6 +91,9 @@ def crear_cuenta(
     naturaleza=None,
     acepta_movimientos=True,
     exenta_centro_costo=False,
+    rubro_resultado=None,
+    comportamiento_costo=None,
+    controlable=None,
     request=None,
 ):
     codigo = (codigo or "").strip()
@@ -103,8 +128,12 @@ def crear_cuenta(
         raise ValidationError({"codigo": f"Ya existe una cuenta con el código {codigo}."})
 
     _validar_exencion(tipo, exenta_centro_costo)
+    _validar_clasificacion(tipo, rubro_resultado, comportamiento_costo, controlable)
 
     cuenta = Cuenta(
+        rubro_resultado=rubro_resultado or None,
+        comportamiento_costo=comportamiento_costo or None,
+        controlable=controlable,
         codigo=codigo,
         nombre=nombre,
         padre=padre,
@@ -147,7 +176,10 @@ def actualizar_cuenta(cuenta, *, usuario, datos, request=None):
     antes = instantanea(cuenta)
 
     for campo, valor in datos.items():
+        if campo in ("rubro_resultado", "comportamiento_costo") and not valor:
+            valor = None  # vacío = heredar
         setattr(cuenta, campo, valor.strip() if campo == "nombre" else valor)
+    _validar_clasificacion(cuenta.tipo, cuenta.rubro_resultado, cuenta.comportamiento_costo, cuenta.controlable)
 
     if cuenta.acepta_movimientos and cuenta.hijos.exists():
         raise ValidationError(
@@ -229,15 +261,68 @@ CAMPOS_ARBOL = (
     "acepta_movimientos",
     "exenta_centro_costo",
     "activa",
+    "rubro_resultado",
+    "comportamiento_costo",
+    "controlable",
 )
+
+CAMPOS_CLASIFICACION = ("rubro_resultado", "comportamiento_costo", "controlable")
+
+
+def _clasificacion_por_defecto(tipo):
+    """Valores de una cuenta raíz sin clasificación propia."""
+    if tipo == Cuenta.Tipo.INGRESO:
+        return {"rubro_resultado": Cuenta.Rubro.INGRESO_OPERACION, "comportamiento_costo": None, "controlable": None}
+    if tipo == Cuenta.Tipo.GASTO:
+        return {"rubro_resultado": Cuenta.Rubro.GASTO_OPERACION, "comportamiento_costo": Cuenta.Comportamiento.FIJO, "controlable": True}
+    return {"rubro_resultado": None, "comportamiento_costo": None, "controlable": None}
+
+
+def _resolver_clasificacion(filas):
+    """{id: (heredada, efectiva)}: lo que la cuenta recibe de su padre y lo que finalmente aplica."""
+    por_id = {f["id"]: f for f in filas}
+    resultado = {}
+
+    def resolver(id_):
+        if id_ not in resultado:
+            f = por_id[id_]
+            heredada = resolver(f["padre_id"])[1] if f["padre_id"] else _clasificacion_por_defecto(f["tipo"])
+            # En Oracle un texto nulo llega como "": ambos significan "heredar".
+            efectiva = {c: f[c] if f[c] not in (None, "") else heredada[c] for c in CAMPOS_CLASIFICACION}
+            resultado[id_] = (heredada, efectiva)
+        return resultado[id_]
+
+    for f in sorted(filas, key=lambda x: x["nivel"]):
+        resolver(f["id"])
+    return resultado
+
+
+def clasificacion_resultados():
+    """{id_cuenta: {rubro_resultado, comportamiento_costo, controlable}} efectivos (con herencia)."""
+    filas = list(Cuenta.objects.values("id", "padre_id", "nivel", "tipo", *CAMPOS_CLASIFICACION))
+    return {id_: efectiva for id_, (_, efectiva) in _resolver_clasificacion(filas).items()}
 
 
 def arbol_cuentas():
-    """Catálogo completo como lista de raíces, cada nodo con su lista `hijos`."""
+    """Catálogo completo como lista de raíces, cada nodo con su lista `hijos`.
+
+    Cada nodo incluye `clasificacion_heredada` (lo que recibe del padre) y `clasificacion_efectiva`.
+    """
     nodos = {}
     raices = []
-    for fila in Cuenta.objects.order_by("codigo").values(*CAMPOS_ARBOL):
-        nodo = {**fila, "padre": fila.pop("padre_id"), "hijos": []}
+    filas = list(Cuenta.objects.order_by("codigo").values(*CAMPOS_ARBOL))
+    clasificacion = _resolver_clasificacion(filas)
+    for fila in filas:
+        heredada, efectiva = clasificacion[fila["id"]]
+        nodo = {
+            **fila,
+            "padre": fila.pop("padre_id"),
+            "rubro_resultado": fila["rubro_resultado"] or None,
+            "comportamiento_costo": fila["comportamiento_costo"] or None,
+            "clasificacion_heredada": heredada,
+            "clasificacion_efectiva": efectiva,
+            "hijos": [],
+        }
         nodos[nodo["id"]] = nodo
     for nodo in nodos.values():
         if nodo["padre"] is None:

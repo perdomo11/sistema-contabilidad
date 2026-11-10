@@ -29,6 +29,9 @@ class CuentaSerializer(serializers.ModelSerializer):
             "acepta_movimientos",
             "exenta_centro_costo",
             "activa",
+            "rubro_resultado",
+            "comportamiento_costo",
+            "controlable",
             "creado_por",
             "creado_en",
             "modificado_por",
@@ -45,6 +48,11 @@ class CuentaCrearSerializer(serializers.Serializer):
     naturaleza = serializers.ChoiceField(choices=Cuenta.Naturaleza.choices, required=False, allow_null=True)
     acepta_movimientos = serializers.BooleanField(default=True)
     exenta_centro_costo = serializers.BooleanField(default=False)
+    rubro_resultado = serializers.ChoiceField(choices=Cuenta.Rubro.choices, required=False, allow_null=True, allow_blank=True, default=None)
+    comportamiento_costo = serializers.ChoiceField(
+        choices=Cuenta.Comportamiento.choices, required=False, allow_null=True, allow_blank=True, default=None
+    )
+    controlable = serializers.BooleanField(required=False, allow_null=True, default=None)
 
 
 class CuentaActualizarSerializer(serializers.Serializer):
@@ -52,6 +60,9 @@ class CuentaActualizarSerializer(serializers.Serializer):
     naturaleza = serializers.ChoiceField(choices=Cuenta.Naturaleza.choices, required=False)
     acepta_movimientos = serializers.BooleanField(required=False)
     exenta_centro_costo = serializers.BooleanField(required=False)
+    rubro_resultado = serializers.ChoiceField(choices=Cuenta.Rubro.choices, required=False, allow_null=True, allow_blank=True)
+    comportamiento_costo = serializers.ChoiceField(choices=Cuenta.Comportamiento.choices, required=False, allow_null=True, allow_blank=True)
+    controlable = serializers.BooleanField(required=False, allow_null=True)
     activa = serializers.BooleanField(required=False)
 
     def validate(self, attrs):

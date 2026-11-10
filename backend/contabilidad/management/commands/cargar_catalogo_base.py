@@ -108,6 +108,26 @@ def _padre_de(codigo, codigos):
     return max(candidatos, key=len) if candidatos else None
 
 
+R = Cuenta.Rubro
+V, F = Cuenta.Comportamiento.VARIABLE, Cuenta.Comportamiento.FIJO
+
+# Clasificación de EJEMPLO (las subcuentas heredan): rubro, comportamiento del costo y controlabilidad.
+CLASIFICACION = {
+    "41": {"rubro_resultado": R.INGRESO_OPERACION},
+    "42": {"rubro_resultado": R.INGRESO_OPERACION},
+    "43": {"rubro_resultado": R.INGRESO_NO_OPERACION},
+    # Los costos de intermediación varían con el volumen de depósitos y préstamos.
+    "51": {"rubro_resultado": R.COSTO_INTERMEDIACION, "comportamiento_costo": V, "controlable": True},
+    "52": {"rubro_resultado": R.GASTO_OPERACION, "comportamiento_costo": F, "controlable": True},
+    # Papelería y útiles: crece con las operaciones de ventanilla.
+    "520207": {"comportamiento_costo": V},
+    # Alquileres y depreciaciones los decide la gerencia: el jefe del centro no los controla.
+    "520204": {"controlable": False},
+    "5203": {"controlable": False},
+    "53": {"rubro_resultado": R.GASTO_NO_OPERACION, "comportamiento_costo": F, "controlable": False},
+}
+
+
 class Command(BaseCommand):
     help = "Carga un catálogo bancario de ejemplo simplificado. Idempotente: no duplica cuentas existentes."
 
@@ -149,3 +169,15 @@ class Command(BaseCommand):
                 self.stderr.write(f"  {codigo} {nombre}: {'; '.join(exc.messages)}")
 
         self.stdout.write(self.style.SUCCESS(f"Cuentas creadas: {creadas}. Ya existían: {existentes}."))
+
+        # Clasificación de ejemplo para los reportes segmentados (T3.2/T3.3). Solo completa la que falte.
+        clasificadas = 0
+        for codigo, datos in CLASIFICACION.items():
+            cuenta = Cuenta.objects.filter(codigo=codigo).first()
+            if cuenta is None:
+                continue
+            pendientes = {c: v for c, v in datos.items() if getattr(cuenta, c) in (None, "")}
+            if pendientes:
+                services.actualizar_cuenta(cuenta, usuario=autor, datos=pendientes)
+                clasificadas += 1
+        self.stdout.write(f"Cuentas clasificadas para reportes: {clasificadas}.")

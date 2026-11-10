@@ -22,6 +22,27 @@ class NaturalezaCuenta(models.TextChoices):
 TIPOS_BALANCE = (TipoCuenta.ACTIVO, TipoCuenta.PASIVO, TipoCuenta.PATRIMONIO, TipoCuenta.ORDEN)
 
 
+class RubroResultado(models.TextChoices):
+    """Clasificación de las cuentas de resultado para los márgenes (T3.3)."""
+
+    INGRESO_OPERACION = "INGRESO_OPERACION", "Ingreso de operación"
+    INGRESO_NO_OPERACION = "INGRESO_NO_OPERACION", "Ingreso no operacional"
+    COSTO_INTERMEDIACION = "COSTO_INTERMEDIACION", "Costo de intermediación (costo de ventas)"
+    GASTO_OPERACION = "GASTO_OPERACION", "Gasto de operación"
+    GASTO_NO_OPERACION = "GASTO_NO_OPERACION", "Gasto no operacional"
+
+
+RUBROS_INGRESO = (RubroResultado.INGRESO_OPERACION, RubroResultado.INGRESO_NO_OPERACION)
+RUBROS_GASTO = (RubroResultado.COSTO_INTERMEDIACION, RubroResultado.GASTO_OPERACION, RubroResultado.GASTO_NO_OPERACION)
+
+
+class ComportamientoCosto(models.TextChoices):
+    """Enfoque de contribución (T3.2): el costo variable cambia con el volumen de actividad."""
+
+    VARIABLE = "VARIABLE", "Variable"
+    FIJO = "FIJO", "Fijo"
+
+
 class Cuenta(models.Model):
     """Cuenta del catálogo contable. Árbol padre-hijo de profundidad variable.
 
@@ -31,6 +52,8 @@ class Cuenta(models.Model):
 
     Tipo = TipoCuenta
     Naturaleza = NaturalezaCuenta
+    Rubro = RubroResultado
+    Comportamiento = ComportamientoCosto
     TIPOS_BALANCE = TIPOS_BALANCE
 
     codigo = models.CharField(
@@ -52,6 +75,13 @@ class Cuenta(models.Model):
         default=False, help_text="Solo cuentas de balance: sus líneas de asiento no exigen centro de costo."
     )
     activa = models.BooleanField(default=True)
+    # Clasificación para reportes segmentados (T3.2/T3.3). Vacío = se hereda de la cuenta padre;
+    # en las raíces, valores por defecto (ver `contabilidad.services.clasificacion_resultados`).
+    rubro_resultado = models.CharField(max_length=25, choices=RubroResultado.choices, null=True, blank=True)
+    comportamiento_costo = models.CharField(max_length=10, choices=ComportamientoCosto.choices, null=True, blank=True)
+    controlable = models.BooleanField(
+        null=True, blank=True, help_text="Si el responsable del centro tiene influencia sobre este costo."
+    )
 
     creado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="+")
     creado_en = models.DateTimeField(auto_now_add=True)
@@ -72,6 +102,17 @@ class Cuenta(models.Model):
             models.CheckConstraint(
                 condition=Q(exenta_centro_costo=False) | Q(tipo__in=[t.value for t in TIPOS_BALANCE]),
                 name="cuenta_exencion_solo_balance",
+            ),
+            # Clasificación de resultados: rubro coherente con el tipo; comportamiento y controlabilidad solo en gastos.
+            models.CheckConstraint(
+                condition=Q(rubro_resultado__isnull=True)
+                | Q(tipo=TipoCuenta.INGRESO, rubro_resultado__in=[r.value for r in RUBROS_INGRESO])
+                | Q(tipo=TipoCuenta.GASTO, rubro_resultado__in=[r.value for r in RUBROS_GASTO]),
+                name="cuenta_rubro_segun_tipo",
+            ),
+            models.CheckConstraint(
+                condition=Q(tipo=TipoCuenta.GASTO) | Q(comportamiento_costo__isnull=True, controlable__isnull=True),
+                name="cuenta_clasificacion_costo_solo_gastos",
             ),
         ]
 
