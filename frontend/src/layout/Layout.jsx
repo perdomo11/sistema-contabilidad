@@ -37,6 +37,10 @@ const MENU = [
     ],
   },
   {
+    seccion: 'Presupuesto',
+    items: [{ a: '/presupuesto', icono: 'bi-wallet2', texto: 'Presupuesto institucional' }],
+  },
+  {
     seccion: 'Tesorería',
     items: [{ a: '/proveedores', icono: 'bi-truck', texto: 'Proveedores' }],
   },

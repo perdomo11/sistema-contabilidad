@@ -17,6 +17,7 @@ import LibroDiario from './pages/LibroDiario'
 import LibroMayor from './pages/LibroMayor'
 import Login from './pages/Login'
 import Periodos from './pages/Periodos'
+import PresupuestoInstitucional from './pages/PresupuestoInstitucional'
 import Proveedores from './pages/Proveedores'
 import Prorrateo from './pages/Prorrateo'
 import ReglasAsignacion from './pages/ReglasAsignacion'
@@ -48,6 +49,7 @@ export default function App() {
         <Route path="centros-costo" element={<CentrosCosto />} />
         <Route path="centros-costo/reglas" element={<ReglasAsignacion />} />
         <Route path="centros-costo/prorrateo" element={<Prorrateo />} />
+        <Route path="presupuesto" element={<PresupuestoInstitucional />} />
         <Route path="proveedores" element={<Proveedores />} />
         <Route path="catalogo" element={<Catalogo />} />
         <Route path="periodos" element={<Periodos />} />

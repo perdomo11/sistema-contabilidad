@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     "contabilidad",
     "centros_costo",
     "tesoreria",
+    "presupuesto",
     "reportes",
 ]
 

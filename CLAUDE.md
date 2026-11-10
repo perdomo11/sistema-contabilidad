@@ -37,7 +37,7 @@ La gerencia fija el **monto institucional** por ejercicio y luego lo **distribuy
 - Cambios de presupuesto quedan versionados y auditados.
 - Más adelante: ejecución vs. presupuesto y alertas de desviación.
 
-Por ahora (hasta llegar al Bloque 4) solo se deja listo el diseño del modelo; no se implementa antes.
+Implementación por tareas: T4.1 monto institucional, T4.2 distribución, T4.3 ejecución y alertas.
 
 ## Módulos (resumen; detalle en `docs/PLAN_TAREAS.md`)
 - **B0** Fundamentos: entorno Docker, auth/roles/bitácora
@@ -83,7 +83,8 @@ docker compose exec backend python manage.py test
 - [x] T3.1 Estado de resultados por centro, costeo absorbente (ver `docs/tareas/T3.1.md`)
 - [x] T3.2 Enfoque de contribución y clasificación de cuentas (ver `docs/tareas/T3.2.md`)
 - [x] T3.3 Indicadores de rentabilidad por área (ver `docs/tareas/T3.3.md`)
-- Siguiente: T4.1 Presupuesto institucional anual definido por la gerencia
+- [x] T4.1 Presupuesto institucional anual (ver `docs/tareas/T4.1.md`)
+- Siguiente: T4.2 Distribución del monto institucional a departamentos
 
 Notas de implementación:
 - Roles = grupos de Django (`usuarios/roles.py`). Proteger vistas con `permission_classes = [TieneRol(roles.X)]` (`usuarios/permissions.py`).
@@ -94,6 +95,7 @@ Notas de implementación:
 - Asientos: solo los `CONTABILIZADO` cuentan para libros y reportes. Triggers Oracle `TRG_ASIENTO_REGLAS` (versión vigente en `contabilidad/0006`, incluye regla 3) y `TRG_LINEA_ASIENTO_INMUTABLE`. `LineaAsiento.centro_costo` es obligatorio salvo `cuenta.exenta_centro_costo`; el centro debe ser de detalle y vigente en la fecha (`_validar_centro`). Las reversiones copian el centro sin revalidar. Los asientos 2026-000001/000002 (anteriores a T2.1) no tienen centro.
 - Centros de costo: app `centros_costo`; ejemplo con `cargar_centros_base --usuario contador`. Reestructurar = cerrar vigencia y crear unidad nueva (código y padre inmutables).
 - Asignación (T2.2): `centros_costo.ReglaAsignacion` (cuenta y/o proveedor → centro, con vigencia) y `services.resolver_regla` (proveedor+cuenta > proveedor > cuenta, ancestro más cercano). `_normalizar_lineas` la aplica al guardar el borrador si la línea no trae centro; `LineaAsiento.regla_asignacion` la traza (vacía = directa). Ejemplo: `cargar_asignacion_base --usuario contador`.
+- Presupuesto (T4.1): app `presupuesto`. `PresupuestoInstitucional` (uno por año, BORRADOR → APROBADO → CERRADO; escribe solo Contador) y `VersionPresupuesto` (historial inmutable). Todo cambio de monto pasa por `services.cambiar_monto`, que crea la versión antes de actualizar el presupuesto: el trigger `TRG_PRESUPUESTO_REGLAS` exige que `MONTO`/`VERSION` coincidan con la última versión, prohíbe eliminar y modificar cerrados; `TRG_VERSION_PPTO_INMUTABLE` protege el historial. Aprobar exige referencia; modificar un aprobado exige motivo y referencia. T4.2 debe impedir en `cambiar_monto` bajar el monto por debajo de lo distribuido.
 - Tesorería: app `tesoreria` con catálogo básico `Proveedor` (T2.2; Contador o Tesorero). `Asiento.proveedor` opcional. T5.1 agrega cuentas por pagar y vencimientos sobre ese modelo.
 - Prorrateo (T2.3): `centros_costo/prorrateo.py` (bases, medidas por centro y periodo, reglas, ejecución). Método escalonado por `orden`; cada ejecución genera un asiento tipo `PRORRATEO` contabilizado con `linea_origen` en cada línea y guarda el detalle usado (JSON). Se anula con reversión desde Prorrateo (`revertir_asiento(..., permitir_prorrateo=True)`); desde Asientos está bloqueado. Ejemplo: `cargar_prorrateo_base --usuario contador --anio 2026`.
 - Reportes (B3): app `reportes`, servicios de solo lectura en `reportes/services.py`. `estado_resultados` (T3.1) consolida por la jerarquía de centros (columnas = raíces o subunidades del centro elegido), separa directos (asientos de diario) de indirectos (asientos `PRORRATEO` vigentes; los anulados y sus reversiones se excluyen) y agrega una columna "Sin centro" para que el total cuadre con la balanza. Al agregar una app nueva a `config/urls.py`, crear antes su `urls.py` o reiniciar el backend.

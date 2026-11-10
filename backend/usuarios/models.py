@@ -34,6 +34,7 @@ class Bitacora(models.Model):
         REVERTIR = "REVERTIR", "Reversión"
         PRORRATEAR = "PRORRATEAR", "Prorrateo"
         ANULAR = "ANULAR", "Anulación"
+        APROBAR = "APROBAR", "Aprobación"
 
     usuario = models.ForeignKey(
         settings.AUTH_USER_MODEL,
