@@ -6,6 +6,7 @@ import Bitacora from './pages/Bitacora'
 import Catalogo from './pages/Catalogo'
 import Inicio from './pages/Inicio'
 import Login from './pages/Login'
+import Periodos from './pages/Periodos'
 
 export default function App() {
   return (
@@ -26,6 +27,14 @@ export default function App() {
           element={
             <RutaProtegida>
               <Catalogo />
+            </RutaProtegida>
+          }
+        />
+        <Route
+          path="/periodos"
+          element={
+            <RutaProtegida>
+              <Periodos />
             </RutaProtegida>
           }
         />

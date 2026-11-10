@@ -77,3 +77,62 @@ class Cuenta(models.Model):
 
     def __str__(self):
         return f"{self.codigo} {self.nombre}"
+
+
+MESES = (
+    "enero", "febrero", "marzo", "abril", "mayo", "junio",
+    "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre",
+)
+
+
+class EstadoPeriodo(models.TextChoices):
+    ABIERTO = "ABIERTO", "Abierto"
+    CERRADO = "CERRADO", "Cerrado"
+
+
+class PeriodoContable(models.Model):
+    """Periodo mensual de un ejercicio (año calendario).
+
+    Las reglas de apertura, cierre secuencial y reapertura viven en
+    `contabilidad/services.py`.
+    """
+
+    Estado = EstadoPeriodo
+
+    anio = models.PositiveSmallIntegerField()
+    mes = models.PositiveSmallIntegerField()
+    fecha_inicio = models.DateField()
+    fecha_fin = models.DateField()
+    estado = models.CharField(max_length=10, choices=EstadoPeriodo.choices, default=EstadoPeriodo.ABIERTO)
+    cerrado_por = models.ForeignKey(
+        settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.PROTECT, related_name="+"
+    )
+    cerrado_en = models.DateTimeField(null=True, blank=True)
+
+    creado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="+")
+    creado_en = models.DateTimeField(auto_now_add=True)
+    modificado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="+")
+    modificado_en = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "periodo contable"
+        verbose_name_plural = "periodos contables"
+        ordering = ["anio", "mes"]
+        constraints = [
+            models.UniqueConstraint(fields=["anio", "mes"], name="periodo_anio_mes_unico"),
+            models.CheckConstraint(condition=Q(mes__gte=1, mes__lte=12), name="periodo_mes_valido"),
+            models.CheckConstraint(condition=Q(anio__gte=2000, anio__lte=2100), name="periodo_anio_valido"),
+            models.CheckConstraint(condition=Q(estado__in=EstadoPeriodo.values), name="periodo_estado_valido"),
+            models.CheckConstraint(condition=Q(fecha_fin__gte=models.F("fecha_inicio")), name="periodo_fechas_validas"),
+            models.CheckConstraint(
+                condition=~Q(estado=EstadoPeriodo.CERRADO) | Q(cerrado_por__isnull=False, cerrado_en__isnull=False),
+                name="periodo_cerrado_con_responsable",
+            ),
+        ]
+
+    @property
+    def nombre(self):
+        return f"{MESES[self.mes - 1].capitalize()} {self.anio}"
+
+    def __str__(self):
+        return self.nombre

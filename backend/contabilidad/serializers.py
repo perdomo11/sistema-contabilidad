@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Cuenta
+from .models import Cuenta, PeriodoContable
 
 
 class CuentaSerializer(serializers.ModelSerializer):
@@ -65,3 +65,40 @@ class FiltroCuentasSerializer(serializers.Serializer):
     activa = serializers.BooleanField(required=False, allow_null=True, default=None)
     acepta_movimientos = serializers.BooleanField(required=False, allow_null=True, default=None)
     q = serializers.CharField(required=False, allow_blank=True)
+
+
+class PeriodoSerializer(serializers.ModelSerializer):
+    nombre = serializers.CharField(read_only=True)
+    estado_display = serializers.CharField(source="get_estado_display", read_only=True)
+    cerrado_por = serializers.CharField(source="cerrado_por.username", read_only=True, default=None)
+    modificado_por = serializers.CharField(source="modificado_por.username", read_only=True)
+
+    class Meta:
+        model = PeriodoContable
+        fields = [
+            "id",
+            "anio",
+            "mes",
+            "nombre",
+            "fecha_inicio",
+            "fecha_fin",
+            "estado",
+            "estado_display",
+            "cerrado_por",
+            "cerrado_en",
+            "modificado_por",
+            "modificado_en",
+        ]
+        read_only_fields = fields
+
+
+class CrearEjercicioSerializer(serializers.Serializer):
+    anio = serializers.IntegerField()
+
+
+class ReabrirPeriodoSerializer(serializers.Serializer):
+    motivo = serializers.CharField(max_length=400, allow_blank=True, required=False, default="")
+
+
+class FiltroPeriodosSerializer(serializers.Serializer):
+    anio = serializers.IntegerField(required=False)

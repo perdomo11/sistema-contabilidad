@@ -1,12 +1,20 @@
-"""Reglas de negocio del catálogo de cuentas."""
-from django.core.exceptions import ValidationError
+"""Reglas de negocio de contabilidad: catálogo de cuentas y periodos contables."""
+from calendar import monthrange
+from datetime import date
+
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import Count, Q
+from django.utils import timezone
 
 from usuarios.models import Bitacora
 from usuarios.services import registrar_evento
 
-from .models import Cuenta
+from .models import Cuenta, PeriodoContable
+
+# =============================================================================
+# Catálogo de cuentas
+# =============================================================================
 
 NATURALEZA_POR_TIPO = {
     Cuenta.Tipo.ACTIVO: Cuenta.Naturaleza.DEUDORA,
@@ -228,3 +236,173 @@ def arbol_cuentas():
         else:
             nodos[nodo["padre"]]["hijos"].append(nodo)
     return raices
+
+
+# =============================================================================
+# Periodos contables
+# =============================================================================
+
+ANIO_MINIMO, ANIO_MAXIMO = 2000, 2100
+Estado = PeriodoContable.Estado
+
+
+def instantanea_periodo(periodo):
+    return {
+        "periodo": periodo.nombre,
+        "estado": periodo.estado,
+        "cerrado_por": periodo.cerrado_por.username if periodo.cerrado_por_id else None,
+        "cerrado_en": periodo.cerrado_en.isoformat() if periodo.cerrado_en else None,
+    }
+
+
+def _bloquear_periodos():
+    """Bloquea todos los periodos (tabla pequeña) para que cierres y reaperturas
+    concurrentes no rompan la secuencia."""
+    list(PeriodoContable.objects.select_for_update().values_list("id", flat=True))
+
+
+def _anteriores(periodo):
+    return Q(anio__lt=periodo.anio) | Q(anio=periodo.anio, mes__lt=periodo.mes)
+
+
+def _posteriores(periodo):
+    return Q(anio__gt=periodo.anio) | Q(anio=periodo.anio, mes__gt=periodo.mes)
+
+
+@transaction.atomic
+def crear_ejercicio(*, usuario, anio, request=None):
+    """Crea los 12 periodos mensuales del ejercicio, todos abiertos."""
+    if not ANIO_MINIMO <= anio <= ANIO_MAXIMO:
+        raise ValidationError({"anio": f"El año debe estar entre {ANIO_MINIMO} y {ANIO_MAXIMO}."})
+    if PeriodoContable.objects.filter(anio=anio).exists():
+        raise ValidationError({"anio": f"El ejercicio {anio} ya existe."})
+
+    PeriodoContable.objects.bulk_create(
+        PeriodoContable(
+            anio=anio,
+            mes=mes,
+            fecha_inicio=date(anio, mes, 1),
+            fecha_fin=date(anio, mes, monthrange(anio, mes)[1]),
+            estado=Estado.ABIERTO,
+            creado_por=usuario,
+            modificado_por=usuario,
+        )
+        for mes in range(1, 13)
+    )
+    registrar_evento(
+        Bitacora.Accion.CREAR,
+        usuario=usuario,
+        entidad="ejercicio",
+        objeto_id=anio,
+        descripcion=f"Creación del ejercicio {anio} con 12 periodos abiertos",
+        valor_nuevo={"anio": anio, "periodos": 12, "estado": Estado.ABIERTO},
+        request=request,
+    )
+    return list(PeriodoContable.objects.filter(anio=anio).order_by("mes"))
+
+
+@transaction.atomic
+def cerrar_periodo(periodo, *, usuario, request=None):
+    """Cierra el periodo si todos los anteriores están cerrados."""
+    _bloquear_periodos()
+    periodo = PeriodoContable.objects.select_related("cerrado_por").get(pk=periodo.pk)
+    if periodo.estado == Estado.CERRADO:
+        raise ValidationError(f"El periodo {periodo.nombre} ya está cerrado.")
+    pendiente = PeriodoContable.objects.filter(_anteriores(periodo), estado=Estado.ABIERTO).order_by("anio", "mes").first()
+    if pendiente:
+        raise ValidationError(
+            f"No se puede cerrar {periodo.nombre}: primero debe cerrarse {pendiente.nombre}. "
+            "Los periodos se cierran en orden."
+        )
+    # T1.3 agregará: no cerrar si hay asientos en borrador en el periodo.
+
+    antes = instantanea_periodo(periodo)
+    periodo.estado = Estado.CERRADO
+    periodo.cerrado_por = usuario
+    periodo.cerrado_en = timezone.now()
+    periodo.modificado_por = usuario
+    periodo.full_clean()
+    periodo.save()
+    registrar_evento(
+        Bitacora.Accion.CERRAR,
+        usuario=usuario,
+        entidad="periodo",
+        objeto_id=periodo.pk,
+        descripcion=f"Cierre del periodo {periodo.nombre}",
+        valor_anterior=antes,
+        valor_nuevo=instantanea_periodo(periodo),
+        request=request,
+    )
+    return periodo
+
+
+@transaction.atomic
+def reabrir_periodo(periodo, *, usuario, motivo, request=None):
+    """Reabre el último periodo cerrado. Solo superusuario y con motivo."""
+    if not (usuario and usuario.is_superuser):
+        raise PermissionDenied("Solo el administrador (superusuario) puede reabrir periodos.")
+    motivo = (motivo or "").strip()
+    if not motivo:
+        raise ValidationError({"motivo": "Indique el motivo de la reapertura."})
+
+    _bloquear_periodos()
+    periodo = PeriodoContable.objects.select_related("cerrado_por").get(pk=periodo.pk)
+    if periodo.estado == Estado.ABIERTO:
+        raise ValidationError(f"El periodo {periodo.nombre} ya está abierto.")
+    ultimo = PeriodoContable.objects.filter(_posteriores(periodo), estado=Estado.CERRADO).order_by("-anio", "-mes").first()
+    if ultimo:
+        raise ValidationError(
+            f"Solo se puede reabrir el último periodo cerrado ({ultimo.nombre}). "
+            "Reabra primero los periodos posteriores."
+        )
+
+    antes = instantanea_periodo(periodo)
+    periodo.estado = Estado.ABIERTO
+    periodo.modificado_por = usuario
+    periodo.full_clean()
+    periodo.save()
+    registrar_evento(
+        Bitacora.Accion.REABRIR,
+        usuario=usuario,
+        entidad="periodo",
+        objeto_id=periodo.pk,
+        descripcion=f"Reapertura del periodo {periodo.nombre}. Motivo: {motivo}",
+        valor_anterior=antes,
+        valor_nuevo={**instantanea_periodo(periodo), "motivo": motivo},
+        request=request,
+    )
+    return periodo
+
+
+def periodo_de_fecha(fecha):
+    return PeriodoContable.objects.filter(fecha_inicio__lte=fecha, fecha_fin__gte=fecha).first()
+
+
+def validar_fecha_registrable(fecha):
+    """Regla 6: solo se registra en periodos existentes y abiertos. Devuelve el periodo."""
+    periodo = periodo_de_fecha(fecha)
+    if periodo is None:
+        raise ValidationError(
+            f"No existe periodo contable para el {fecha:%d/%m/%Y}. Cree primero el ejercicio {fecha.year}."
+        )
+    if periodo.estado == Estado.CERRADO:
+        raise ValidationError(f"El periodo {periodo.nombre} está cerrado: no se puede registrar el {fecha:%d/%m/%Y}.")
+    return periodo
+
+
+def consultar_periodos(*, anio=None):
+    qs = PeriodoContable.objects.select_related("cerrado_por", "modificado_por").order_by("anio", "mes")
+    if anio:
+        qs = qs.filter(anio=anio)
+    return qs
+
+
+def resumen_ejercicios():
+    return list(
+        PeriodoContable.objects.values("anio")
+        .annotate(
+            abiertos=Count("id", filter=Q(estado=Estado.ABIERTO)),
+            cerrados=Count("id", filter=Q(estado=Estado.CERRADO)),
+        )
+        .order_by("-anio")
+    )

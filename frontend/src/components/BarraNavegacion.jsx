@@ -29,6 +29,9 @@ export default function BarraNavegacion() {
                 <Nav.Link as={NavLink} to="/catalogo">
                   Catálogo de cuentas
                 </Nav.Link>
+                <Nav.Link as={NavLink} to="/periodos">
+                  Periodos contables
+                </Nav.Link>
                 {tieneRol(usuario, ROLES.AUDITOR) && (
                   <Nav.Link as={NavLink} to="/bitacora">
                     Bitácora

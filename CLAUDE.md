@@ -73,13 +73,15 @@ docker compose exec backend python manage.py test
 - [x] T0.1 Entorno (ver `docs/tareas/T0.1.md`)
 - [x] T0.2 Autenticación JWT, roles y bitácora (ver `docs/tareas/T0.2.md`)
 - [x] T1.1 Catálogo de cuentas jerárquico (ver `docs/tareas/T1.1.md`)
-- Siguiente: T1.2 Periodos contables (apertura/cierre)
+- [x] T1.2 Periodos contables (ver `docs/tareas/T1.2.md`)
+- Siguiente: T1.3 Asientos con partida doble, inmutabilidad y reversión
 
 Notas de implementación:
 - Roles = grupos de Django (`usuarios/roles.py`). Proteger vistas con `permission_classes = [TieneRol(roles.X)]` (`usuarios/permissions.py`).
 - Registrar acciones sensibles con `usuarios.services.registrar_evento(...)`. La bitácora es inmutable (modelo + trigger Oracle).
 - Los services lanzan `django.core.exceptions.ValidationError`; `config/excepciones.py` los convierte en 400 (`{"campo": [...]}` o `{"detail": "..."}`).
 - Catálogo de ejemplo: `docker compose exec backend python manage.py cargar_catalogo_base --usuario contador`. T1.3 debe impedir eliminar cuentas con movimientos y registrar solo en cuentas `acepta_movimientos=True` y activas.
+- Periodos: T1.3 debe llamar a `contabilidad.services.validar_fecha_registrable(fecha)` al contabilizar y agregar a `cerrar_periodo` la verificación de asientos en borrador. Reabrir es solo para superusuario (`usuarios.permissions.EsSuperusuario`).
 - Usuarios de prueba: `docker compose exec backend python manage.py crear_usuarios_demo` (contraseña `Demo_2026!`).
 - Desde Git Bash en Windows, anteponer `MSYS_NO_PATHCONV=1` a `docker compose exec` con rutas absolutas del contenedor.
 

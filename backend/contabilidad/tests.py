@@ -228,3 +228,190 @@ class CargarCatalogoBaseTests(TestCase):
         self.assertFalse(Cuenta.objects.filter(tipo__in=[T.INGRESO, T.GASTO], exenta_centro_costo=True).exists())
         self.assertEqual(Cuenta.objects.get(codigo="1509").naturaleza, N.ACREEDORA)
         self.assertEqual(Cuenta.objects.get(codigo="520101").nivel, 4)
+
+
+# =============================================================================
+# Periodos contables (T1.2)
+# =============================================================================
+
+from datetime import date  # noqa: E402
+
+from django.core.exceptions import PermissionDenied  # noqa: E402
+
+from .models import PeriodoContable  # noqa: E402
+
+E = PeriodoContable.Estado
+
+
+class BasePeriodos(TestCase):
+    def setUp(self):
+        self.contador = crear_usuario("contador", roles.CONTADOR)
+        self.admin = User.objects.create_superuser("admin", password="Prueba_2026!")
+
+    def periodo(self, anio, mes):
+        return PeriodoContable.objects.get(anio=anio, mes=mes)
+
+    def cerrar(self, anio, mes):
+        return services.cerrar_periodo(self.periodo(anio, mes), usuario=self.contador)
+
+
+class CrearEjercicioTests(BasePeriodos):
+    def test_crea_12_periodos_abiertos_con_fechas(self):
+        periodos = services.crear_ejercicio(usuario=self.contador, anio=2024)
+        self.assertEqual(len(periodos), 12)
+        self.assertTrue(all(p.estado == E.ABIERTO for p in periodos))
+        self.assertEqual(periodos[0].fecha_inicio, date(2024, 1, 1))
+        self.assertEqual(periodos[1].fecha_fin, date(2024, 2, 29))  # bisiesto
+        self.assertEqual(periodos[11].fecha_fin, date(2024, 12, 31))
+        self.assertEqual(periodos[0].nombre, "Enero 2024")
+        evento = Bitacora.objects.get(accion=Bitacora.Accion.CREAR, entidad="ejercicio")
+        self.assertEqual(evento.objeto_id, "2024")
+
+    def test_ejercicio_duplicado(self):
+        services.crear_ejercicio(usuario=self.contador, anio=2026)
+        with self.assertRaises(ValidationError):
+            services.crear_ejercicio(usuario=self.contador, anio=2026)
+
+    def test_anio_fuera_de_rango(self):
+        for anio in (1999, 2101):
+            with self.subTest(anio=anio), self.assertRaises(ValidationError):
+                services.crear_ejercicio(usuario=self.contador, anio=anio)
+
+    def test_constraints_de_base_de_datos(self):
+        services.crear_ejercicio(usuario=self.contador, anio=2026)
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            PeriodoContable.objects.filter(anio=2026, mes=1).update(mes=13)
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            PeriodoContable.objects.filter(anio=2026, mes=1).update(estado=E.CERRADO)  # sin responsable
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            PeriodoContable.objects.filter(anio=2026, mes=2).update(mes=1)  # duplicado
+
+
+class CerrarPeriodoTests(BasePeriodos):
+    def setUp(self):
+        super().setUp()
+        services.crear_ejercicio(usuario=self.contador, anio=2025)
+        services.crear_ejercicio(usuario=self.contador, anio=2026)
+        for mes in range(1, 13):
+            self.cerrar(2025, mes)
+
+    def test_cierre_registra_responsable_y_bitacora(self):
+        periodo = self.cerrar(2026, 1)
+        self.assertEqual(periodo.estado, E.CERRADO)
+        self.assertEqual(periodo.cerrado_por, self.contador)
+        self.assertIsNotNone(periodo.cerrado_en)
+        evento = Bitacora.objects.filter(accion=Bitacora.Accion.CERRAR).latest("id")
+        self.assertEqual(evento.valor_anterior["estado"], E.ABIERTO)
+        self.assertEqual(evento.valor_nuevo["estado"], E.CERRADO)
+
+    def test_cierre_secuencial_dentro_del_anio(self):
+        self.cerrar(2026, 1)
+        with self.assertRaisesMessage(ValidationError, "Febrero 2026"):
+            self.cerrar(2026, 3)
+
+    def test_cierre_secuencial_entre_anios(self):
+        services.reabrir_periodo(self.periodo(2025, 12), usuario=self.admin, motivo="Ajuste")
+        with self.assertRaisesMessage(ValidationError, "Diciembre 2025"):
+            self.cerrar(2026, 1)
+
+    def test_no_se_cierra_dos_veces(self):
+        self.cerrar(2026, 1)
+        with self.assertRaises(ValidationError):
+            self.cerrar(2026, 1)
+
+
+class ReabrirPeriodoTests(BasePeriodos):
+    def setUp(self):
+        super().setUp()
+        services.crear_ejercicio(usuario=self.contador, anio=2026)
+        self.cerrar(2026, 1)
+        self.cerrar(2026, 2)
+
+    def test_solo_superusuario(self):
+        with self.assertRaises(PermissionDenied):
+            services.reabrir_periodo(self.periodo(2026, 2), usuario=self.contador, motivo="x")
+
+    def test_motivo_obligatorio(self):
+        with self.assertRaises(ValidationError):
+            services.reabrir_periodo(self.periodo(2026, 2), usuario=self.admin, motivo="  ")
+
+    def test_solo_el_ultimo_cerrado(self):
+        with self.assertRaisesMessage(ValidationError, "Febrero 2026"):
+            services.reabrir_periodo(self.periodo(2026, 1), usuario=self.admin, motivo="x")
+
+    def test_no_se_reabre_un_periodo_abierto(self):
+        with self.assertRaises(ValidationError):
+            services.reabrir_periodo(self.periodo(2026, 3), usuario=self.admin, motivo="x")
+
+    def test_reapertura_y_bitacora_con_motivo(self):
+        periodo = services.reabrir_periodo(self.periodo(2026, 2), usuario=self.admin, motivo="Falta provisión")
+        self.assertEqual(periodo.estado, E.ABIERTO)
+        evento = Bitacora.objects.get(accion=Bitacora.Accion.REABRIR)
+        self.assertEqual(evento.valor_nuevo["motivo"], "Falta provisión")
+        self.assertIn("Falta provisión", evento.descripcion)
+        self.assertEqual(evento.usuario, self.admin)
+        # Ahora enero es el último cerrado y sí se puede reabrir.
+        services.reabrir_periodo(self.periodo(2026, 1), usuario=self.admin, motivo="Corrección")
+
+
+class ValidarFechaRegistrableTests(BasePeriodos):
+    def setUp(self):
+        super().setUp()
+        services.crear_ejercicio(usuario=self.contador, anio=2026)
+        self.cerrar(2026, 1)
+
+    def test_fecha_en_periodo_abierto(self):
+        self.assertEqual(services.validar_fecha_registrable(date(2026, 2, 15)), self.periodo(2026, 2))
+
+    def test_fecha_en_periodo_cerrado(self):
+        with self.assertRaisesMessage(ValidationError, "cerrado"):
+            services.validar_fecha_registrable(date(2026, 1, 31))
+
+    def test_fecha_sin_periodo(self):
+        with self.assertRaisesMessage(ValidationError, "ejercicio 2027"):
+            services.validar_fecha_registrable(date(2027, 1, 1))
+
+
+class PeriodosApiTests(BasePeriodos):
+    def setUp(self):
+        super().setUp()
+        self.client = APIClient()
+        self.auditor = crear_usuario("auditor", roles.AUDITOR)
+
+    def test_flujo_completo_por_api(self):
+        self.client.force_authenticate(self.contador)
+        resp = self.client.post("/api/periodos/ejercicios/", {"anio": 2026}, format="json")
+        self.assertEqual(resp.status_code, 201, resp.data)
+        enero, marzo = resp.data[0]["id"], resp.data[2]["id"]
+
+        self.assertEqual(self.client.post(f"/api/periodos/{enero}/cerrar/").status_code, 200)
+        resp = self.client.post(f"/api/periodos/{marzo}/cerrar/")
+        self.assertEqual(resp.status_code, 400)
+        self.assertIn("Febrero 2026", resp.data["detail"])
+
+        resumen = self.client.get("/api/periodos/ejercicios/").data
+        self.assertEqual(resumen, [{"anio": 2026, "abiertos": 11, "cerrados": 1}])
+        self.assertEqual(len(self.client.get("/api/periodos/", {"anio": 2026}).data), 12)
+
+        # El contador no puede reabrir; el superusuario sí, con motivo.
+        resp = self.client.post(f"/api/periodos/{enero}/reabrir/", {"motivo": "x"}, format="json")
+        self.assertEqual(resp.status_code, 403)
+        self.client.force_authenticate(self.admin)
+        resp = self.client.post(f"/api/periodos/{enero}/reabrir/", {}, format="json")
+        self.assertEqual(resp.status_code, 400)
+        self.assertIn("motivo", resp.data)
+        resp = self.client.post(f"/api/periodos/{enero}/reabrir/", {"motivo": "Ajuste"}, format="json")
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data["estado"], E.ABIERTO)
+
+    def test_auditor_solo_consulta(self):
+        services.crear_ejercicio(usuario=self.contador, anio=2026)
+        self.client.force_authenticate(self.auditor)
+        self.assertEqual(self.client.get("/api/periodos/").status_code, 200)
+        resp = self.client.post("/api/periodos/ejercicios/", {"anio": 2027}, format="json")
+        self.assertEqual(resp.status_code, 403)
+        enero = self.periodo(2026, 1).pk
+        self.assertEqual(self.client.post(f"/api/periodos/{enero}/cerrar/").status_code, 403)
+
+    def test_sin_sesion_responde_401(self):
+        self.assertEqual(self.client.get("/api/periodos/").status_code, 401)

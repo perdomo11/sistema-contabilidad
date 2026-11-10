@@ -4,15 +4,19 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from usuarios import roles
-from usuarios.permissions import TieneRol
+from usuarios.permissions import EsSuperusuario, TieneRol
 
 from . import services
-from .models import Cuenta
+from .models import Cuenta, PeriodoContable
 from .serializers import (
+    CrearEjercicioSerializer,
     CuentaActualizarSerializer,
     CuentaCrearSerializer,
     CuentaSerializer,
     FiltroCuentasSerializer,
+    FiltroPeriodosSerializer,
+    PeriodoSerializer,
+    ReabrirPeriodoSerializer,
 )
 
 ACCIONES_LECTURA = {"list", "retrieve", "arbol"}
@@ -60,3 +64,46 @@ class CuentaViewSet(viewsets.GenericViewSet):
     def destroy(self, request, pk=None):
         services.eliminar_cuenta(self.get_object(), usuario=request.user, request=request)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class PeriodoViewSet(viewsets.GenericViewSet):
+    """Periodos contables. Lectura: autenticados. Crear ejercicio y cerrar: Contador. Reabrir: superusuario."""
+
+    serializer_class = PeriodoSerializer
+    queryset = PeriodoContable.objects.select_related("cerrado_por", "modificado_por")
+    pagination_class = None
+
+    def get_permissions(self):
+        if self.action == "reabrir":
+            return [EsSuperusuario()]
+        if self.action == "cerrar" or (self.action == "ejercicios" and self.request.method == "POST"):
+            return [IsAuthenticated(), TieneRol(roles.CONTADOR)()]
+        return [IsAuthenticated()]
+
+    def list(self, request):
+        filtros = FiltroPeriodosSerializer(data=request.query_params)
+        filtros.is_valid(raise_exception=True)
+        return Response(PeriodoSerializer(services.consultar_periodos(**filtros.validated_data), many=True).data)
+
+    @action(detail=False, methods=["get", "post"])
+    def ejercicios(self, request):
+        if request.method == "GET":
+            return Response(services.resumen_ejercicios())
+        entrada = CrearEjercicioSerializer(data=request.data)
+        entrada.is_valid(raise_exception=True)
+        periodos = services.crear_ejercicio(usuario=request.user, request=request, **entrada.validated_data)
+        return Response(PeriodoSerializer(periodos, many=True).data, status=status.HTTP_201_CREATED)
+
+    @action(detail=True, methods=["post"])
+    def cerrar(self, request, pk=None):
+        periodo = services.cerrar_periodo(self.get_object(), usuario=request.user, request=request)
+        return Response(PeriodoSerializer(periodo).data)
+
+    @action(detail=True, methods=["post"])
+    def reabrir(self, request, pk=None):
+        entrada = ReabrirPeriodoSerializer(data=request.data)
+        entrada.is_valid(raise_exception=True)
+        periodo = services.reabrir_periodo(
+            self.get_object(), usuario=request.user, request=request, **entrada.validated_data
+        )
+        return Response(PeriodoSerializer(periodo).data)

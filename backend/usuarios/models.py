@@ -28,6 +28,8 @@ class Bitacora(models.Model):
         CREAR = "CREAR", "Creación"
         MODIFICAR = "MODIFICAR", "Modificación"
         ELIMINAR = "ELIMINAR", "Eliminación"
+        CERRAR = "CERRAR", "Cierre"
+        REABRIR = "REABRIR", "Reapertura"
 
     usuario = models.ForeignKey(
         settings.AUTH_USER_MODEL,
