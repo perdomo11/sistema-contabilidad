@@ -90,7 +90,8 @@ docker compose exec backend python manage.py test
 - [x] T5.2 Proyección de egresos a 30/60/90 días (ver `docs/tareas/T5.2.md`)
 - [x] T5.3 Flujo de efectivo actual y proyectado con alertas de déficit (ver `docs/tareas/T5.3.md`)
 - [x] T5.4 Dashboard de tesorería (ver `docs/tareas/T5.4.md`)
-- Siguiente: T6.1 Pruebas, respaldos y manuales
+- [x] T6.1 Pruebas, respaldos y manuales (ver `docs/tareas/T6.1.md`)
+- Plan de tareas completo.
 
 Notas de implementación:
 - Roles = grupos de Django (`usuarios/roles.py`). Proteger vistas con `permission_classes = [TieneRol(roles.X)]` (`usuarios/permissions.py`).
@@ -115,6 +116,7 @@ Notas de implementación:
 - Indicadores (T3.3): `reportes.services.indicadores_rentabilidad` (`/api/reportes/indicadores/`) agrupa por `rubro_resultado` (margen bruto, operativo, neto) y reutiliza la categoría variable de T3.2 para el margen de contribución. El resultado neto debe igualar al absorbente; la participación se mide sobre el total de la vista y es nula si ese total no es positivo.
 - Libros (diario, mayor, balanza): servicios de solo lectura en `contabilidad/libros.py` (separados de `services.py`). Saldos acumulados desde el inicio; las cuentas de resultado se ponen en cero con un asiento de cierre, no en el reporte. Agrupaciones = descendientes reales del árbol (no prefijo de código).
 - Frontend (T1.5): las pantallas viven dentro de `layout/Layout.jsx` (menú lateral en `MENU`, agregar ahí los módulos nuevos). Cada página usa `EncabezadoPagina` (título, descripción, migas, acciones), filtros en `Card`, tablas dentro de `Card`, montos con clase `monto`, insignias en tonos `*-subtle`, íconos `bootstrap-icons` y `EstadoVacio` para listas vacías. Estilos del tema en `src/estilos.css`.
+- Cierre (T6.1): `config/tests_integracion.py` (ciclo completo con todos los datos de ejemplo; al agregar módulos, extenderlo). `reportes/integridad.py` + comando `verificar_integridad [--anio]` (código 1 si falla; al crear un trigger nuevo, agregarlo a `TRIGGERS`). Respaldos con Data Pump en `scripts/` (`respaldo.sh`, `verificar_respaldo.sh`, `restaurar.sh`; credenciales del contenedor; `docker compose exec` que no lee entrada debe llevar `</dev/null`). Manuales: `docs/MANUAL_USUARIO.md`, `docs/MANUAL_TECNICO.md`; matriz de pruebas `docs/PRUEBAS.md` (actualizar conteos al agregar pruebas).
 - Usuarios de prueba: `docker compose exec backend python manage.py crear_usuarios_demo` (contraseña `Demo_2026!`).
 - Desde Git Bash en Windows, anteponer `MSYS_NO_PATHCONV=1` a `docker compose exec` con rutas absolutas del contenedor.
 

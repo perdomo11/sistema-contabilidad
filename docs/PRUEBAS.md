@@ -1,0 +1,57 @@
+# Pruebas del sistema
+
+## Cómo ejecutarlas
+```bash
+docker compose exec backend python manage.py test                 # toda la suite (≈ 3 min)
+docker compose exec backend python manage.py test contabilidad    # una app
+docker compose exec backend python manage.py test config          # integración de punta a punta
+docker compose exec backend python manage.py verificar_integridad # reglas sobre la base real
+```
+Las pruebas corren contra **Oracle** (una base temporal que Django crea y destruye), así que también ejercitan las restricciones `CHECK` y los triggers. El usuario de la aplicación tiene los privilegios necesarios por `docker/oracle-init/01_privilegios_pruebas.sh`.
+
+## Resumen por módulo
+
+| Módulo | Archivos | Pruebas | Cubre |
+|---|---|---|---|
+| `usuarios` | `tests.py` | 17 | Roles, login/logout JWT, permisos, bitácora inmutable (modelo y trigger) |
+| `contabilidad` | `tests.py` | 94 | Catálogo jerárquico, periodos, asientos (partida doble, inmutabilidad, reversión), centro obligatorio, libros |
+| `centros_costo` | `tests.py`, `tests_asignacion.py`, `tests_prorrateo.py` | 65 | Jerarquía y vigencia, reglas de asignación, motor de prorrateo y trazabilidad |
+| `reportes` | `tests.py`, `tests_contribucion.py`, `tests_indicadores.py` | 25 | Estado de resultados absorbente, enfoque de contribución, indicadores |
+| `presupuesto` | `tests.py`, `tests_distribucion.py`, `tests_ejecucion.py` | 42 | Presupuesto versionado, distribución top-down con topes, ejecución y alertas |
+| `tesoreria` | `tests.py`, `tests_cuentas_por_pagar.py`, `tests_proyeccion.py`, `tests_flujo.py`, `tests_dashboard.py` | 45 | Proveedores, cuentas por pagar, proyección de egresos, flujo de efectivo, dashboard |
+| `config` | `tests_integracion.py` | 6 | Ciclo completo con datos de ejemplo; los módulos cuadran entre sí; `verificar_integridad` |
+| **Total** | | **294** | |
+
+## Matriz: reglas contables no negociables → pruebas
+"Servicio" = la regla se valida en `services.py`; "BD" = Oracle la impide aunque se salte el servicio (restricción o trigger).
+
+| # | Regla (CLAUDE.md) | Servicio | Base de datos |
+|---|---|---|---|
+| 1 | Montos `NUMBER(18,2)`, nunca `float` | Todos los modelos usan `DecimalField(18,2)`; validación de 2 decimales en `presupuesto/tests.py::test_validaciones_de_alta`, `tesoreria/tests_cuentas_por_pagar.py::test_validaciones` | Restricciones `*_monto_positivo` (p. ej. `test_monto_positivo_en_bd`) |
+| 2 | Partida doble | `contabilidad/tests.py::ContabilizarTests::test_partida_doble_obligatoria` | `TriggersAsientoTests::test_trigger_exige_partida_doble` (`TRG_ASIENTO_REGLAS`); `verificar_integridad` (PARTIDA_DOBLE) |
+| 3 | Centro de costo en cada línea (salvo cuentas exentas) | `test_cuenta_no_exenta_exige_centro`, `test_centro_de_agrupacion_o_no_vigente`, `test_gasto_no_puede_quedar_exento_de_centro_de_costo` | `test_trigger_exige_centro`, `test_constraint_bd_exencion_solo_en_balance` |
+| 4 | Asientos inmutables; corrección por reversión | `test_contabilizado_es_inmutable_en_el_servicio`, `ReversionTests::*`, `test_el_asiento_de_prorrateo_no_se_revierte_desde_asientos`, `test_asiento_no_se_revierte_desde_asientos` (cuentas por pagar) | `TRG_ASIENTO_REGLAS`, `TRG_LINEA_ASIENTO_INMUTABLE` (`TriggersAsientoTests`); documentos y pagos: `CxPBaseDeDatosTests::test_reglas_en_bd` |
+| 5 | Trazabilidad (prorrateo → origen; usuario y fecha) | `test_distribuye_y_traza_cada_linea`, `test_reversion_invierte_lineas_y_conserva_trazabilidad` | `verificar_integridad` (PRORRATEO) |
+| 6 | No registrar en periodo cerrado | `test_fecha_en_periodo_cerrado`, `test_fecha_sin_periodo_o_en_periodo_cerrado`, `test_una_vez_por_periodo_y_solo_periodo_abierto` | `test_trigger_exige_periodo_abierto` |
+| 7 | Catálogo jerárquico | `test_jerarquia_nivel_y_herencia_de_tipo`, `test_codigo_debe_empezar_con_el_del_padre`, `test_codigo_padre_y_tipo_son_inmutables` | Restricciones del modelo `Cuenta` |
+| 8 | Centros jerárquicos con vigencia | `centros_costo/tests.py::test_jerarquia_*`, `test_vigencia_*`, `test_no_se_cierra_padre_con_subunidades_vigentes` | `test_constraint_bd_vigencia` |
+| 9 | Bitácora de acciones sensibles | `test_*_bitacora` en cada app (cuentas, periodos, asientos, prorrateo, presupuesto, distribución, cuentas por pagar, egresos programados) | `usuarios/tests.py::test_trigger_impide_update_en_base_de_datos`, `test_trigger_impide_delete_en_base_de_datos` |
+
+### Presupuesto (Bloque 4)
+| Regla | Servicio | Base de datos |
+|---|---|---|
+| Cambios versionados y auditados | `presupuesto/tests.py::test_ajuste_en_borrador`, `test_modificacion_de_aprobado_exige_motivo_y_referencia`, `test_bitacora` | `test_monto_sin_version_en_bd`, `test_versiones_inmutables_y_sin_eliminacion` |
+| Σ distribuido ≤ institucional; saldo sin distribuir | `tests_distribucion.py::test_no_excede_el_monto_institucional`, `test_saldo_sin_distribuir`, `test_monto_institucional_no_baja_de_lo_distribuido` | `test_tope_institucional_en_bd`, `test_monto_institucional_en_bd` |
+| Σ detalle ≤ asignación del departamento | `test_detalle_no_excede_lo_asignado` | `test_tope_departamento_en_bd` |
+| Ejecución vs. presupuesto y alertas | `tests_ejecucion.py::*` | — |
+
+### Coherencia entre módulos (integración)
+`config/tests_integracion.py::CicloCompletoTests` comprueba con los datos de ejemplo que:
+- la balanza cuadra (cargos = abonos);
+- estado de resultados = ingresos − gastos; enfoque de contribución e indicadores = absorbente; el prorrateo no cambia el total;
+- ejecución presupuestaria = gastos directos del estado de resultados por departamento;
+- flujo de efectivo real cuadra con el saldo contable; el dashboard coincide con sus fuentes;
+- `verificar_integridad` no encuentra fallas, y detecta un saldo de cuenta por pagar alterado por fuera del sistema (`IntegridadDetectaFallasTests`).
+
+## Verificación sobre la base real
+`python manage.py verificar_integridad [--anio AAAA]` revisa: partida doble, líneas sin centro (aviso), trazabilidad de prorrateos, saldos de cuentas por pagar, presupuesto (versiones y topes), reportes vs. balanza y que los 13 triggers existan y estén habilitados. Termina con código 1 si hay fallas. Úsela antes de cerrar un periodo y después de restaurar un respaldo.

@@ -6,3 +6,6 @@ dist/
 .vscode/
 *.sqlite3
 staticfiles/
+
+# Respaldos de la base (scripts/respaldo.sh)
+respaldos/
