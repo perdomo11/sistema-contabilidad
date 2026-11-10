@@ -99,3 +99,75 @@ class VersionPresupuesto(models.Model):
 
     def __str__(self):
         return f"{self.presupuesto} v{self.numero}"
+
+
+# =============================================================================
+# T4.2: distribución a departamentos (centro de costo) y detalle por cuenta y mes
+# =============================================================================
+
+class AsignacionPresupuesto(models.Model):
+    """Monto anual del presupuesto institucional asignado a un departamento (centro de detalle)."""
+
+    presupuesto = models.ForeignKey(PresupuestoInstitucional, on_delete=models.PROTECT, related_name="asignaciones")
+    centro_costo = models.ForeignKey("centros_costo.CentroCosto", on_delete=models.PROTECT, related_name="+")
+    monto = models.DecimalField(max_digits=18, decimal_places=2)
+    creado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="+")
+    creado_en = models.DateTimeField(auto_now_add=True)
+    modificado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="+")
+    modificado_en = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "asignación de presupuesto"
+        verbose_name_plural = "asignaciones de presupuesto"
+        constraints = [
+            models.UniqueConstraint(fields=["presupuesto", "centro_costo"], name="asignacion_ppto_unica"),
+            models.CheckConstraint(condition=Q(monto__gt=0), name="asignacion_ppto_monto_positivo"),
+        ]
+
+    def __str__(self):
+        return f"{self.presupuesto} · {self.centro_costo_id}"
+
+
+class DetallePresupuesto(models.Model):
+    """Parte de una asignación presupuestada en una cuenta de gasto y un mes."""
+
+    asignacion = models.ForeignKey(AsignacionPresupuesto, on_delete=models.PROTECT, related_name="detalle")
+    cuenta = models.ForeignKey("contabilidad.Cuenta", on_delete=models.PROTECT, related_name="+")
+    mes = models.PositiveSmallIntegerField()
+    monto = models.DecimalField(max_digits=18, decimal_places=2)
+
+    class Meta:
+        verbose_name = "detalle de presupuesto"
+        verbose_name_plural = "detalle de presupuesto"
+        constraints = [
+            models.UniqueConstraint(fields=["asignacion", "cuenta", "mes"], name="detalle_ppto_unico"),
+            models.CheckConstraint(condition=Q(mes__gte=1, mes__lte=12), name="detalle_ppto_mes_valido"),
+            models.CheckConstraint(condition=Q(monto__gt=0), name="detalle_ppto_monto_positivo"),
+        ]
+
+
+class CambioDistribucion(models.Model):
+    """Historial inmutable de la distribución: una fila por asignación o celda (cuenta, mes) que cambia."""
+
+    presupuesto = models.ForeignKey(PresupuestoInstitucional, on_delete=models.PROTECT, related_name="cambios_distribucion")
+    centro_costo = models.ForeignKey("centros_costo.CentroCosto", on_delete=models.PROTECT, related_name="+")
+    cuenta = models.ForeignKey("contabilidad.Cuenta", null=True, blank=True, on_delete=models.PROTECT, related_name="+")
+    mes = models.PositiveSmallIntegerField(null=True, blank=True)
+    monto_anterior = models.DecimalField(max_digits=18, decimal_places=2)
+    monto_nuevo = models.DecimalField(max_digits=18, decimal_places=2)
+    motivo = models.CharField(max_length=500, blank=True)
+    registrado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="+")
+    registrado_en = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "cambio de distribución"
+        verbose_name_plural = "cambios de distribución"
+        ordering = ["-registrado_en", "-id"]
+        constraints = [
+            # Cambio de asignación (sin cuenta ni mes) o de una celda del detalle (con ambos).
+            models.CheckConstraint(
+                condition=Q(cuenta__isnull=True, mes__isnull=True) | Q(cuenta__isnull=False, mes__gte=1, mes__lte=12),
+                name="cambio_dist_nivel_valido",
+            ),
+            models.CheckConstraint(condition=Q(monto_anterior__gte=0, monto_nuevo__gte=0), name="cambio_dist_montos_validos"),
+        ]

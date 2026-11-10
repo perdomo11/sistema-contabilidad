@@ -1,16 +1,22 @@
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.generics import get_object_or_404
+from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
 from rest_framework.response import Response
 
+from centros_costo.models import CentroCosto
 from usuarios import roles
 from usuarios.permissions import TieneRol
 
-from . import services
+from . import distribucion, services
 from .models import PresupuestoInstitucional
 from .serializers import (
     AprobarSerializer,
+    AsignarDepartamentoSerializer,
     CambiarMontoSerializer,
+    CambioDistribucionSerializer,
+    FiltroHistorialSerializer,
+    GuardarDetalleSerializer,
     PresupuestoActualizarSerializer,
     PresupuestoCrearSerializer,
     PresupuestoDetalleSerializer,
@@ -19,14 +25,17 @@ from .serializers import (
 
 
 class PresupuestoViewSet(viewsets.GenericViewSet):
-    """Presupuesto institucional (T4.1). Lectura: autenticados. Escritura: Contador."""
+    """Presupuesto institucional (T4.1). Lectura: autenticados. Escritura: Contador.
+
+    T4.2 agrega la distribución a departamentos y su detalle por cuenta y mes.
+    """
 
     serializer_class = PresupuestoSerializer
     queryset = PresupuestoInstitucional.objects.select_related("aprobado_por", "creado_por", "modificado_por")
     pagination_class = None
 
     def get_permissions(self):
-        if self.action in ("list", "retrieve"):
+        if self.request.method in SAFE_METHODS:
             return [IsAuthenticated()]
         return [IsAuthenticated(), TieneRol(roles.CONTADOR)()]
 
@@ -69,3 +78,36 @@ class PresupuestoViewSet(viewsets.GenericViewSet):
     @action(detail=True, methods=["post"])
     def cerrar(self, request, pk=None):
         return self._detalle(services.cerrar_presupuesto(self.get_object(), usuario=request.user, request=request))
+
+    # ------------------------------------------------------------------
+    # T4.2: distribución a departamentos
+    # ------------------------------------------------------------------
+    @action(detail=True, methods=["get", "post"])
+    def distribucion(self, request, pk=None):
+        presupuesto = self.get_object()
+        if request.method == "GET":
+            return Response(distribucion.resumen_distribucion(presupuesto))
+        entrada = AsignarDepartamentoSerializer(data=request.data)
+        entrada.is_valid(raise_exception=True)
+        return Response(
+            distribucion.asignar_departamento(presupuesto, usuario=request.user, request=request, **entrada.validated_data)
+        )
+
+    @action(detail=True, methods=["get", "put"], url_path=r"distribucion/(?P<centro_id>[0-9]+)")
+    def detalle_departamento(self, request, pk=None, centro_id=None):
+        presupuesto = self.get_object()
+        centro = get_object_or_404(CentroCosto, pk=centro_id)
+        if request.method == "GET":
+            return Response(distribucion.detalle_departamento(presupuesto, centro))
+        entrada = GuardarDetalleSerializer(data=request.data)
+        entrada.is_valid(raise_exception=True)
+        return Response(
+            distribucion.guardar_detalle(presupuesto, usuario=request.user, centro=centro, request=request, **entrada.validated_data)
+        )
+
+    @action(detail=True, methods=["get"], url_path="historial-distribucion")
+    def historial_distribucion(self, request, pk=None):
+        filtros = FiltroHistorialSerializer(data=request.query_params)
+        filtros.is_valid(raise_exception=True)
+        cambios = distribucion.historial_distribucion(self.get_object(), **filtros.validated_data)[:500]
+        return Response(CambioDistribucionSerializer(cambios, many=True).data)

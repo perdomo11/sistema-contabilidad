@@ -7,6 +7,7 @@ from decimal import Decimal, InvalidOperation
 
 from django.core.exceptions import ValidationError
 from django.db import transaction
+from django.db.models import Sum
 from django.utils import timezone
 
 from usuarios.models import Bitacora
@@ -102,6 +103,11 @@ def cambiar_monto(presupuesto, *, usuario, monto, motivo="", referencia="", requ
     motivo, referencia = _texto(motivo), _texto(referencia)
     if monto == p.monto:
         raise ValidationError({"monto": "El monto nuevo es igual al vigente."})
+    distribuido = p.asignaciones.aggregate(t=Sum("monto"))["t"] or Decimal("0.00")
+    if monto < distribuido:
+        raise ValidationError({
+            "monto": f"Ya se distribuyeron {distribuido:,.2f} a los departamentos: el monto institucional no puede ser menor."
+        })
     if p.estado == Estado.APROBADO:
         errores = {}
         if not motivo:
