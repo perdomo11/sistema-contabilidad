@@ -322,3 +322,97 @@ def enfoque_contribucion(*, desde, hasta, centro=None, nivel_cuentas=2):
         "costos_comunes": _texto(comunes),
         "resultado": _texto(total_segmentos - comunes),
     }
+
+
+# =============================================================================
+# T3.3: indicadores de rentabilidad por área
+# =============================================================================
+
+def indicadores_rentabilidad(*, desde, hasta, centro=None):
+    """Margen bruto, operativo, neto y de contribución por unidad, y su participación en el resultado.
+
+    Usa el rubro de cada cuenta (T3.2): margen bruto = ingresos de operación − costo de intermediación;
+    resultado operativo = margen bruto − gastos de operación (incluidos los prorrateados); resultado neto =
+    operativo + ingresos no operacionales − gastos no operacionales (igual al resultado absorbente de T3.1).
+    El margen de contribución es el de T3.2 (ingresos − costos variables directos) y no se calcula para la
+    columna "Sin centro". La participación se mide sobre el total de la vista y solo aplica si es positivo.
+    """
+    seg = _Segmentos(desde=desde, hasta=hasta, centro=centro)
+    claves = seg.claves()
+    rubros = {
+        R.INGRESO_OPERACION: "ingresos_operacion",
+        R.COSTO_INTERMEDIACION: "costo_intermediacion",
+        R.GASTO_OPERACION: "gastos_operacion",
+        R.INGRESO_NO_OPERACION: "ingresos_no_operacion",
+        R.GASTO_NO_OPERACION: "gastos_no_operacion",
+    }
+    sumas = {c: defaultdict(lambda: CERO) for c in (*rubros.values(), "variables")}
+    for m in seg.movimientos:
+        col = m["columna"]
+        rubro = m["rubro_resultado"] or (R.INGRESO_OPERACION if m["es_ingreso"] else R.GASTO_OPERACION)
+        sumas[rubros[rubro]][col] += m["monto"]
+        if not m["es_ingreso"] and col != SIN_CENTRO and _categoria_contribucion(m) == "variables":
+            sumas["variables"][col] += m["monto"]
+
+    margen_bruto = _combinar(claves, (1, sumas["ingresos_operacion"]), (-1, sumas["costo_intermediacion"]))
+    resultado_operativo = _combinar(claves, (1, margen_bruto), (-1, sumas["gastos_operacion"]))
+    resultado_neto = _combinar(
+        claves, (1, resultado_operativo), (1, sumas["ingresos_no_operacion"]), (-1, sumas["gastos_no_operacion"])
+    )
+    ingresos = _combinar(claves, (1, sumas["ingresos_operacion"]), (1, sumas["ingresos_no_operacion"]))
+    segmentos = [k for k in claves if k != SIN_CENTRO]
+    margen_contribucion = _combinar(segmentos, (1, ingresos), (-1, sumas["variables"]))
+
+    def total(valores, sobre=claves):
+        return sum((valores.get(k, CERO) for k in sobre), CERO)
+
+    def montos(clave, titulo, valores, sobre=claves):
+        return {
+            "clave": clave, "titulo": titulo,
+            "valores": [_texto(valores[k]) if k in sobre else None for k in claves],
+            "total": _texto(total(valores, sobre)),
+        }
+
+    def razon(clave, titulo, base_texto, parte, base, sobre=claves):
+        return {
+            "clave": clave, "titulo": titulo, "base": base_texto,
+            "valores": [_porcentaje(parte[k], base[k]) if k in sobre else None for k in claves],
+            "total": _porcentaje(total(parte, sobre), total(base, sobre)),
+        }
+
+    def participacion(clave, titulo, valores):
+        base = total(valores)
+        aplica = base > 0
+        return {
+            "clave": clave, "titulo": titulo, "aplica": aplica,
+            "valores": [_porcentaje(valores[k], base) if aplica else None for k in claves],
+            "total": "100.00" if aplica else None,
+        }
+
+    ingresos_operacion = sumas["ingresos_operacion"]
+    return {
+        **seg.encabezado(),
+        "columnas": seg.describir_columnas(),
+        "montos": [
+            montos("ingresos_operacion", "Ingresos de operación", ingresos_operacion),
+            montos("costo_intermediacion", "(−) Costo de intermediación", sumas["costo_intermediacion"]),
+            montos("margen_bruto", "= Margen bruto", margen_bruto),
+            montos("gastos_operacion", "(−) Gastos de operación (directos y asignados)", sumas["gastos_operacion"]),
+            montos("resultado_operativo", "= Resultado operativo", resultado_operativo),
+            montos("ingresos_no_operacion", "(+) Ingresos no operacionales", sumas["ingresos_no_operacion"]),
+            montos("gastos_no_operacion", "(−) Gastos no operacionales", sumas["gastos_no_operacion"]),
+            montos("resultado_neto", "= Resultado neto", resultado_neto),
+            montos("margen_contribucion", "Margen de contribución (ingresos − costos variables directos)",
+                   margen_contribucion, segmentos),
+        ],
+        "indicadores": [
+            razon("margen_bruto", "Margen bruto", "ingresos de operación", margen_bruto, ingresos_operacion),
+            razon("margen_operativo", "Margen operativo", "ingresos de operación", resultado_operativo, ingresos_operacion),
+            razon("margen_contribucion", "Margen de contribución", "ingresos totales", margen_contribucion, ingresos, segmentos),
+            razon("margen_neto", "Margen neto", "ingresos totales", resultado_neto, ingresos),
+        ],
+        "participacion": [
+            participacion("resultado", "Participación en el resultado", resultado_neto),
+            participacion("ingresos", "Participación en los ingresos", ingresos),
+        ],
+    }

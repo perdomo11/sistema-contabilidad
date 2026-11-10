@@ -11,6 +11,7 @@ import Catalogo from './pages/Catalogo'
 import CentrosCosto from './pages/CentrosCosto'
 import EnfoqueContribucion from './pages/EnfoqueContribucion'
 import EstadoResultados from './pages/EstadoResultados'
+import IndicadoresRentabilidad from './pages/IndicadoresRentabilidad'
 import Inicio from './pages/Inicio'
 import LibroDiario from './pages/LibroDiario'
 import LibroMayor from './pages/LibroMayor'
@@ -43,6 +44,7 @@ export default function App() {
         <Route path="libros/balanza" element={<Balanza />} />
         <Route path="reportes/estado-resultados" element={<EstadoResultados />} />
         <Route path="reportes/enfoque-contribucion" element={<EnfoqueContribucion />} />
+        <Route path="reportes/indicadores" element={<IndicadoresRentabilidad />} />
         <Route path="centros-costo" element={<CentrosCosto />} />
         <Route path="centros-costo/reglas" element={<ReglasAsignacion />} />
         <Route path="centros-costo/prorrateo" element={<Prorrateo />} />

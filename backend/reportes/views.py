@@ -3,7 +3,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from . import services
-from .serializers import FiltroEstadoResultadosSerializer
+from .serializers import FiltroEstadoResultadosSerializer, FiltroIndicadoresSerializer
 
 
 @api_view(["GET"])
@@ -22,3 +22,12 @@ def enfoque_contribucion(request):
     filtros = FiltroEstadoResultadosSerializer(data=request.query_params)
     filtros.is_valid(raise_exception=True)
     return Response(services.enfoque_contribucion(**filtros.validated_data))
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def indicadores_rentabilidad(request):
+    """Indicadores de rentabilidad por área (T3.3)."""
+    filtros = FiltroIndicadoresSerializer(data=request.query_params)
+    filtros.is_valid(raise_exception=True)
+    return Response(services.indicadores_rentabilidad(**filtros.validated_data))

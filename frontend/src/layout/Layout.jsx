@@ -33,6 +33,7 @@ const MENU = [
     items: [
       { a: '/reportes/estado-resultados', icono: 'bi-graph-up', texto: 'Estado de resultados' },
       { a: '/reportes/enfoque-contribucion', icono: 'bi-pie-chart', texto: 'Enfoque de contribución' },
+      { a: '/reportes/indicadores', icono: 'bi-speedometer2', texto: 'Indicadores de rentabilidad' },
     ],
   },
   {
