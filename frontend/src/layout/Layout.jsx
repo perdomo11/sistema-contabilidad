@@ -47,6 +47,7 @@ const MENU = [
   {
     seccion: 'Tesorería',
     items: [
+      { a: '/tesoreria', icono: 'bi-speedometer', texto: 'Dashboard', exacto: true },
       { a: '/proveedores', icono: 'bi-truck', texto: 'Proveedores' },
       { a: '/tesoreria/cuentas-por-pagar', icono: 'bi-receipt', texto: 'Cuentas por pagar' },
       { a: '/tesoreria/proyeccion-egresos', icono: 'bi-calendar-range', texto: 'Proyección de egresos' },

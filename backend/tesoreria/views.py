@@ -11,6 +11,7 @@ from usuarios.permissions import TieneRol
 
 from . import cuentas_por_pagar as cpp
 from . import flujo, proyeccion, services
+from .dashboard import dashboard_tesoreria
 from .models import ClasificacionFlujo, CuentaPorPagar, EgresoProgramado, PagoCuentaPorPagar, Proveedor
 from .serializers import (
     AnularSerializer,
@@ -293,3 +294,16 @@ class ConfiguracionTesoreriaView(_EscrituraTesoreria, APIView):
         entrada = ConfiguracionTesoreriaSerializer(data=request.data, partial=True)
         entrada.is_valid(raise_exception=True)
         return self._salida(flujo.actualizar_configuracion(usuario=request.user, datos=entrada.validated_data, request=request))
+
+
+# =============================================================================
+# T5.4: dashboard de tesorería
+# =============================================================================
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def dashboard(request):
+    """Dashboard de tesorería: compone cuentas por pagar, proyección de egresos y flujo de efectivo (T5.4)."""
+    filtros = FiltroProyeccionSerializer(data=request.query_params)
+    filtros.is_valid(raise_exception=True)
+    return Response(dashboard_tesoreria(fecha=filtros.validated_data["fecha"] or timezone.localdate()))

@@ -443,3 +443,92 @@ code {
     break-inside: avoid;
   }
 }
+
+/* =============================================================================
+   Gráficos (T5.4). Paleta validada contra el fondo blanco de las tarjetas
+   (validate_palette.js: serie 1 azul y serie 2 naranja pasan todas las verificaciones).
+   La interfaz es solo en modo claro.
+   ============================================================================= */
+:root {
+  --viz-serie-1: #2a78d6;
+  --viz-serie-2: #eb6834;
+  --viz-grid: #e9e8e2;
+  --viz-base: #c3c2b7;
+  --viz-texto: #52514e;
+  --viz-texto-suave: #898781;
+  --viz-critico: #d03b3b;
+  --viz-advertencia: #fab219;
+}
+.grafico {
+  position: relative;
+}
+.grafico svg {
+  display: block;
+  overflow: visible;
+}
+.grafico text {
+  font-size: 11px;
+  fill: var(--viz-texto-suave);
+  font-variant-numeric: tabular-nums;
+}
+.grafico .etiqueta-valor {
+  fill: var(--viz-texto);
+  font-weight: 600;
+}
+.grafico .marca {
+  cursor: default;
+  outline: none;
+}
+.grafico .marca:hover,
+.grafico .marca:focus-visible {
+  filter: brightness(1.12);
+}
+.grafico .marca:focus-visible {
+  stroke: var(--viz-texto);
+  stroke-width: 1.5px;
+}
+.grafico-tooltip {
+  position: absolute;
+  pointer-events: none;
+  z-index: 5;
+  min-width: 9rem;
+  padding: 0.4rem 0.6rem;
+  background: #fff;
+  border: 1px solid rgba(11, 11, 11, 0.1);
+  border-radius: 0.4rem;
+  box-shadow: 0 4px 14px rgba(15, 42, 71, 0.12);
+  font-size: 0.78rem;
+  line-height: 1.35;
+  white-space: nowrap;
+}
+.grafico-tooltip .valor {
+  font-weight: 600;
+  color: #0b0b0b;
+}
+.grafico-tooltip .clave {
+  display: inline-block;
+  width: 10px;
+  height: 2px;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+.grafico-leyenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  font-size: 0.8rem;
+  color: #52514e;
+}
+.grafico-leyenda .muestra {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  margin-right: 0.35rem;
+  vertical-align: -1px;
+}
+.cifra-principal {
+  font-size: 3rem;
+  font-weight: 600;
+  line-height: 1.1;
+}

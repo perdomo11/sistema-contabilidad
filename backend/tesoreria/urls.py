@@ -7,6 +7,7 @@ from .views import (
     CuentaPorPagarViewSet,
     EgresoProgramadoViewSet,
     ProveedorViewSet,
+    dashboard,
     flujo_efectivo,
     flujo_proyectado,
     proyeccion_egresos,
@@ -23,5 +24,6 @@ urlpatterns = [
     path("tesoreria/flujo-efectivo/", flujo_efectivo, name="flujo-efectivo"),
     path("tesoreria/flujo-proyectado/", flujo_proyectado, name="flujo-proyectado"),
     path("tesoreria/configuracion/", ConfiguracionTesoreriaView.as_view(), name="configuracion-tesoreria"),
+    path("tesoreria/dashboard/", dashboard, name="dashboard-tesoreria"),
     *router.urls,
 ]
