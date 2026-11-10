@@ -4,21 +4,26 @@ from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from usuarios import roles
 from usuarios.permissions import TieneRol
 
 from . import cuentas_por_pagar as cpp
-from . import proyeccion, services
-from .models import CuentaPorPagar, EgresoProgramado, PagoCuentaPorPagar, Proveedor
+from . import flujo, proyeccion, services
+from .models import ClasificacionFlujo, CuentaPorPagar, EgresoProgramado, PagoCuentaPorPagar, Proveedor
 from .serializers import (
     AnularSerializer,
+    AsignarActividadSerializer,
+    ConfiguracionTesoreriaSerializer,
     CuentaPorPagarCrearSerializer,
     CuentaPorPagarDetalleSerializer,
     CuentaPorPagarSerializer,
     EgresoProgramadoEntradaSerializer,
     EgresoProgramadoSerializer,
     FiltroCuentasPorPagarSerializer,
+    FiltroFlujoProyectadoSerializer,
+    FiltroFlujoSerializer,
     FiltroProveedoresSerializer,
     FiltroProyeccionSerializer,
     PagoCrearSerializer,
@@ -200,3 +205,91 @@ def proyeccion_egresos(request):
     filtros = FiltroProyeccionSerializer(data=request.query_params)
     filtros.is_valid(raise_exception=True)
     return Response(proyeccion.proyeccion_egresos(fecha=filtros.validated_data["fecha"] or timezone.localdate()))
+
+
+# =============================================================================
+# T5.3: flujo de efectivo
+# =============================================================================
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def flujo_efectivo(request):
+    """Flujo de efectivo real del periodo, método directo (T5.3)."""
+    filtros = FiltroFlujoSerializer(data=request.query_params)
+    filtros.is_valid(raise_exception=True)
+    return Response(flujo.flujo_efectivo(**filtros.validated_data))
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def flujo_proyectado(request):
+    """Flujo de efectivo proyectado a 13 semanas con alertas de déficit (T5.3)."""
+    filtros = FiltroFlujoProyectadoSerializer(data=request.query_params)
+    filtros.is_valid(raise_exception=True)
+    fecha = filtros.validated_data["fecha"] or timezone.localdate()
+    return Response(flujo.flujo_proyectado(fecha=fecha, entradas=filtros.validated_data["entradas"]))
+
+
+def _clasificacion_respuesta():
+    from contabilidad.models import Cuenta
+
+    actividades = flujo.actividades_por_cuenta()
+    asignadas = ClasificacionFlujo.objects.select_related("cuenta", "modificado_por").order_by("cuenta__codigo")
+    efectivo = Cuenta.objects.filter(pk__in=flujo.cuentas_efectivo(), acepta_movimientos=True).order_by("codigo")
+    return {
+        "asignaciones": [
+            {"id": c.pk, "cuenta": {"id": c.cuenta_id, "codigo": c.cuenta.codigo, "nombre": c.cuenta.nombre},
+             "actividad": c.actividad, "actividad_display": c.get_actividad_display(),
+             "modificado_por": c.modificado_por.username, "modificado_en": c.modificado_en}
+            for c in asignadas
+        ],
+        "cuentas_efectivo": [{"id": c.pk, "codigo": c.codigo, "nombre": c.nombre} for c in efectivo],
+        "actividad_por_cuenta": {str(k): v[0] for k, v in actividades.items()},
+        "actividades": [{"valor": v, "nombre": n} for v, n in ClasificacionFlujo.Actividad.choices],
+    }
+
+
+class _EscrituraTesoreria:
+    def get_permissions(self):
+        if self.request.method in SAFE_METHODS:
+            return [IsAuthenticated()]
+        return [IsAuthenticated(), TieneRol(roles.CONTADOR, roles.TESORERO)()]
+
+
+class ClasificacionFlujoViewSet(_EscrituraTesoreria, viewsets.GenericViewSet):
+    """Cuentas de efectivo y actividad de flujo por cuenta (con herencia)."""
+
+    queryset = ClasificacionFlujo.objects.select_related("cuenta")
+    pagination_class = None
+
+    def list(self, request):
+        return Response(_clasificacion_respuesta())
+
+    def create(self, request):
+        entrada = AsignarActividadSerializer(data=request.data)
+        entrada.is_valid(raise_exception=True)
+        flujo.asignar_actividad(usuario=request.user, request=request, **entrada.validated_data)
+        return Response(_clasificacion_respuesta(), status=status.HTTP_201_CREATED)
+
+    def destroy(self, request, pk=None):
+        flujo.quitar_actividad(self.get_object(), usuario=request.user, request=request)
+        return Response(_clasificacion_respuesta())
+
+
+class ConfiguracionTesoreriaView(_EscrituraTesoreria, APIView):
+    """Política de liquidez: saldo mínimo y días de historia para estimar entradas."""
+
+    def _salida(self, config):
+        return Response({
+            "saldo_minimo": f"{config.saldo_minimo:.2f}", "dias_historia": config.dias_historia,
+            "modificado_por": config.modificado_por.username if config.modificado_por else None,
+            "modificado_en": config.modificado_en,
+        })
+
+    def get(self, request):
+        return self._salida(flujo.configuracion())
+
+    def patch(self, request):
+        entrada = ConfiguracionTesoreriaSerializer(data=request.data, partial=True)
+        entrada.is_valid(raise_exception=True)
+        return self._salida(flujo.actualizar_configuracion(usuario=request.user, datos=entrada.validated_data, request=request))

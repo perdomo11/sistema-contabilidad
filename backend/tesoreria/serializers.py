@@ -3,7 +3,7 @@ from rest_framework import serializers
 from centros_costo.models import CentroCosto
 from contabilidad.models import Cuenta
 
-from .models import CuentaPorPagar, EgresoProgramado, PagoCuentaPorPagar, Proveedor
+from .models import ClasificacionFlujo, CuentaPorPagar, EgresoProgramado, PagoCuentaPorPagar, Proveedor
 
 
 class ProveedorSerializer(serializers.ModelSerializer):
@@ -225,3 +225,27 @@ class EgresoProgramadoEntradaSerializer(serializers.Serializer):
     dia_mes = serializers.IntegerField(required=False, allow_null=True, default=None, min_value=1, max_value=31)
     proveedor = serializers.PrimaryKeyRelatedField(queryset=Proveedor.objects.all(), required=False, allow_null=True, default=None)
     activo = serializers.BooleanField(default=True)
+
+
+# =============================================================================
+# T5.3: flujo de efectivo
+# =============================================================================
+
+class FiltroFlujoSerializer(serializers.Serializer):
+    desde = serializers.DateField()
+    hasta = serializers.DateField()
+
+
+class FiltroFlujoProyectadoSerializer(serializers.Serializer):
+    fecha = serializers.DateField(required=False, allow_null=True, default=None)
+    entradas = serializers.ChoiceField(choices=["historico", "ninguna"], required=False, default="historico")
+
+
+class AsignarActividadSerializer(serializers.Serializer):
+    cuenta = serializers.PrimaryKeyRelatedField(queryset=Cuenta.objects.all())
+    actividad = serializers.ChoiceField(choices=ClasificacionFlujo.Actividad.choices)
+
+
+class ConfiguracionTesoreriaSerializer(serializers.Serializer):
+    saldo_minimo = serializers.DecimalField(max_digits=18, decimal_places=2, required=False, min_value=0)
+    dias_historia = serializers.IntegerField(required=False, min_value=7, max_value=730)

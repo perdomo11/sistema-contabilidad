@@ -219,3 +219,52 @@ class EgresoProgramado(models.Model):
 
     def __str__(self):
         return self.concepto
+
+
+# =============================================================================
+# T5.3: flujo de efectivo
+# =============================================================================
+
+class ClasificacionFlujo(models.Model):
+    """Cuenta (de cualquier nivel) → actividad del flujo de efectivo; las subcuentas la heredan.
+
+    EFECTIVO marca las cuentas de caja y bancos. Sin asignación en la rama, se usa la actividad por tipo.
+    """
+
+    class Actividad(models.TextChoices):
+        EFECTIVO = "EFECTIVO", "Efectivo y equivalentes"
+        OPERACION = "OPERACION", "Operación"
+        INVERSION = "INVERSION", "Inversión"
+        FINANCIAMIENTO = "FINANCIAMIENTO", "Financiamiento"
+
+    cuenta = models.OneToOneField("contabilidad.Cuenta", on_delete=models.CASCADE, related_name="clasificacion_flujo")
+    actividad = models.CharField(max_length=15, choices=Actividad.choices)
+    modificado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="+")
+    modificado_en = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "clasificación de flujo"
+        verbose_name_plural = "clasificaciones de flujo"
+        constraints = [
+            models.CheckConstraint(
+                condition=Q(actividad__in=["EFECTIVO", "OPERACION", "INVERSION", "FINANCIAMIENTO"]), name="clasif_flujo_actividad_valida"
+            ),
+        ]
+
+
+class ConfiguracionTesoreria(models.Model):
+    """Parámetros de la política de liquidez (registro único, pk=1)."""
+
+    saldo_minimo = models.DecimalField(max_digits=18, decimal_places=2, default=0)
+    dias_historia = models.PositiveSmallIntegerField(default=90)
+    modificado_por = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.PROTECT, related_name="+")
+    modificado_en = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "configuración de tesorería"
+        verbose_name_plural = "configuración de tesorería"
+        constraints = [
+            models.CheckConstraint(condition=Q(saldo_minimo__gte=0), name="config_tes_saldo_minimo"),
+            models.CheckConstraint(condition=Q(dias_historia__gte=7, dias_historia__lte=730), name="config_tes_dias_historia"),
+            models.CheckConstraint(condition=Q(id=1), name="config_tes_registro_unico"),
+        ]

@@ -15,6 +15,7 @@ import EgresosProgramados from './pages/EgresosProgramados'
 import EjecucionPresupuesto from './pages/EjecucionPresupuesto'
 import EnfoqueContribucion from './pages/EnfoqueContribucion'
 import EstadoResultados from './pages/EstadoResultados'
+import FlujoEfectivo from './pages/FlujoEfectivo'
 import IndicadoresRentabilidad from './pages/IndicadoresRentabilidad'
 import Inicio from './pages/Inicio'
 import LibroDiario from './pages/LibroDiario'
@@ -61,6 +62,7 @@ export default function App() {
         <Route path="tesoreria/cuentas-por-pagar" element={<CuentasPorPagar />} />
         <Route path="tesoreria/proyeccion-egresos" element={<ProyeccionEgresos />} />
         <Route path="tesoreria/egresos-programados" element={<EgresosProgramados />} />
+        <Route path="tesoreria/flujo-efectivo" element={<FlujoEfectivo />} />
         <Route path="catalogo" element={<Catalogo />} />
         <Route path="periodos" element={<Periodos />} />
         <Route path="bitacora" element={<RutaProtegida roles={[ROLES.AUDITOR]}>{<Bitacora />}</RutaProtegida>} />
