@@ -2,6 +2,9 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import RutaProtegida from './auth/RutaProtegida'
 import { ROLES } from './auth/roles'
 import BarraNavegacion from './components/BarraNavegacion'
+import AsientoDetalle from './pages/AsientoDetalle'
+import AsientoEditor from './pages/AsientoEditor'
+import Asientos from './pages/Asientos'
 import Bitacora from './pages/Bitacora'
 import Catalogo from './pages/Catalogo'
 import Inicio from './pages/Inicio'
@@ -35,6 +38,38 @@ export default function App() {
           element={
             <RutaProtegida>
               <Periodos />
+            </RutaProtegida>
+          }
+        />
+        <Route
+          path="/asientos"
+          element={
+            <RutaProtegida>
+              <Asientos />
+            </RutaProtegida>
+          }
+        />
+        <Route
+          path="/asientos/nuevo"
+          element={
+            <RutaProtegida roles={[ROLES.CONTADOR]}>
+              <AsientoEditor />
+            </RutaProtegida>
+          }
+        />
+        <Route
+          path="/asientos/:id"
+          element={
+            <RutaProtegida>
+              <AsientoDetalle />
+            </RutaProtegida>
+          }
+        />
+        <Route
+          path="/asientos/:id/editar"
+          element={
+            <RutaProtegida roles={[ROLES.CONTADOR]}>
+              <AsientoEditor />
             </RutaProtegida>
           }
         />

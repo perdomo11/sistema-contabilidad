@@ -74,7 +74,9 @@ docker compose exec backend python manage.py test
 - [x] T0.2 Autenticación JWT, roles y bitácora (ver `docs/tareas/T0.2.md`)
 - [x] T1.1 Catálogo de cuentas jerárquico (ver `docs/tareas/T1.1.md`)
 - [x] T1.2 Periodos contables (ver `docs/tareas/T1.2.md`)
-- Siguiente: T1.3 Asientos con partida doble, inmutabilidad y reversión
+- [x] T1.3 Asientos con partida doble, inmutabilidad y reversión (ver `docs/tareas/T1.3.md`)
+- Siguiente: T1.4 Libro diario, mayor y balanza de comprobación
+- Luego: T1.5 Rediseño visual (pedido por el usuario; ver `docs/PLAN_TAREAS.md`)
 
 Notas de implementación:
 - Roles = grupos de Django (`usuarios/roles.py`). Proteger vistas con `permission_classes = [TieneRol(roles.X)]` (`usuarios/permissions.py`).
@@ -82,6 +84,7 @@ Notas de implementación:
 - Los services lanzan `django.core.exceptions.ValidationError`; `config/excepciones.py` los convierte en 400 (`{"campo": [...]}` o `{"detail": "..."}`).
 - Catálogo de ejemplo: `docker compose exec backend python manage.py cargar_catalogo_base --usuario contador`. T1.3 debe impedir eliminar cuentas con movimientos y registrar solo en cuentas `acepta_movimientos=True` y activas.
 - Periodos: T1.3 debe llamar a `contabilidad.services.validar_fecha_registrable(fecha)` al contabilizar y agregar a `cerrar_periodo` la verificación de asientos en borrador. Reabrir es solo para superusuario (`usuarios.permissions.EsSuperusuario`).
+- Asientos: solo los `CONTABILIZADO` cuentan para libros y reportes. Triggers Oracle `TRG_ASIENTO_REGLAS` y `TRG_LINEA_ASIENTO_INMUTABLE` (migración `contabilidad/0004`). T2.1 debe agregar `centro_costo` a `LineaAsiento` (obligatorio salvo `cuenta.exenta_centro_costo`) y validarlo en `_normalizar_lineas` y `_contabilizar`.
 - Usuarios de prueba: `docker compose exec backend python manage.py crear_usuarios_demo` (contraseña `Demo_2026!`).
 - Desde Git Bash en Windows, anteponer `MSYS_NO_PATHCONV=1` a `docker compose exec` con rutas absolutas del contenedor.
 

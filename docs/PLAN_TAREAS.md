@@ -11,6 +11,7 @@ Trabajar una tarea a la vez; validar antes de avanzar.
 - **T1.2** Periodos contables (apertura/cierre)
 - **T1.3** Asientos y líneas con validación de partida doble (e inmutabilidad/reversión)
 - **T1.4** Libro diario, mayor y balanza de comprobación
+- **T1.5** Rediseño visual: apariencia profesional y consistente de toda la interfaz (layout con menú lateral, identidad visual, componentes comunes de tablas, formularios, montos y estados)
 
 ## Bloque 2: Centros de costo (Objetivo específico 1)
 - **T2.1** Jerarquía de centros (departamentos, sucursales, proyectos), tipos y vigencia

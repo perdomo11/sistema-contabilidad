@@ -12,6 +12,8 @@ const ACCIONES = [
   ['ELIMINAR', 'Eliminación'],
   ['CERRAR', 'Cierre'],
   ['REABRIR', 'Reapertura'],
+  ['CONTABILIZAR', 'Contabilización'],
+  ['REVERTIR', 'Reversión'],
 ]
 
 const FILTROS_VACIOS = { usuario: '', accion: '', desde: '', hasta: '' }

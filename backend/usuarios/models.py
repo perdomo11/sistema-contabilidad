@@ -30,6 +30,8 @@ class Bitacora(models.Model):
         ELIMINAR = "ELIMINAR", "Eliminación"
         CERRAR = "CERRAR", "Cierre"
         REABRIR = "REABRIR", "Reapertura"
+        CONTABILIZAR = "CONTABILIZAR", "Contabilización"
+        REVERTIR = "REVERTIR", "Reversión"
 
     usuario = models.ForeignKey(
         settings.AUTH_USER_MODEL,

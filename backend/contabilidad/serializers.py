@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Cuenta, PeriodoContable
+from .models import Asiento, Cuenta, LineaAsiento, PeriodoContable
 
 
 class CuentaSerializer(serializers.ModelSerializer):
@@ -102,3 +102,116 @@ class ReabrirPeriodoSerializer(serializers.Serializer):
 
 class FiltroPeriodosSerializer(serializers.Serializer):
     anio = serializers.IntegerField(required=False)
+
+
+# =============================================================================
+# Asientos (T1.3)
+# =============================================================================
+
+
+class AsientoResumenSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    codigo = serializers.CharField()
+
+
+class LineaAsientoSerializer(serializers.ModelSerializer):
+    cuenta_codigo = serializers.CharField(source="cuenta.codigo", read_only=True)
+    cuenta_nombre = serializers.CharField(source="cuenta.nombre", read_only=True)
+
+    class Meta:
+        model = LineaAsiento
+        fields = ["id", "numero_linea", "cuenta", "cuenta_codigo", "cuenta_nombre", "descripcion", "debe", "haber", "linea_origen"]
+        read_only_fields = fields
+
+
+class AsientoSerializer(serializers.ModelSerializer):
+    codigo = serializers.CharField(read_only=True)
+    periodo_nombre = serializers.CharField(source="periodo.nombre", read_only=True)
+    periodo_estado = serializers.CharField(source="periodo.estado", read_only=True)
+    tipo_display = serializers.CharField(source="get_tipo_display", read_only=True)
+    estado_display = serializers.CharField(source="get_estado_display", read_only=True)
+    cuadrado = serializers.SerializerMethodField()
+    creado_por = serializers.CharField(source="creado_por.username", read_only=True)
+    modificado_por = serializers.CharField(source="modificado_por.username", read_only=True)
+    contabilizado_por = serializers.CharField(source="contabilizado_por.username", read_only=True, default=None)
+    reversion_de = serializers.SerializerMethodField()
+    revertido_por = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Asiento
+        fields = [
+            "id",
+            "codigo",
+            "ejercicio",
+            "numero",
+            "fecha",
+            "periodo",
+            "periodo_nombre",
+            "periodo_estado",
+            "concepto",
+            "referencia",
+            "tipo",
+            "tipo_display",
+            "estado",
+            "estado_display",
+            "total_debe",
+            "total_haber",
+            "cuadrado",
+            "reversion_de",
+            "revertido_por",
+            "creado_por",
+            "creado_en",
+            "modificado_por",
+            "modificado_en",
+            "contabilizado_por",
+            "contabilizado_en",
+        ]
+        read_only_fields = fields
+
+    def get_cuadrado(self, obj):
+        return obj.total_debe == obj.total_haber and obj.total_debe > 0
+
+    def get_reversion_de(self, obj):
+        original = obj.reversion_de
+        return {"id": original.pk, "codigo": original.codigo} if original else None
+
+    def get_revertido_por(self, obj):
+        reversion = getattr(obj, "reversion", None)
+        return {"id": reversion.pk, "codigo": reversion.codigo} if reversion else None
+
+
+class AsientoDetalleSerializer(AsientoSerializer):
+    lineas = LineaAsientoSerializer(many=True, read_only=True)
+
+    class Meta(AsientoSerializer.Meta):
+        fields = AsientoSerializer.Meta.fields + ["lineas"]
+        read_only_fields = fields
+
+
+class LineaEntradaSerializer(serializers.Serializer):
+    cuenta = serializers.PrimaryKeyRelatedField(queryset=Cuenta.objects.all(), allow_null=True)
+    descripcion = serializers.CharField(max_length=200, required=False, allow_blank=True, default="")
+    # Se reciben como texto y se validan en el servicio (2 decimales, no negativos, máximo NUMBER(18,2)).
+    debe = serializers.CharField(required=False, allow_blank=True, allow_null=True, default="0")
+    haber = serializers.CharField(required=False, allow_blank=True, allow_null=True, default="0")
+
+
+class AsientoEntradaSerializer(serializers.Serializer):
+    fecha = serializers.DateField()
+    concepto = serializers.CharField(max_length=300, allow_blank=True)
+    referencia = serializers.CharField(max_length=50, required=False, allow_blank=True, default="")
+    lineas = LineaEntradaSerializer(many=True, allow_empty=True)
+
+
+class RevertirAsientoSerializer(serializers.Serializer):
+    fecha = serializers.DateField(required=False, allow_null=True, default=None)
+    motivo = serializers.CharField(max_length=250, required=False, allow_blank=True, default="")
+
+
+class FiltroAsientosSerializer(serializers.Serializer):
+    estado = serializers.ChoiceField(choices=Asiento.Estado.choices, required=False)
+    tipo = serializers.ChoiceField(choices=Asiento.Tipo.choices, required=False)
+    desde = serializers.DateField(required=False)
+    hasta = serializers.DateField(required=False)
+    cuenta = serializers.PrimaryKeyRelatedField(queryset=Cuenta.objects.all(), required=False)
+    q = serializers.CharField(required=False, allow_blank=True)

@@ -7,8 +7,13 @@ from usuarios import roles
 from usuarios.permissions import EsSuperusuario, TieneRol
 
 from . import services
-from .models import Cuenta, PeriodoContable
+from .models import Asiento, Cuenta, PeriodoContable
 from .serializers import (
+    AsientoDetalleSerializer,
+    AsientoEntradaSerializer,
+    AsientoSerializer,
+    FiltroAsientosSerializer,
+    RevertirAsientoSerializer,
     CrearEjercicioSerializer,
     CuentaActualizarSerializer,
     CuentaCrearSerializer,
@@ -107,3 +112,62 @@ class PeriodoViewSet(viewsets.GenericViewSet):
             self.get_object(), usuario=request.user, request=request, **entrada.validated_data
         )
         return Response(PeriodoSerializer(periodo).data)
+
+
+class AsientoViewSet(viewsets.GenericViewSet):
+    """Asientos contables. Lectura: autenticados. Escritura, contabilización y reversión: Contador."""
+
+    serializer_class = AsientoSerializer
+    queryset = Asiento.objects.select_related(
+        "periodo", "creado_por", "modificado_por", "contabilizado_por", "reversion_de", "reversion"
+    )
+
+    def get_permissions(self):
+        if self.action in ("list", "retrieve"):
+            return [IsAuthenticated()]
+        return [IsAuthenticated(), TieneRol(roles.CONTADOR)()]
+
+    def _detalle(self, asiento, codigo=status.HTTP_200_OK):
+        asiento = self.get_queryset().prefetch_related("lineas__cuenta").get(pk=asiento.pk)
+        return Response(AsientoDetalleSerializer(asiento).data, status=codigo)
+
+    def list(self, request):
+        filtros = FiltroAsientosSerializer(data=request.query_params)
+        filtros.is_valid(raise_exception=True)
+        pagina = self.paginate_queryset(services.consultar_asientos(**filtros.validated_data))
+        return self.get_paginated_response(AsientoSerializer(pagina, many=True).data)
+
+    def retrieve(self, request, pk=None):
+        return self._detalle(self.get_object())
+
+    def create(self, request):
+        entrada = AsientoEntradaSerializer(data=request.data)
+        entrada.is_valid(raise_exception=True)
+        asiento = services.crear_asiento(usuario=request.user, request=request, **entrada.validated_data)
+        return self._detalle(asiento, status.HTTP_201_CREATED)
+
+    def update(self, request, pk=None):
+        entrada = AsientoEntradaSerializer(data=request.data)
+        entrada.is_valid(raise_exception=True)
+        asiento = services.actualizar_asiento(
+            self.get_object(), usuario=request.user, request=request, **entrada.validated_data
+        )
+        return self._detalle(asiento)
+
+    def destroy(self, request, pk=None):
+        services.eliminar_asiento(self.get_object(), usuario=request.user, request=request)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(detail=True, methods=["post"])
+    def contabilizar(self, request, pk=None):
+        asiento = services.contabilizar_asiento(self.get_object(), usuario=request.user, request=request)
+        return self._detalle(asiento)
+
+    @action(detail=True, methods=["post"])
+    def revertir(self, request, pk=None):
+        entrada = RevertirAsientoSerializer(data=request.data)
+        entrada.is_valid(raise_exception=True)
+        reversion = services.revertir_asiento(
+            self.get_object(), usuario=request.user, request=request, **entrada.validated_data
+        )
+        return self._detalle(reversion, status.HTTP_201_CREATED)

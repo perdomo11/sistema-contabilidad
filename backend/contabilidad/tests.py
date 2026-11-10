@@ -415,3 +415,332 @@ class PeriodosApiTests(BasePeriodos):
 
     def test_sin_sesion_responde_401(self):
         self.assertEqual(self.client.get("/api/periodos/").status_code, 401)
+
+
+# =============================================================================
+# Asientos contables (T1.3)
+# =============================================================================
+
+from decimal import Decimal  # noqa: E402
+
+from django.db import DatabaseError, connection  # noqa: E402
+from django.utils import timezone  # noqa: E402
+
+from .models import Asiento, LineaAsiento  # noqa: E402
+
+EA = Asiento.Estado
+TA = Asiento.Tipo
+D = Decimal
+
+
+class BaseAsientos(TestCase):
+    def setUp(self):
+        self.contador = crear_usuario("contador", roles.CONTADOR)
+        c = self.contador
+        activo = services.crear_cuenta(usuario=c, codigo="1", nombre="Activo", tipo=T.ACTIVO, acepta_movimientos=False)
+        self.caja = services.crear_cuenta(usuario=c, codigo="1101", nombre="Caja", padre=activo)
+        self.bancos = services.crear_cuenta(usuario=c, codigo="1102", nombre="Bancos", padre=activo)
+        gastos = services.crear_cuenta(usuario=c, codigo="5", nombre="Gastos", tipo=T.GASTO, acepta_movimientos=False)
+        self.agrupacion = services.crear_cuenta(
+            usuario=c, codigo="52", nombre="Gastos de operación", padre=gastos, acepta_movimientos=False
+        )
+        self.salarios = services.crear_cuenta(usuario=c, codigo="5201", nombre="Salarios", padre=self.agrupacion)
+        services.crear_ejercicio(usuario=c, anio=2026)
+
+    def lineas(self, *pares):
+        """pares: (cuenta, debe, haber)"""
+        return [{"cuenta": cuenta, "debe": debe, "haber": haber} for cuenta, debe, haber in pares]
+
+    def borrador(self, fecha=date(2026, 3, 15), lineas=None, concepto="Pago de planilla"):
+        lineas = lineas or self.lineas((self.salarios, "1500.00", 0), (self.caja, 0, "1500.00"))
+        return services.crear_asiento(usuario=self.contador, fecha=fecha, concepto=concepto, lineas=lineas)
+
+    def contabilizado(self, **kwargs):
+        return services.contabilizar_asiento(self.borrador(**kwargs), usuario=self.contador)
+
+
+class BorradorTests(BaseAsientos):
+    def test_borrador_descuadrado_se_guarda(self):
+        asiento = self.borrador(lineas=self.lineas((self.salarios, "100", 0), (self.caja, 0, "60")))
+        self.assertEqual(asiento.estado, EA.BORRADOR)
+        self.assertIsNone(asiento.numero)
+        self.assertEqual((asiento.total_debe, asiento.total_haber), (D("100.00"), D("60.00")))
+        self.assertEqual(asiento.periodo.mes, 3)
+        self.assertEqual(asiento.lineas.count(), 2)
+        self.assertTrue(Bitacora.objects.filter(accion=Bitacora.Accion.CREAR, entidad="asiento").exists())
+
+    def test_validaciones_de_lineas(self):
+        casos = {
+            "cargo y abono": (self.salarios, "10", "10"),
+            "sin monto": (self.salarios, 0, 0),
+            "negativo": (self.salarios, "-5", 0),
+            "tres decimales": (self.salarios, "1.005", 0),
+            "no numérico": (self.salarios, "abc", 0),
+            "cuenta de agrupación": (self.agrupacion, "10", 0),
+            "sin cuenta": (None, "10", 0),
+        }
+        for nombre, linea in casos.items():
+            with self.subTest(nombre), self.assertRaises(ValidationError):
+                self.borrador(lineas=self.lineas(linea, (self.caja, 0, "10")))
+
+    def test_cuenta_inactiva(self):
+        services.actualizar_cuenta(self.bancos, usuario=self.contador, datos={"activa": False})
+        with self.assertRaises(ValidationError):
+            self.borrador(lineas=self.lineas((self.salarios, "10", 0), (self.bancos, 0, "10")))
+
+    def test_concepto_obligatorio(self):
+        with self.assertRaises(ValidationError):
+            self.borrador(concepto="  ")
+
+    def test_fecha_sin_periodo_o_en_periodo_cerrado(self):
+        with self.assertRaisesMessage(ValidationError, "ejercicio 2027"):
+            self.borrador(fecha=date(2027, 1, 10))
+        services.cerrar_periodo(PeriodoContable.objects.get(anio=2026, mes=1), usuario=self.contador)
+        with self.assertRaisesMessage(ValidationError, "cerrado"):
+            self.borrador(fecha=date(2026, 1, 10))
+
+    def test_editar_y_eliminar_borrador(self):
+        asiento = self.borrador()
+        services.actualizar_asiento(
+            asiento,
+            usuario=self.contador,
+            fecha=date(2026, 3, 20),
+            concepto="Planilla marzo",
+            lineas=self.lineas((self.salarios, "2000", 0), (self.bancos, 0, "2000")),
+        )
+        asiento.refresh_from_db()
+        self.assertEqual(asiento.concepto, "Planilla marzo")
+        self.assertEqual(list(asiento.lineas.values_list("cuenta__codigo", flat=True)), ["5201", "1102"])
+        services.eliminar_asiento(asiento, usuario=self.contador)
+        self.assertFalse(Asiento.objects.filter(pk=asiento.pk).exists())
+        self.assertFalse(LineaAsiento.objects.filter(asiento_id=asiento.pk).exists())
+
+
+class ContabilizarTests(BaseAsientos):
+    def test_partida_doble_obligatoria(self):
+        asiento = self.borrador(lineas=self.lineas((self.salarios, "100", 0), (self.caja, 0, "60")))
+        with self.assertRaisesMessage(ValidationError, "Partida doble"):
+            services.contabilizar_asiento(asiento, usuario=self.contador)
+
+    def test_minimo_dos_lineas(self):
+        asiento = self.borrador(lineas=self.lineas((self.salarios, "100", 0)))
+        with self.assertRaisesMessage(ValidationError, "dos líneas"):
+            services.contabilizar_asiento(asiento, usuario=self.contador)
+
+    def test_numeracion_correlativa_por_ejercicio(self):
+        primero = self.contabilizado()
+        segundo = self.contabilizado()
+        self.assertEqual((primero.ejercicio, primero.numero, primero.codigo), (2026, 1, "2026-000001"))
+        self.assertEqual(segundo.numero, 2)
+        self.assertEqual(primero.estado, EA.CONTABILIZADO)
+        self.assertEqual(primero.contabilizado_por, self.contador)
+        self.assertTrue(Bitacora.objects.filter(accion=Bitacora.Accion.CONTABILIZAR).exists())
+
+    def test_cuenta_desactivada_despues_del_borrador(self):
+        asiento = self.borrador(lineas=self.lineas((self.salarios, "10", 0), (self.bancos, 0, "10")))
+        services.actualizar_cuenta(self.bancos, usuario=self.contador, datos={"activa": False})
+        with self.assertRaisesMessage(ValidationError, "inactiva"):
+            services.contabilizar_asiento(asiento, usuario=self.contador)
+
+    def test_contabilizado_es_inmutable_en_el_servicio(self):
+        asiento = self.contabilizado()
+        with self.assertRaises(ValidationError):
+            services.actualizar_asiento(
+                asiento, usuario=self.contador, fecha=asiento.fecha, concepto="X", lineas=self.lineas((self.caja, "1", 0))
+            )
+        with self.assertRaises(ValidationError):
+            services.eliminar_asiento(asiento, usuario=self.contador)
+        with self.assertRaises(ValidationError):
+            services.contabilizar_asiento(asiento, usuario=self.contador)
+
+
+class TriggersAsientoTests(BaseAsientos):
+    """Las reglas se cumplen aunque se salte el servicio (acceso directo a la BD)."""
+
+    def assertRechazaBD(self, funcion):
+        with self.assertRaises(DatabaseError), transaction.atomic():
+            funcion()
+
+    def test_asiento_contabilizado_no_se_modifica_ni_elimina(self):
+        asiento = self.contabilizado()
+        self.assertRechazaBD(lambda: Asiento.objects.filter(pk=asiento.pk).update(concepto="alterado"))
+        tabla = Asiento._meta.db_table
+
+        def borrar():
+            with connection.cursor() as cursor:
+                cursor.execute(f"DELETE FROM {tabla} WHERE id = %s", [asiento.pk])
+
+        self.assertRechazaBD(borrar)
+        asiento.refresh_from_db()
+        self.assertEqual(asiento.concepto, "Pago de planilla")
+
+    def test_lineas_de_asiento_contabilizado_no_se_tocan(self):
+        asiento = self.contabilizado()
+        linea = asiento.lineas.first()
+        self.assertRechazaBD(lambda: LineaAsiento.objects.filter(pk=linea.pk).update(debe=D("1")))
+        self.assertRechazaBD(lambda: LineaAsiento.objects.filter(pk=linea.pk).delete())
+        self.assertRechazaBD(
+            lambda: LineaAsiento.objects.create(asiento=asiento, numero_linea=9, cuenta=self.caja, debe=D("5"))
+        )
+
+    def test_trigger_exige_partida_doble(self):
+        asiento = self.borrador(lineas=self.lineas((self.salarios, "100", 0), (self.caja, 0, "60")))
+        self.assertRechazaBD(
+            lambda: Asiento.objects.filter(pk=asiento.pk).update(
+                estado=EA.CONTABILIZADO,
+                ejercicio=2026,
+                numero=99,
+                total_debe=D("100"),
+                total_haber=D("100"),
+                contabilizado_por=self.contador,
+                contabilizado_en=timezone.now(),
+            )
+        )
+
+    def test_trigger_exige_periodo_abierto(self):
+        asiento = self.borrador(fecha=date(2026, 1, 20))
+        # Cierra enero saltándose el servicio (que impediría el cierre por el borrador).
+        PeriodoContable.objects.filter(anio=2026, mes=1).update(
+            estado=E.CERRADO, cerrado_por=self.contador, cerrado_en=timezone.now()
+        )
+        self.assertRechazaBD(
+            lambda: Asiento.objects.filter(pk=asiento.pk).update(
+                estado=EA.CONTABILIZADO,
+                ejercicio=2026,
+                numero=99,
+                total_debe=D("1500"),
+                total_haber=D("1500"),
+                contabilizado_por=self.contador,
+                contabilizado_en=timezone.now(),
+            )
+        )
+
+    def test_check_linea_cargo_o_abono(self):
+        asiento = self.borrador()
+        linea = asiento.lineas.first()
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            LineaAsiento.objects.filter(pk=linea.pk).update(haber=D("5"))
+
+
+class ReversionTests(BaseAsientos):
+    def test_reversion_invierte_lineas_y_conserva_trazabilidad(self):
+        original = self.contabilizado()
+        reversion = services.revertir_asiento(original, usuario=self.contador, motivo="Monto erróneo", fecha=date(2026, 3, 31))
+        self.assertEqual(reversion.tipo, TA.REVERSION)
+        self.assertEqual(reversion.estado, EA.CONTABILIZADO)
+        self.assertEqual(reversion.reversion_de, original)
+        self.assertEqual(reversion.numero, 2)
+        self.assertIn("Monto erróneo", reversion.concepto)
+        for linea_o, linea_r in zip(original.lineas.order_by("numero_linea"), reversion.lineas.order_by("numero_linea")):
+            self.assertEqual(linea_r.linea_origen, linea_o)
+            self.assertEqual((linea_r.debe, linea_r.haber), (linea_o.haber, linea_o.debe))
+            self.assertEqual(linea_r.cuenta, linea_o.cuenta)
+        original.refresh_from_db()
+        self.assertEqual(original.estado, EA.CONTABILIZADO)  # el original no se toca
+        evento = Bitacora.objects.get(accion=Bitacora.Accion.REVERTIR)
+        self.assertEqual(evento.valor_nuevo["motivo"], "Monto erróneo")
+
+    def test_reglas_de_reversion(self):
+        original = self.contabilizado()
+        with self.assertRaises(ValidationError):
+            services.revertir_asiento(original, usuario=self.contador, motivo=" ")
+        with self.assertRaises(ValidationError):
+            services.revertir_asiento(original, usuario=self.contador, motivo="x", fecha=date(2026, 3, 1))
+        reversion = services.revertir_asiento(original, usuario=self.contador, motivo="x", fecha=date(2026, 3, 15))
+        with self.assertRaisesMessage(ValidationError, "ya fue revertido"):
+            services.revertir_asiento(original, usuario=self.contador, motivo="x", fecha=date(2026, 3, 15))
+        with self.assertRaisesMessage(ValidationError, "no se revierte"):
+            services.revertir_asiento(reversion, usuario=self.contador, motivo="x", fecha=date(2026, 3, 15))
+        with self.assertRaises(ValidationError):
+            services.revertir_asiento(self.borrador(), usuario=self.contador, motivo="x")
+
+    def test_reversion_con_cuenta_desactivada(self):
+        original = self.contabilizado(lineas=self.lineas((self.salarios, "10", 0), (self.bancos, 0, "10")))
+        services.actualizar_cuenta(self.bancos, usuario=self.contador, datos={"activa": False})
+        reversion = services.revertir_asiento(original, usuario=self.contador, motivo="x", fecha=date(2026, 3, 15))
+        self.assertEqual(reversion.estado, EA.CONTABILIZADO)
+
+
+class ReglasRelacionadasTests(BaseAsientos):
+    def test_no_se_cierra_periodo_con_borradores(self):
+        asiento = self.borrador(fecha=date(2026, 1, 10))
+        enero = PeriodoContable.objects.get(anio=2026, mes=1)
+        with self.assertRaisesMessage(ValidationError, "borrador"):
+            services.cerrar_periodo(enero, usuario=self.contador)
+        services.contabilizar_asiento(asiento, usuario=self.contador)
+        services.cerrar_periodo(enero, usuario=self.contador)
+
+    def test_cuenta_con_movimientos_no_se_elimina_ni_agrupa(self):
+        self.borrador()
+        with self.assertRaisesMessage(ValidationError, "movimientos"):
+            services.eliminar_cuenta(self.caja, usuario=self.contador)
+        with self.assertRaises(ValidationError):
+            services.actualizar_cuenta(self.caja, usuario=self.contador, datos={"acepta_movimientos": False})
+
+
+class AsientosApiTests(BaseAsientos):
+    def setUp(self):
+        super().setUp()
+        self.client = APIClient()
+        self.auditor = crear_usuario("auditor", roles.AUDITOR)
+
+    def cuerpo(self, debe="250.75", haber="250.75"):
+        return {
+            "fecha": "2026-04-05",
+            "concepto": "Pago de energía",
+            "referencia": "FAC-123",
+            "lineas": [
+                {"cuenta": self.salarios.pk, "debe": debe, "haber": "0", "descripcion": "Abril"},
+                {"cuenta": self.caja.pk, "debe": "", "haber": haber},
+            ],
+        }
+
+    def test_flujo_completo(self):
+        self.client.force_authenticate(self.contador)
+        resp = self.client.post("/api/asientos/", self.cuerpo(haber="200"), format="json")
+        self.assertEqual(resp.status_code, 201, resp.data)
+        pk = resp.data["id"]
+        self.assertEqual(resp.data["total_debe"], "250.75")
+        self.assertFalse(resp.data["cuadrado"])
+        self.assertEqual(len(resp.data["lineas"]), 2)
+
+        resp = self.client.post(f"/api/asientos/{pk}/contabilizar/")
+        self.assertEqual(resp.status_code, 400)
+        self.assertIn("Partida doble", resp.data["detail"])
+
+        resp = self.client.put(f"/api/asientos/{pk}/", self.cuerpo(), format="json")
+        self.assertEqual(resp.status_code, 200, resp.data)
+        resp = self.client.post(f"/api/asientos/{pk}/contabilizar/")
+        self.assertEqual(resp.status_code, 200, resp.data)
+        self.assertEqual(resp.data["codigo"], "2026-000001")
+
+        self.assertEqual(self.client.put(f"/api/asientos/{pk}/", self.cuerpo(), format="json").status_code, 400)
+        self.assertEqual(self.client.delete(f"/api/asientos/{pk}/").status_code, 400)
+
+        resp = self.client.post(f"/api/asientos/{pk}/revertir/", {"fecha": "2026-04-06", "motivo": "Duplicado"}, format="json")
+        self.assertEqual(resp.status_code, 201, resp.data)
+        self.assertEqual(resp.data["reversion_de"]["codigo"], "2026-000001")
+        detalle = self.client.get(f"/api/asientos/{pk}/").data
+        self.assertEqual(detalle["revertido_por"]["codigo"], "2026-000002")
+
+        listado = self.client.get("/api/asientos/", {"tipo": "REVERSION"}).data
+        self.assertEqual(listado["count"], 1)
+        listado = self.client.get("/api/asientos/", {"cuenta": self.caja.pk}).data
+        self.assertEqual(listado["count"], 2)
+
+    def test_errores_de_lineas_por_api(self):
+        self.client.force_authenticate(self.contador)
+        cuerpo = self.cuerpo()
+        cuerpo["lineas"][0]["debe"] = "-1"
+        resp = self.client.post("/api/asientos/", cuerpo, format="json")
+        self.assertEqual(resp.status_code, 400)
+        self.assertIn("Línea 1", resp.data["lineas"][0])
+
+    def test_auditor_solo_consulta(self):
+        asiento = self.contabilizado()
+        self.client.force_authenticate(self.auditor)
+        self.assertEqual(self.client.get("/api/asientos/").status_code, 200)
+        self.assertEqual(self.client.get(f"/api/asientos/{asiento.pk}/").status_code, 200)
+        self.assertEqual(self.client.post("/api/asientos/", self.cuerpo(), format="json").status_code, 403)
+        resp = self.client.post(f"/api/asientos/{asiento.pk}/revertir/", {"motivo": "x"}, format="json")
+        self.assertEqual(resp.status_code, 403)

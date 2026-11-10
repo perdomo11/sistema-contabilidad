@@ -1,16 +1,17 @@
-"""Reglas de negocio de contabilidad: catálogo de cuentas y periodos contables."""
+"""Reglas de negocio de contabilidad: catálogo de cuentas, periodos y asientos."""
 from calendar import monthrange
 from datetime import date
+from decimal import Decimal, InvalidOperation
 
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import transaction
-from django.db.models import Count, Q
+from django.db.models import Count, Exists, Max, OuterRef, Q
 from django.utils import timezone
 
 from usuarios.models import Bitacora
 from usuarios.services import registrar_evento
 
-from .models import Cuenta, PeriodoContable
+from .models import Asiento, Cuenta, LineaAsiento, PeriodoContable
 
 # =============================================================================
 # Catálogo de cuentas
@@ -149,6 +150,10 @@ def actualizar_cuenta(cuenta, *, usuario, datos, request=None):
         raise ValidationError(
             {"acepta_movimientos": "Una cuenta con subcuentas no puede aceptar movimientos."}
         )
+    if antes["acepta_movimientos"] and not cuenta.acepta_movimientos and cuenta.lineas.exists():
+        raise ValidationError(
+            {"acepta_movimientos": "La cuenta ya tiene movimientos: no puede convertirse en cuenta de agrupación."}
+        )
     _validar_exencion(cuenta.tipo, cuenta.exenta_centro_costo)
     if antes["activa"] and not cuenta.activa and cuenta.hijos.filter(activa=True).exists():
         raise ValidationError({"activa": "Desactive primero las subcuentas activas."})
@@ -180,7 +185,8 @@ def eliminar_cuenta(cuenta, *, usuario, request=None):
     cuenta = Cuenta.objects.select_for_update().select_related("padre").get(pk=cuenta.pk)
     if cuenta.hijos.exists():
         raise ValidationError("No se puede eliminar una cuenta que tiene subcuentas.")
-    # T1.3 agregará: no se puede eliminar una cuenta con movimientos (se desactiva).
+    if cuenta.lineas.exists():
+        raise ValidationError("La cuenta tiene movimientos registrados: no se puede eliminar, desactívela.")
     antes = instantanea(cuenta)
     pk = cuenta.pk
     descripcion = f"Baja de la cuenta {cuenta}"
@@ -314,7 +320,12 @@ def cerrar_periodo(periodo, *, usuario, request=None):
             f"No se puede cerrar {periodo.nombre}: primero debe cerrarse {pendiente.nombre}. "
             "Los periodos se cierran en orden."
         )
-    # T1.3 agregará: no cerrar si hay asientos en borrador en el periodo.
+    borradores = periodo.asientos.filter(estado=Asiento.Estado.BORRADOR).count()
+    if borradores:
+        raise ValidationError(
+            f"No se puede cerrar {periodo.nombre}: tiene {borradores} asiento(s) en borrador. "
+            "Contabilícelos o elimínelos antes del cierre."
+        )
 
     antes = instantanea_periodo(periodo)
     periodo.estado = Estado.CERRADO
@@ -406,3 +417,334 @@ def resumen_ejercicios():
         )
         .order_by("-anio")
     )
+
+
+# =============================================================================
+# Asientos contables (T1.3)
+# =============================================================================
+
+CERO = Decimal("0.00")
+CENTAVO = Decimal("0.01")
+MONTO_MAXIMO = Decimal("1e16")  # NUMBER(18,2)
+EstadoAsiento = Asiento.Estado
+TipoAsiento = Asiento.Tipo
+
+
+def _monto(valor):
+    """Convierte a Decimal con 2 decimales. Devuelve (monto, error)."""
+    if valor in (None, ""):
+        return CERO, None
+    try:
+        monto = Decimal(str(valor))
+    except (InvalidOperation, ValueError):
+        return CERO, "no es un monto válido"
+    if not monto.is_finite():
+        return CERO, "no es un monto válido"
+    if monto < 0:
+        return CERO, "no puede ser negativo"
+    if monto != monto.quantize(CENTAVO):
+        return CERO, "admite como máximo 2 decimales"
+    if monto >= MONTO_MAXIMO:
+        return CERO, "excede el máximo permitido"
+    return monto.quantize(CENTAVO), None
+
+
+def _validar_cuenta_imputable(cuenta, n, errores, permitir_inactivas=False):
+    if cuenta is None:
+        errores.append(f"Línea {n}: indique la cuenta.")
+    elif not cuenta.acepta_movimientos:
+        errores.append(f"Línea {n}: la cuenta {cuenta.codigo} es de agrupación y no acepta movimientos.")
+    elif not cuenta.activa and not permitir_inactivas:
+        errores.append(f"Línea {n}: la cuenta {cuenta.codigo} está inactiva.")
+
+
+def _normalizar_lineas(lineas):
+    """Valida las líneas de un borrador ({cuenta, descripcion, debe, haber}).
+
+    Un borrador puede estar descuadrado; la partida doble se exige al contabilizar.
+    """
+    if not lineas:
+        raise ValidationError({"lineas": "El asiento debe tener al menos una línea."})
+    errores, normalizadas = [], []
+    # Se releen las cuentas para validar su estado actual (no el de un objeto en memoria).
+    ids = [l["cuenta"].pk for l in lineas if l.get("cuenta") is not None]
+    cuentas = Cuenta.objects.in_bulk(ids)
+    for n, linea in enumerate(lineas, start=1):
+        cuenta = linea.get("cuenta")
+        cuenta = cuentas.get(cuenta.pk) if cuenta is not None else None
+        linea = {**linea, "cuenta": cuenta}
+        _validar_cuenta_imputable(cuenta, n, errores)
+        debe, error_debe = _monto(linea.get("debe"))
+        haber, error_haber = _monto(linea.get("haber"))
+        if error_debe:
+            errores.append(f"Línea {n}: el cargo {error_debe}.")
+        if error_haber:
+            errores.append(f"Línea {n}: el abono {error_haber}.")
+        if not (error_debe or error_haber) and (debe > 0) == (haber > 0):
+            errores.append(f"Línea {n}: registre un cargo o un abono (solo uno de los dos y mayor que cero).")
+        normalizadas.append(
+            {
+                "cuenta": linea.get("cuenta"),
+                "descripcion": (linea.get("descripcion") or "").strip()[:200],
+                "debe": debe,
+                "haber": haber,
+            }
+        )
+    if errores:
+        raise ValidationError({"lineas": errores})
+    total_debe = sum((l["debe"] for l in normalizadas), CERO)
+    total_haber = sum((l["haber"] for l in normalizadas), CERO)
+    return normalizadas, total_debe, total_haber
+
+
+def _guardar_lineas(asiento, normalizadas):
+    asiento.lineas.all().delete()
+    LineaAsiento.objects.bulk_create(
+        LineaAsiento(asiento=asiento, numero_linea=n, **linea) for n, linea in enumerate(normalizadas, start=1)
+    )
+
+
+def instantanea_asiento(asiento):
+    return {
+        "codigo": asiento.codigo,
+        "fecha": asiento.fecha.isoformat(),
+        "concepto": asiento.concepto,
+        "referencia": asiento.referencia,
+        "tipo": asiento.tipo,
+        "estado": asiento.estado,
+        "total_debe": str(asiento.total_debe),
+        "total_haber": str(asiento.total_haber),
+        "lineas": [
+            {"cuenta": l.cuenta.codigo, "descripcion": l.descripcion, "debe": str(l.debe), "haber": str(l.haber)}
+            for l in asiento.lineas.select_related("cuenta").order_by("numero_linea")
+        ],
+    }
+
+
+def _validar_encabezado(concepto, referencia):
+    concepto = (concepto or "").strip()
+    if not concepto:
+        raise ValidationError({"concepto": "Indique el concepto del asiento."})
+    return concepto, (referencia or "").strip()
+
+
+@transaction.atomic
+def crear_asiento(*, usuario, fecha, concepto, lineas, referencia="", request=None):
+    """Crea un asiento en borrador."""
+    concepto, referencia = _validar_encabezado(concepto, referencia)
+    periodo = validar_fecha_registrable(fecha)
+    normalizadas, total_debe, total_haber = _normalizar_lineas(lineas)
+    asiento = Asiento(
+        fecha=fecha,
+        periodo=periodo,
+        concepto=concepto,
+        referencia=referencia,
+        tipo=TipoAsiento.DIARIO,
+        estado=EstadoAsiento.BORRADOR,
+        total_debe=total_debe,
+        total_haber=total_haber,
+        creado_por=usuario,
+        modificado_por=usuario,
+    )
+    asiento.full_clean()
+    asiento.save()
+    _guardar_lineas(asiento, normalizadas)
+    registrar_evento(
+        Bitacora.Accion.CREAR,
+        usuario=usuario,
+        entidad="asiento",
+        objeto_id=asiento.pk,
+        descripcion=f"Borrador de asiento: {concepto}",
+        valor_nuevo=instantanea_asiento(asiento),
+        request=request,
+    )
+    return asiento
+
+
+def _bloquear_borrador(asiento):
+    asiento = Asiento.objects.select_for_update().get(pk=asiento.pk)
+    if asiento.estado != EstadoAsiento.BORRADOR:
+        raise ValidationError(
+            f"El asiento {asiento.codigo} está contabilizado: es inmutable. Para corregirlo registre una reversión."
+        )
+    return asiento
+
+
+@transaction.atomic
+def actualizar_asiento(asiento, *, usuario, fecha, concepto, lineas, referencia="", request=None):
+    """Reemplaza encabezado y líneas de un borrador."""
+    asiento = _bloquear_borrador(asiento)
+    antes = instantanea_asiento(asiento)
+    concepto, referencia = _validar_encabezado(concepto, referencia)
+    asiento.periodo = validar_fecha_registrable(fecha)
+    normalizadas, asiento.total_debe, asiento.total_haber = _normalizar_lineas(lineas)
+    asiento.fecha = fecha
+    asiento.concepto = concepto
+    asiento.referencia = referencia
+    asiento.modificado_por = usuario
+    asiento.full_clean()
+    asiento.save()
+    _guardar_lineas(asiento, normalizadas)
+    registrar_evento(
+        Bitacora.Accion.MODIFICAR,
+        usuario=usuario,
+        entidad="asiento",
+        objeto_id=asiento.pk,
+        descripcion=f"Modificación del borrador: {concepto}",
+        valor_anterior=antes,
+        valor_nuevo=instantanea_asiento(asiento),
+        request=request,
+    )
+    return asiento
+
+
+@transaction.atomic
+def eliminar_asiento(asiento, *, usuario, request=None):
+    asiento = _bloquear_borrador(asiento)
+    antes = instantanea_asiento(asiento)
+    pk = asiento.pk
+    asiento.delete()
+    registrar_evento(
+        Bitacora.Accion.ELIMINAR,
+        usuario=usuario,
+        entidad="asiento",
+        objeto_id=pk,
+        descripcion=f"Eliminación del borrador: {antes['concepto']}",
+        valor_anterior=antes,
+        request=request,
+    )
+
+
+def _contabilizar(asiento, usuario, *, permitir_cuentas_inactivas=False):
+    """Valida partida doble, periodo y cuentas; asigna número. Debe ejecutarse en una transacción."""
+    # Bloquea los periodos del ejercicio: serializa la numeración y evita cierres simultáneos.
+    list(PeriodoContable.objects.select_for_update().filter(anio=asiento.fecha.year).values_list("id", flat=True))
+    asiento = _bloquear_borrador(asiento)
+    asiento.periodo = validar_fecha_registrable(asiento.fecha)
+
+    lineas = list(asiento.lineas.select_related("cuenta").order_by("numero_linea"))
+    errores = []
+    if len(lineas) < 2:
+        errores.append("El asiento debe tener al menos dos líneas.")
+    for linea in lineas:
+        _validar_cuenta_imputable(linea.cuenta, linea.numero_linea, errores, permitir_cuentas_inactivas)
+    total_debe = sum((l.debe for l in lineas), CERO)
+    total_haber = sum((l.haber for l in lineas), CERO)
+    if total_debe != total_haber:
+        errores.append(
+            f"Partida doble: el total de cargos ({total_debe:,.2f}) no es igual al total de abonos "
+            f"({total_haber:,.2f}). Diferencia: {abs(total_debe - total_haber):,.2f}."
+        )
+    elif total_debe == 0:
+        errores.append("El asiento no tiene montos.")
+    if errores:
+        raise ValidationError(errores)
+
+    ultimo = Asiento.objects.filter(ejercicio=asiento.fecha.year).aggregate(m=Max("numero"))["m"] or 0
+    asiento.ejercicio = asiento.fecha.year
+    asiento.numero = ultimo + 1
+    asiento.total_debe = total_debe
+    asiento.total_haber = total_haber
+    asiento.estado = EstadoAsiento.CONTABILIZADO
+    asiento.contabilizado_por = usuario
+    asiento.contabilizado_en = timezone.now()
+    asiento.modificado_por = usuario
+    asiento.full_clean()
+    asiento.save()  # TRG_ASIENTO_REGLAS vuelve a verificar partida doble y periodo en Oracle.
+    return asiento
+
+
+@transaction.atomic
+def contabilizar_asiento(asiento, *, usuario, request=None):
+    asiento = _contabilizar(asiento, usuario)
+    registrar_evento(
+        Bitacora.Accion.CONTABILIZAR,
+        usuario=usuario,
+        entidad="asiento",
+        objeto_id=asiento.pk,
+        descripcion=f"Contabilización del asiento {asiento.codigo}: {asiento.concepto}",
+        valor_nuevo=instantanea_asiento(asiento),
+        request=request,
+    )
+    return asiento
+
+
+@transaction.atomic
+def revertir_asiento(asiento, *, usuario, motivo, fecha=None, request=None):
+    """Registra y contabiliza el asiento de reversión del asiento indicado. Devuelve la reversión."""
+    motivo = (motivo or "").strip()
+    if not motivo:
+        raise ValidationError({"motivo": "Indique el motivo de la reversión."})
+    fecha = fecha or timezone.localdate()
+
+    original = Asiento.objects.select_for_update().get(pk=asiento.pk)
+    if original.estado != EstadoAsiento.CONTABILIZADO:
+        raise ValidationError("Solo se revierten asientos contabilizados; un borrador se edita o se elimina.")
+    if original.tipo == TipoAsiento.REVERSION:
+        raise ValidationError("Un asiento de reversión no se revierte. Si es necesario, registre un asiento nuevo.")
+    existente = Asiento.objects.filter(reversion_de=original).first()
+    if existente:
+        raise ValidationError(f"El asiento {original.codigo} ya fue revertido por {existente.codigo}.")
+    if fecha < original.fecha:
+        raise ValidationError({"fecha": f"La fecha de reversión no puede ser anterior al {original.fecha:%d/%m/%Y}."})
+
+    reversion = Asiento(
+        fecha=fecha,
+        periodo=validar_fecha_registrable(fecha),
+        concepto=f"Reversión de {original.codigo}: {motivo}"[:300],
+        referencia=original.referencia,
+        tipo=TipoAsiento.REVERSION,
+        estado=EstadoAsiento.BORRADOR,
+        total_debe=original.total_haber,
+        total_haber=original.total_debe,
+        reversion_de=original,
+        creado_por=usuario,
+        modificado_por=usuario,
+    )
+    reversion.full_clean()
+    reversion.save()
+    LineaAsiento.objects.bulk_create(
+        LineaAsiento(
+            asiento=reversion,
+            numero_linea=linea.numero_linea,
+            cuenta_id=linea.cuenta_id,
+            descripcion=linea.descripcion,
+            debe=linea.haber,
+            haber=linea.debe,
+            linea_origen=linea,
+        )
+        for linea in original.lineas.order_by("numero_linea")
+    )
+    # La reversión se permite aunque alguna cuenta se haya desactivado después.
+    reversion = _contabilizar(reversion, usuario, permitir_cuentas_inactivas=True)
+    registrar_evento(
+        Bitacora.Accion.REVERTIR,
+        usuario=usuario,
+        entidad="asiento",
+        objeto_id=original.pk,
+        descripcion=f"Reversión del asiento {original.codigo} mediante {reversion.codigo}. Motivo: {motivo}",
+        valor_anterior={"codigo": original.codigo, "estado": original.estado},
+        valor_nuevo={"asiento_reversion": reversion.codigo, "fecha": fecha.isoformat(), "motivo": motivo},
+        request=request,
+    )
+    return reversion
+
+
+def consultar_asientos(*, estado=None, tipo=None, desde=None, hasta=None, cuenta=None, q=None):
+    qs = Asiento.objects.select_related(
+        "periodo", "creado_por", "contabilizado_por", "reversion_de", "reversion"
+    ).order_by("-fecha", "-id")
+    if estado:
+        qs = qs.filter(estado=estado)
+    if tipo:
+        qs = qs.filter(tipo=tipo)
+    if desde:
+        qs = qs.filter(fecha__gte=desde)
+    if hasta:
+        qs = qs.filter(fecha__lte=hasta)
+    if cuenta:
+        qs = qs.filter(Exists(LineaAsiento.objects.filter(asiento=OuterRef("pk"), cuenta=cuenta)))
+    if q:
+        q = q.strip()
+        qs = qs.filter(Q(concepto__icontains=q) | Q(referencia__icontains=q))
+    return qs
