@@ -797,9 +797,25 @@ def contabilizar_asiento(asiento, *, usuario, request=None):
     return asiento
 
 
+def _es_asiento_de_tesoreria(asiento):
+    # Importación local: tesoreria depende de contabilidad en sus modelos.
+    from tesoreria.models import CuentaPorPagar, PagoCuentaPorPagar
+
+    return (
+        CuentaPorPagar.objects.filter(asiento=asiento).exists()
+        or PagoCuentaPorPagar.objects.filter(asiento=asiento).exists()
+    )
+
+
 @transaction.atomic
-def revertir_asiento(asiento, *, usuario, motivo, fecha=None, request=None, permitir_prorrateo=False):
-    """Registra y contabiliza el asiento de reversión del asiento indicado. Devuelve la reversión."""
+def revertir_asiento(
+    asiento, *, usuario, motivo, fecha=None, request=None, permitir_prorrateo=False, permitir_tesoreria=False
+):
+    """Registra y contabiliza el asiento de reversión del asiento indicado. Devuelve la reversión.
+
+    Los asientos de prorrateo (T2.3) y de cuentas por pagar (T5.1) solo se revierten desde su módulo, que
+    pasa `permitir_prorrateo` o `permitir_tesoreria` para que su estado no se separe de la contabilidad.
+    """
     motivo = (motivo or "").strip()
     if not motivo:
         raise ValidationError({"motivo": "Indique el motivo de la reversión."})
@@ -812,6 +828,8 @@ def revertir_asiento(asiento, *, usuario, motivo, fecha=None, request=None, perm
         raise ValidationError("Un asiento de reversión no se revierte. Si es necesario, registre un asiento nuevo.")
     if original.tipo == TipoAsiento.PRORRATEO and not permitir_prorrateo:
         raise ValidationError("Es un asiento de prorrateo: anúlelo desde Centros de costo → Prorrateo.")
+    if not permitir_tesoreria and _es_asiento_de_tesoreria(original):
+        raise ValidationError("Es un asiento de cuentas por pagar: anule el documento o el pago desde Tesorería → Cuentas por pagar.")
     existente = Asiento.objects.filter(reversion_de=original).first()
     if existente:
         raise ValidationError(f"El asiento {original.codigo} ya fue revertido por {existente.codigo}.")

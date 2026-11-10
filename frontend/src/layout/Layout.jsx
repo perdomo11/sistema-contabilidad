@@ -46,7 +46,10 @@ const MENU = [
   },
   {
     seccion: 'Tesorería',
-    items: [{ a: '/proveedores', icono: 'bi-truck', texto: 'Proveedores' }],
+    items: [
+      { a: '/proveedores', icono: 'bi-truck', texto: 'Proveedores' },
+      { a: '/tesoreria/cuentas-por-pagar', icono: 'bi-receipt', texto: 'Cuentas por pagar' },
+    ],
   },
   {
     seccion: 'Configuración',

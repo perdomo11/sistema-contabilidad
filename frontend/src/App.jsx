@@ -8,6 +8,7 @@ import Asientos from './pages/Asientos'
 import Balanza from './pages/Balanza'
 import Bitacora from './pages/Bitacora'
 import Catalogo from './pages/Catalogo'
+import CuentasPorPagar from './pages/CuentasPorPagar'
 import CentrosCosto from './pages/CentrosCosto'
 import DistribucionPresupuesto from './pages/DistribucionPresupuesto'
 import EjecucionPresupuesto from './pages/EjecucionPresupuesto'
@@ -55,6 +56,7 @@ export default function App() {
         <Route path="presupuesto/distribucion" element={<DistribucionPresupuesto />} />
         <Route path="presupuesto/ejecucion" element={<EjecucionPresupuesto />} />
         <Route path="proveedores" element={<Proveedores />} />
+        <Route path="tesoreria/cuentas-por-pagar" element={<CuentasPorPagar />} />
         <Route path="catalogo" element={<Catalogo />} />
         <Route path="periodos" element={<Periodos />} />
         <Route path="bitacora" element={<RutaProtegida roles={[ROLES.AUDITOR]}>{<Bitacora />}</RutaProtegida>} />
