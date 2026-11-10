@@ -66,6 +66,8 @@ class CuentaPorPagar(models.Model):
     numero_documento = models.CharField(max_length=40)
     fecha_emision = models.DateField()
     fecha_vencimiento = models.DateField()
+    # T5.2: política interna de programación; la proyección usa esta fecha si existe, si no el vencimiento.
+    fecha_pago_programada = models.DateField(null=True, blank=True)
     concepto = models.CharField(max_length=300)
     monto_total = models.DecimalField(max_digits=18, decimal_places=2)
     saldo = models.DecimalField(max_digits=18, decimal_places=2)
@@ -92,6 +94,10 @@ class CuentaPorPagar(models.Model):
             models.CheckConstraint(condition=Q(monto_total__gt=0), name="cxp_monto_positivo"),
             models.CheckConstraint(condition=Q(saldo__gte=0, saldo__lte=F("monto_total")), name="cxp_saldo_valido"),
             models.CheckConstraint(condition=Q(fecha_vencimiento__gte=F("fecha_emision")), name="cxp_vencimiento_valido"),
+            models.CheckConstraint(
+                condition=Q(fecha_pago_programada__isnull=True) | Q(fecha_pago_programada__gte=F("fecha_emision")),
+                name="cxp_programada_valida",
+            ),
             models.CheckConstraint(
                 condition=Q(estado__in=["PENDIENTE", "PARCIAL", "PAGADA", "ANULADA"]), name="cxp_estado_valido"
             ),
@@ -151,3 +157,65 @@ class PagoCuentaPorPagar(models.Model):
                 name="pago_cxp_anulacion_completa",
             ),
         ]
+
+
+# =============================================================================
+# T5.2: egresos programados (obligaciones de fecha conocida que no son facturas)
+# =============================================================================
+
+class EgresoProgramado(models.Model):
+    """Planilla, impuestos, alquileres, cuotas de préstamos, inversiones… para la proyección de egresos.
+
+    Dato de planificación (no contable): se edita y elimina, con bitácora.
+    """
+
+    class Categoria(models.TextChoices):
+        PLANILLA = "PLANILLA", "Planilla"
+        IMPUESTOS = "IMPUESTOS", "Impuestos"
+        ALQUILERES = "ALQUILERES", "Alquileres"
+        SERVICIOS = "SERVICIOS", "Servicios"
+        PRESTAMOS = "PRESTAMOS", "Préstamos"
+        INVERSION = "INVERSION", "Inversión"
+        OTROS = "OTROS", "Otros"
+
+    class Frecuencia(models.TextChoices):
+        UNICA = "UNICA", "Única"
+        MENSUAL = "MENSUAL", "Mensual"
+
+    concepto = models.CharField(max_length=200)
+    categoria = models.CharField(max_length=12, choices=Categoria.choices)
+    monto = models.DecimalField(max_digits=18, decimal_places=2)
+    frecuencia = models.CharField(max_length=8, choices=Frecuencia.choices)
+    fecha_inicio = models.DateField()
+    fecha_fin = models.DateField(null=True, blank=True)
+    dia_mes = models.PositiveSmallIntegerField(null=True, blank=True)
+    proveedor = models.ForeignKey(Proveedor, null=True, blank=True, on_delete=models.PROTECT, related_name="+")
+    activo = models.BooleanField(default=True)
+    creado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="+")
+    creado_en = models.DateTimeField(auto_now_add=True)
+    modificado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="+")
+    modificado_en = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "egreso programado"
+        verbose_name_plural = "egresos programados"
+        ordering = ["categoria", "concepto"]
+        constraints = [
+            models.CheckConstraint(condition=Q(monto__gt=0), name="egreso_prog_monto_positivo"),
+            models.CheckConstraint(
+                condition=Q(categoria__in=["PLANILLA", "IMPUESTOS", "ALQUILERES", "SERVICIOS", "PRESTAMOS", "INVERSION", "OTROS"]),
+                name="egreso_prog_categoria_valida",
+            ),
+            # Única: sin día ni fin. Mensual: día 1-31.
+            models.CheckConstraint(
+                condition=Q(frecuencia="UNICA", dia_mes__isnull=True, fecha_fin__isnull=True)
+                | Q(frecuencia="MENSUAL", dia_mes__gte=1, dia_mes__lte=31),
+                name="egreso_prog_frecuencia_valida",
+            ),
+            models.CheckConstraint(
+                condition=Q(fecha_fin__isnull=True) | Q(fecha_fin__gte=F("fecha_inicio")), name="egreso_prog_vigencia_valida"
+            ),
+        ]
+
+    def __str__(self):
+        return self.concepto

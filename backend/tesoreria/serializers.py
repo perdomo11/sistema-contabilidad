@@ -3,7 +3,7 @@ from rest_framework import serializers
 from centros_costo.models import CentroCosto
 from contabilidad.models import Cuenta
 
-from .models import CuentaPorPagar, PagoCuentaPorPagar, Proveedor
+from .models import CuentaPorPagar, EgresoProgramado, PagoCuentaPorPagar, Proveedor
 
 
 class ProveedorSerializer(serializers.ModelSerializer):
@@ -81,7 +81,8 @@ class CuentaPorPagarSerializer(serializers.ModelSerializer):
         model = CuentaPorPagar
         fields = [
             "id", "proveedor", "tipo_documento", "tipo_documento_display", "numero_documento", "fecha_emision",
-            "fecha_vencimiento", "concepto", "monto_total", "saldo", "estado", "estado_display", "vencimiento", "dias", "asiento",
+            "fecha_vencimiento", "fecha_pago_programada", "concepto", "monto_total", "saldo", "estado", "estado_display",
+            "vencimiento", "dias", "asiento",
         ]
         read_only_fields = fields
 
@@ -178,3 +179,49 @@ class FiltroCuentasPorPagarSerializer(serializers.Serializer):
         choices=[("VENCIDA", "Vencida"), ("POR_VENCER", "Por vencer"), ("AL_DIA", "Al día")], required=False, allow_blank=True, default=""
     )
     q = serializers.CharField(required=False, allow_blank=True, default="")
+
+
+# =============================================================================
+# T5.2: proyección de egresos
+# =============================================================================
+
+class ProgramarPagoSerializer(serializers.Serializer):
+    fecha_pago_programada = serializers.DateField(allow_null=True)
+
+
+class FiltroProyeccionSerializer(serializers.Serializer):
+    fecha = serializers.DateField(required=False, allow_null=True, default=None)
+
+
+class EgresoProgramadoSerializer(serializers.ModelSerializer):
+    categoria_display = serializers.CharField(source="get_categoria_display", read_only=True)
+    frecuencia_display = serializers.CharField(source="get_frecuencia_display", read_only=True)
+    proveedor_nombre = serializers.CharField(source="proveedor.nombre", read_only=True, default=None)
+    proxima_fecha = serializers.SerializerMethodField()
+    modificado_por = serializers.CharField(source="modificado_por.username", read_only=True)
+
+    class Meta:
+        model = EgresoProgramado
+        fields = [
+            "id", "concepto", "categoria", "categoria_display", "monto", "frecuencia", "frecuencia_display",
+            "fecha_inicio", "fecha_fin", "dia_mes", "proveedor", "proveedor_nombre", "activo", "proxima_fecha",
+            "modificado_por", "modificado_en",
+        ]
+        read_only_fields = fields
+
+    def get_proxima_fecha(self, obj):
+        from .proyeccion import proxima_fecha
+
+        return proxima_fecha(obj, self.context["fecha"])
+
+
+class EgresoProgramadoEntradaSerializer(serializers.Serializer):
+    concepto = serializers.CharField(max_length=200)
+    categoria = serializers.ChoiceField(choices=EgresoProgramado.Categoria.choices)
+    monto = serializers.DecimalField(max_digits=18, decimal_places=2)
+    frecuencia = serializers.ChoiceField(choices=EgresoProgramado.Frecuencia.choices)
+    fecha_inicio = serializers.DateField()
+    fecha_fin = serializers.DateField(required=False, allow_null=True, default=None)
+    dia_mes = serializers.IntegerField(required=False, allow_null=True, default=None, min_value=1, max_value=31)
+    proveedor = serializers.PrimaryKeyRelatedField(queryset=Proveedor.objects.all(), required=False, allow_null=True, default=None)
+    activo = serializers.BooleanField(default=True)

@@ -1,6 +1,6 @@
 from django.utils import timezone
 from rest_framework import status, viewsets
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
 from rest_framework.response import Response
@@ -9,16 +9,20 @@ from usuarios import roles
 from usuarios.permissions import TieneRol
 
 from . import cuentas_por_pagar as cpp
-from . import services
-from .models import CuentaPorPagar, PagoCuentaPorPagar, Proveedor
+from . import proyeccion, services
+from .models import CuentaPorPagar, EgresoProgramado, PagoCuentaPorPagar, Proveedor
 from .serializers import (
     AnularSerializer,
     CuentaPorPagarCrearSerializer,
     CuentaPorPagarDetalleSerializer,
     CuentaPorPagarSerializer,
+    EgresoProgramadoEntradaSerializer,
+    EgresoProgramadoSerializer,
     FiltroCuentasPorPagarSerializer,
     FiltroProveedoresSerializer,
+    FiltroProyeccionSerializer,
     PagoCrearSerializer,
+    ProgramarPagoSerializer,
     ProveedorActualizarSerializer,
     ProveedorCrearSerializer,
     ProveedorSerializer,
@@ -137,3 +141,62 @@ class CuentaPorPagarViewSet(viewsets.GenericViewSet):
         pago = get_object_or_404(PagoCuentaPorPagar, pk=pago_id, cuenta_por_pagar=cxp)
         cpp.anular_pago(pago, usuario=request.user, request=request, **entrada.validated_data)
         return self._detalle(cxp)
+
+    @action(detail=True, methods=["post"])
+    def programar(self, request, pk=None):
+        entrada = ProgramarPagoSerializer(data=request.data)
+        entrada.is_valid(raise_exception=True)
+        cxp = proyeccion.programar_pago(self.get_object(), usuario=request.user, request=request, **entrada.validated_data)
+        return self._detalle(cxp)
+
+
+# =============================================================================
+# T5.2: egresos programados y proyección de egresos
+# =============================================================================
+
+class EgresoProgramadoViewSet(viewsets.GenericViewSet):
+    """Egresos programados. Lectura: autenticados. Escritura: Contador o Tesorero."""
+
+    serializer_class = EgresoProgramadoSerializer
+    queryset = EgresoProgramado.objects.select_related("proveedor", "modificado_por")
+    pagination_class = None
+
+    def get_permissions(self):
+        if self.request.method in SAFE_METHODS:
+            return [IsAuthenticated()]
+        return [IsAuthenticated(), TieneRol(roles.CONTADOR, roles.TESORERO)()]
+
+    def _salida(self, obj, codigo=status.HTTP_200_OK, many=False):
+        return Response(EgresoProgramadoSerializer(obj, many=many, context={"fecha": timezone.localdate()}).data, status=codigo)
+
+    def list(self, request):
+        return self._salida(self.get_queryset(), many=True)
+
+    def retrieve(self, request, pk=None):
+        return self._salida(self.get_object())
+
+    def create(self, request):
+        entrada = EgresoProgramadoEntradaSerializer(data=request.data)
+        entrada.is_valid(raise_exception=True)
+        egreso = proyeccion.crear_egreso_programado(usuario=request.user, request=request, **entrada.validated_data)
+        return self._salida(egreso, status.HTTP_201_CREATED)
+
+    def partial_update(self, request, pk=None):
+        entrada = EgresoProgramadoEntradaSerializer(data=request.data, partial=True)
+        entrada.is_valid(raise_exception=True)
+        datos = {k: v for k, v in entrada.validated_data.items() if k in request.data}
+        egreso = proyeccion.actualizar_egreso_programado(self.get_object(), usuario=request.user, datos=datos, request=request)
+        return self._salida(egreso)
+
+    def destroy(self, request, pk=None):
+        proyeccion.eliminar_egreso_programado(self.get_object(), usuario=request.user, request=request)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def proyeccion_egresos(request):
+    """Proyección de egresos a 30/60/90 días (T5.2)."""
+    filtros = FiltroProyeccionSerializer(data=request.query_params)
+    filtros.is_valid(raise_exception=True)
+    return Response(proyeccion.proyeccion_egresos(fecha=filtros.validated_data["fecha"] or timezone.localdate()))

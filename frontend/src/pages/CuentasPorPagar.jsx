@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Alert, Badge, Button, Card, Col, Form, Modal, Pagination, Row, Spinner, Table } from 'react-bootstrap'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { api, apiTodas, mensajeError } from '../api'
 import { useAuth } from '../auth/AuthContext'
 import { ROLES, tieneRol } from '../auth/roles'
@@ -342,6 +342,7 @@ function DetalleModal({ id, puedeEditar, bancos, onHide, onCambio }) {
   const [pago, setPago] = useState(null)
   const [erroresPago, setErroresPago] = useState({})
   const [anular, setAnular] = useState(null) // {tipo: 'documento'} | {tipo: 'pago', pago}
+  const [programando, setProgramando] = useState(null) // fecha en edición (texto) o null
 
   const cargar = useCallback(async () => {
     const resp = await api(`/api/cuentas-por-pagar/${id}/`)
@@ -352,6 +353,7 @@ function DetalleModal({ id, puedeEditar, bancos, onHide, onCambio }) {
   useEffect(() => {
     setCxp(null)
     setPago(null)
+    setProgramando(null)
     setError('')
     if (id) cargar()
   }, [id, cargar])
@@ -383,6 +385,13 @@ function DetalleModal({ id, puedeEditar, bancos, onHide, onCambio }) {
     setAnular(null)
     actualizar(await resp.json())
     return null
+  }
+
+  const programar = async (fechaPago) => {
+    const resp = await api(`/api/cuentas-por-pagar/${id}/programar/`, { method: 'POST', body: { fecha_pago_programada: fechaPago || null } })
+    if (!resp.ok) return setError(await mensajeError(resp))
+    setProgramando(null)
+    actualizar(await resp.json())
   }
 
   const conSaldo = cxp && ['PENDIENTE', 'PARCIAL'].includes(cxp.estado)
@@ -417,6 +426,50 @@ function DetalleModal({ id, puedeEditar, bancos, onHide, onCambio }) {
                   <div>{formatoFecha(cxp.fecha_vencimiento)}</div>
                   <InsigniaVencimiento vencimiento={cxp.vencimiento} dias={cxp.dias} />
                 </Col>
+                {conSaldo && (
+                  <Col xs={12}>
+                    <div className="d-flex flex-wrap align-items-center gap-2 p-2 rounded bg-body-tertiary">
+                      <i className="bi bi-calendar-event text-suave" />
+                      <span className="text-suave">Pago programado:</span>
+                      {programando !== null ? (
+                        <>
+                          <Form.Control
+                            type="date"
+                            size="sm"
+                            style={{ width: 'auto' }}
+                            aria-label="Fecha de pago programada"
+                            value={programando}
+                            min={cxp.fecha_emision}
+                            onChange={(e) => setProgramando(e.target.value)}
+                          />
+                          <Button size="sm" disabled={!programando} onClick={() => programar(programando)}>
+                            Guardar
+                          </Button>
+                          <Button size="sm" variant="link" onClick={() => setProgramando(null)}>
+                            Cancelar
+                          </Button>
+                        </>
+                      ) : (
+                        <>
+                          <strong>{cxp.fecha_pago_programada ? formatoFecha(cxp.fecha_pago_programada) : 'según vencimiento'}</strong>
+                          {puedeEditar && (
+                            <>
+                              <Button size="sm" variant="link" className="p-0" onClick={() => setProgramando(cxp.fecha_pago_programada || cxp.fecha_vencimiento)}>
+                                {cxp.fecha_pago_programada ? 'Cambiar' : 'Programar'}
+                              </Button>
+                              {cxp.fecha_pago_programada && (
+                                <Button size="sm" variant="link" className="p-0 text-danger" onClick={() => programar(null)}>
+                                  Quitar
+                                </Button>
+                              )}
+                            </>
+                          )}
+                          <span className="small text-suave ms-auto">Fecha que usa la proyección de egresos.</span>
+                        </>
+                      )}
+                    </div>
+                  </Col>
+                )}
                 <Col md={6}>
                   <div className="text-suave">Concepto</div>
                   <div>{cxp.concepto}</div>
@@ -618,7 +671,13 @@ export default function CuentasPorPagar() {
   const [aviso, setAviso] = useState('')
   const [catalogos, setCatalogos] = useState({ proveedores: [], pasivos: [], bancos: [], imputables: [], centros: [] })
   const [registro, setRegistro] = useState(false)
-  const [detalle, setDetalle] = useState(null)
+  const [params, setParams] = useSearchParams()
+  const [detalle, setDetalleId] = useState(() => params.get('documento'))
+  // El documento abierto queda en la URL (?documento=) para poder enlazarlo, p. ej. desde la proyección.
+  const setDetalle = (id) => {
+    setDetalleId(id)
+    setParams(id ? { documento: id } : {}, { replace: true })
+  }
 
   const cargar = useCallback(async () => {
     const q = new URLSearchParams({ page: pagina })
@@ -843,6 +902,12 @@ export default function CuentasPorPagar() {
                       <td>
                         <div className="small">{formatoFecha(c.fecha_vencimiento)}</div>
                         <InsigniaVencimiento vencimiento={c.vencimiento} dias={c.dias} />
+                        {c.fecha_pago_programada && c.vencimiento && (
+                          <div className="small text-suave" title="Fecha de pago programada">
+                            <i className="bi bi-calendar-event me-1" />
+                            pago {formatoFecha(c.fecha_pago_programada)}
+                          </div>
+                        )}
                       </td>
                       <td className="monto">{formatoMonto(c.monto_total)}</td>
                       <td className="monto fw-semibold">{formatoMonto(c.saldo)}</td>

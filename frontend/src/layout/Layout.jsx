@@ -49,6 +49,8 @@ const MENU = [
     items: [
       { a: '/proveedores', icono: 'bi-truck', texto: 'Proveedores' },
       { a: '/tesoreria/cuentas-por-pagar', icono: 'bi-receipt', texto: 'Cuentas por pagar' },
+      { a: '/tesoreria/proyeccion-egresos', icono: 'bi-calendar-range', texto: 'Proyección de egresos' },
+      { a: '/tesoreria/egresos-programados', icono: 'bi-calendar-plus', texto: 'Egresos programados' },
     ],
   },
   {

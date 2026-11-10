@@ -11,6 +11,7 @@ import Catalogo from './pages/Catalogo'
 import CuentasPorPagar from './pages/CuentasPorPagar'
 import CentrosCosto from './pages/CentrosCosto'
 import DistribucionPresupuesto from './pages/DistribucionPresupuesto'
+import EgresosProgramados from './pages/EgresosProgramados'
 import EjecucionPresupuesto from './pages/EjecucionPresupuesto'
 import EnfoqueContribucion from './pages/EnfoqueContribucion'
 import EstadoResultados from './pages/EstadoResultados'
@@ -21,6 +22,7 @@ import LibroMayor from './pages/LibroMayor'
 import Login from './pages/Login'
 import Periodos from './pages/Periodos'
 import PresupuestoInstitucional from './pages/PresupuestoInstitucional'
+import ProyeccionEgresos from './pages/ProyeccionEgresos'
 import Proveedores from './pages/Proveedores'
 import Prorrateo from './pages/Prorrateo'
 import ReglasAsignacion from './pages/ReglasAsignacion'
@@ -57,6 +59,8 @@ export default function App() {
         <Route path="presupuesto/ejecucion" element={<EjecucionPresupuesto />} />
         <Route path="proveedores" element={<Proveedores />} />
         <Route path="tesoreria/cuentas-por-pagar" element={<CuentasPorPagar />} />
+        <Route path="tesoreria/proyeccion-egresos" element={<ProyeccionEgresos />} />
+        <Route path="tesoreria/egresos-programados" element={<EgresosProgramados />} />
         <Route path="catalogo" element={<Catalogo />} />
         <Route path="periodos" element={<Periodos />} />
         <Route path="bitacora" element={<RutaProtegida roles={[ROLES.AUDITOR]}>{<Bitacora />}</RutaProtegida>} />
