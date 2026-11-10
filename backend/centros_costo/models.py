@@ -76,3 +76,57 @@ class CentroCosto(models.Model):
 
     def __str__(self):
         return f"{self.codigo} {self.nombre}"
+
+
+class ReglaAsignacion(models.Model):
+    """Asignación automática de centro de costo por cuenta y/o proveedor (T2.2).
+
+    Se aplica a las líneas que no traen centro (la asignación directa prevalece).
+    Resolución y validaciones en `centros_costo/services.py`.
+    """
+
+    cuenta = models.ForeignKey(
+        "contabilidad.Cuenta", null=True, blank=True, on_delete=models.PROTECT, related_name="reglas_asignacion",
+        help_text="Si es de agrupación, la regla aplica a todas sus subcuentas.",
+    )
+    proveedor = models.ForeignKey(
+        "tesoreria.Proveedor", null=True, blank=True, on_delete=models.PROTECT, related_name="reglas_asignacion"
+    )
+    centro_costo = models.ForeignKey(CentroCosto, on_delete=models.PROTECT, related_name="reglas_asignacion")
+    descripcion = models.CharField(max_length=200, blank=True)
+    vigente_desde = models.DateField()
+    vigente_hasta = models.DateField(null=True, blank=True)
+
+    creado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="+")
+    creado_en = models.DateTimeField(auto_now_add=True)
+    modificado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="+")
+    modificado_en = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "regla de asignación"
+        verbose_name_plural = "reglas de asignación"
+        ordering = ["-vigente_desde", "-id"]
+        constraints = [
+            models.CheckConstraint(
+                condition=Q(cuenta__isnull=False) | Q(proveedor__isnull=False), name="regla_cuenta_o_proveedor"
+            ),
+            models.CheckConstraint(
+                condition=Q(vigente_hasta__isnull=True) | Q(vigente_hasta__gte=F("vigente_desde")),
+                name="regla_vigencia_valida",
+            ),
+        ]
+
+    def vigente_en(self, fecha):
+        return self.vigente_desde <= fecha and (self.vigente_hasta is None or self.vigente_hasta >= fecha)
+
+    @property
+    def criterio(self):
+        partes = []
+        if self.proveedor_id:
+            partes.append(f"proveedor {self.proveedor.nombre}")
+        if self.cuenta_id:
+            partes.append(f"cuenta {self.cuenta.codigo}")
+        return " + ".join(partes)
+
+    def __str__(self):
+        return f"{self.criterio} → {self.centro_costo.codigo}"

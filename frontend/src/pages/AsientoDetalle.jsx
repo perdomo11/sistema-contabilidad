@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Alert, Button, Card, Col, Container, Form, Modal, Row, Spinner, Table } from 'react-bootstrap'
+import { Alert, Badge, Button, Card, Col, Container, Form, Modal, Row, Spinner, Table } from 'react-bootstrap'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { api, mensajeError } from '../api'
 import { useAuth } from '../auth/AuthContext'
@@ -181,6 +181,11 @@ export default function AsientoDetalle() {
                 <Col sm={4}>
                   <Dato etiqueta="Referencia">{asiento.referencia}</Dato>
                 </Col>
+                {asiento.proveedor_nombre && (
+                  <Col sm={12}>
+                    <Dato etiqueta="Proveedor">{asiento.proveedor_nombre}</Dato>
+                  </Col>
+                )}
               </Row>
             </Card.Body>
           </Card>
@@ -229,6 +234,12 @@ export default function AsientoDetalle() {
                       <div className="small text-suave">
                         <i className="bi bi-diagram-3 me-1" />
                         {l.centro_codigo} {l.centro_nombre}
+                        {l.asignacion === 'REGLA' && (
+                          <Badge bg="info-subtle" text="info-emphasis" className="ms-2" title="Centro asignado por regla">
+                            <i className="bi bi-magic me-1" />
+                            Regla
+                          </Badge>
+                        )}
                       </div>
                     )}
                   </td>

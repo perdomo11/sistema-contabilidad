@@ -78,7 +78,8 @@ docker compose exec backend python manage.py test
 - [x] T1.4 Libro diario, mayor y balanza de comprobación (ver `docs/tareas/T1.4.md`)
 - [x] T1.5 Rediseño visual (ver `docs/tareas/T1.5.md`)
 - [x] T2.1 Jerarquía de centros de costo y centro en líneas de asiento (ver `docs/tareas/T2.1.md`)
-- Siguiente: T2.2 Asignación directa y por regla (cuenta→centro, proveedor→centro)
+- [x] T2.2 Asignación directa y por regla: cuenta→centro, proveedor→centro (ver `docs/tareas/T2.2.md`)
+- Siguiente: T2.3 Motor de prorrateo con bases configurables (m², personal, transacciones)
 
 Notas de implementación:
 - Roles = grupos de Django (`usuarios/roles.py`). Proteger vistas con `permission_classes = [TieneRol(roles.X)]` (`usuarios/permissions.py`).
@@ -88,6 +89,8 @@ Notas de implementación:
 - Periodos: T1.3 debe llamar a `contabilidad.services.validar_fecha_registrable(fecha)` al contabilizar y agregar a `cerrar_periodo` la verificación de asientos en borrador. Reabrir es solo para superusuario (`usuarios.permissions.EsSuperusuario`).
 - Asientos: solo los `CONTABILIZADO` cuentan para libros y reportes. Triggers Oracle `TRG_ASIENTO_REGLAS` (versión vigente en `contabilidad/0006`, incluye regla 3) y `TRG_LINEA_ASIENTO_INMUTABLE`. `LineaAsiento.centro_costo` es obligatorio salvo `cuenta.exenta_centro_costo`; el centro debe ser de detalle y vigente en la fecha (`_validar_centro`). Las reversiones copian el centro sin revalidar. Los asientos 2026-000001/000002 (anteriores a T2.1) no tienen centro.
 - Centros de costo: app `centros_costo`; ejemplo con `cargar_centros_base --usuario contador`. Reestructurar = cerrar vigencia y crear unidad nueva (código y padre inmutables).
+- Asignación (T2.2): `centros_costo.ReglaAsignacion` (cuenta y/o proveedor → centro, con vigencia) y `services.resolver_regla` (proveedor+cuenta > proveedor > cuenta, ancestro más cercano). `_normalizar_lineas` la aplica al guardar el borrador si la línea no trae centro; `LineaAsiento.regla_asignacion` la traza (vacía = directa). Ejemplo: `cargar_asignacion_base --usuario contador`.
+- Tesorería: app `tesoreria` con catálogo básico `Proveedor` (T2.2; Contador o Tesorero). `Asiento.proveedor` opcional. T5.1 agrega cuentas por pagar y vencimientos sobre ese modelo.
 - Libros (diario, mayor, balanza): servicios de solo lectura en `contabilidad/libros.py` (separados de `services.py`). Saldos acumulados desde el inicio; las cuentas de resultado se ponen en cero con un asiento de cierre, no en el reporte. Agrupaciones = descendientes reales del árbol (no prefijo de código).
 - Frontend (T1.5): las pantallas viven dentro de `layout/Layout.jsx` (menú lateral en `MENU`, agregar ahí los módulos nuevos). Cada página usa `EncabezadoPagina` (título, descripción, migas, acciones), filtros en `Card`, tablas dentro de `Card`, montos con clase `monto`, insignias en tonos `*-subtle`, íconos `bootstrap-icons` y `EstadoVacio` para listas vacías. Estilos del tema en `src/estilos.css`.
 - Usuarios de prueba: `docker compose exec backend python manage.py crear_usuarios_demo` (contraseña `Demo_2026!`).

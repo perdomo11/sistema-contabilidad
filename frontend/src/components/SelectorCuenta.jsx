@@ -7,7 +7,7 @@ const normalizar = (t) =>
     .normalize('NFD')
     .replace(/[̀-ͯ]/g, '')
 
-const etiqueta = (c) => (c ? `${c.codigo} · ${c.nombre}` : '')
+const etiqueta = (c) => (c ? (c.codigo ? `${c.codigo} · ${c.nombre}` : c.nombre) : '')
 
 /**
  * Buscador de cuentas de detalle por código o nombre.

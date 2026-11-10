@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     "usuarios",
     "contabilidad",
     "centros_costo",
+    "tesoreria",
 ]
 
 MIDDLEWARE = [

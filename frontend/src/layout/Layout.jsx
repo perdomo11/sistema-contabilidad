@@ -22,7 +22,14 @@ const MENU = [
   },
   {
     seccion: 'Centros de costo',
-    items: [{ a: '/centros-costo', icono: 'bi-diagram-2', texto: 'Estructura de centros' }],
+    items: [
+      { a: '/centros-costo', icono: 'bi-diagram-2', texto: 'Estructura de centros', exacto: true },
+      { a: '/centros-costo/reglas', icono: 'bi-signpost-split', texto: 'Reglas de asignación' },
+    ],
+  },
+  {
+    seccion: 'Tesorería',
+    items: [{ a: '/proveedores', icono: 'bi-truck', texto: 'Proveedores' }],
   },
   {
     seccion: 'Configuración',

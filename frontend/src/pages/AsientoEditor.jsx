@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Alert, Badge, Button, Card, Col, Container, Form, Row, Spinner, Table } from 'react-bootstrap'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { api } from '../api'
+import { api, apiTodas } from '../api'
 import EncabezadoPagina from '../components/EncabezadoPagina'
 import SelectorCuenta from '../components/SelectorCuenta'
 import { aCentavos, centavosATexto, hoyISO } from '../formato'
@@ -40,7 +40,7 @@ function centrosImputables(arbol) {
 /** Convierte la respuesta de error de la API en una lista de mensajes. */
 async function erroresDe(resp) {
   const datos = await resp.json().catch(() => ({ detail: `Error ${resp.status}` }))
-  const etiquetas = { fecha: 'Fecha', concepto: 'Concepto', referencia: 'Referencia', lineas: 'Líneas', motivo: 'Motivo' }
+  const etiquetas = { fecha: 'Fecha', concepto: 'Concepto', referencia: 'Referencia', lineas: 'Líneas', motivo: 'Motivo', proveedor: 'Proveedor' }
   return Object.entries(datos).flatMap(([campo, msgs]) => {
     if (campo === 'detail') return [String(msgs)]
     // Errores anidados por línea del serializer: [{cuenta: [...]}, {}]
@@ -66,12 +66,36 @@ export default function AsientoEditor() {
   const [fecha, setFecha] = useState(hoyISO())
   const [concepto, setConcepto] = useState('')
   const [referencia, setReferencia] = useState('')
+  const [proveedor, setProveedor] = useState(null)
+  const [proveedores, setProveedores] = useState(null)
   const [lineas, setLineas] = useState([lineaVacia(), lineaVacia()])
+  // Centro que asignaría la regla vigente a cada cuenta: {idCuenta: {centro_codigo, centro_nombre, criterio} | null}
+  const [sugerencias, setSugerencias] = useState({})
 
   useEffect(() => {
     api('/api/cuentas/arbol/').then(async (r) => setCuentas(r.ok ? cuentasImputables(await r.json()) : []))
     api('/api/centros-costo/arbol/').then(async (r) => setCentros(r.ok ? centrosImputables(await r.json()) : []))
+    apiTodas('/api/proveedores/?activo=true').then((lista) =>
+      setProveedores(lista.map((p) => ({ id: p.id, codigo: p.nit, nombre: p.nombre }))),
+    )
   }, [])
+
+  // Vista previa de la asignación por regla (T2.2): el servidor la aplica al guardar
+  // en las líneas sin centro; aquí solo se muestra.
+  const cuentasConCentro = [...new Set(lineas.filter((l) => l.cuenta && !l.cuenta.exenta).map((l) => l.cuenta.id))]
+    .sort((a, b) => a - b)
+    .join(',')
+  useEffect(() => {
+    if (!cuentasConCentro || !fecha) return setSugerencias({})
+    let vigente = true
+    const params = new URLSearchParams({ fecha, cuentas: cuentasConCentro, proveedor: proveedor?.id ?? '' })
+    api(`/api/reglas-asignacion/resolver/?${params}`).then(async (r) => {
+      if (vigente) setSugerencias(r.ok ? await r.json() : {})
+    })
+    return () => {
+      vigente = false
+    }
+  }, [cuentasConCentro, fecha, proveedor])
 
   // Solo se ofrecen los centros vigentes en la fecha del asiento.
   const centrosVigentes = useMemo(
@@ -91,11 +115,16 @@ export default function AsientoEditor() {
       setFecha(a.fecha)
       setConcepto(a.concepto)
       setReferencia(a.referencia)
+      setProveedor(a.proveedor ? { id: a.proveedor, codigo: '', nombre: a.proveedor_nombre } : null)
       setLineas(
         a.lineas.map((l) => ({
           clave: siguienteClave++,
           cuenta: { id: l.cuenta, codigo: l.cuenta_codigo, nombre: l.cuenta_nombre, exenta: l.cuenta_exenta_centro_costo },
-          centro: l.centro_costo ? { id: l.centro_costo, codigo: l.centro_codigo, nombre: l.centro_nombre } : null,
+          // Un centro puesto por regla se deja vacío: al guardar se vuelve a resolver con la fecha y el proveedor.
+          centro:
+            l.centro_costo && l.asignacion !== 'REGLA'
+              ? { id: l.centro_costo, codigo: l.centro_codigo, nombre: l.centro_nombre }
+              : null,
           descripcion: l.descripcion,
           debe: Number(l.debe) ? l.debe : '',
           haber: Number(l.haber) ? l.haber : '',
@@ -122,6 +151,7 @@ export default function AsientoEditor() {
     fecha,
     concepto,
     referencia,
+    proveedor: proveedor?.id ?? null,
     lineas: lineas
       .filter((l) => l.cuenta || l.debe || l.haber || l.descripcion)
       .map((l) => ({
@@ -157,7 +187,7 @@ export default function AsientoEditor() {
     navegar(`/asientos/${guardado.id}`, { state: { aviso: contabilizar ? 'Asiento contabilizado.' : 'Borrador guardado.' } })
   }
 
-  if (cargando || !cuentas || !centros) {
+  if (cargando || !cuentas || !centros || !proveedores) {
     return (
       <Container className="py-5 text-center">
         <Spinner animation="border" />
@@ -224,6 +254,22 @@ export default function AsientoEditor() {
                 placeholder="Factura, cheque…"
               />
             </Col>
+            <Col xs={12} md={6}>
+              <Form.Label htmlFor="proveedor" className="small text-muted mb-1">
+                Proveedor <span className="text-suave">(opcional)</span>
+              </Form.Label>
+              <SelectorCuenta
+                id="proveedor"
+                cuentas={proveedores}
+                valor={proveedor}
+                onChange={setProveedor}
+                placeholder="NIT o nombre del proveedor"
+                permitirVacio
+              />
+              <Form.Text className="text-suave">
+                Las reglas de asignación por proveedor completan el centro de costo de las líneas que lo dejen vacío.
+              </Form.Text>
+            </Col>
           </Row>
         </Card.Body>
       </Card>
@@ -264,10 +310,22 @@ export default function AsientoEditor() {
                       cuentas={centrosVigentes}
                       valor={l.cuenta?.exenta ? null : l.centro}
                       onChange={(centro) => actualizarLinea(l.clave, { centro })}
-                      placeholder={l.cuenta?.exenta ? 'No requiere (cuenta exenta)' : 'Centro de costo'}
+                      placeholder={
+                        l.cuenta?.exenta
+                          ? 'No requiere (cuenta exenta)'
+                          : sugerencias[l.cuenta?.id]
+                            ? `Por regla: ${sugerencias[l.cuenta.id].centro_codigo} · ${sugerencias[l.cuenta.id].centro_nombre}`
+                            : 'Centro de costo'
+                      }
                       disabled={Boolean(l.cuenta?.exenta)}
                       permitirVacio
                     />
+                    {!l.cuenta?.exenta && !l.centro && sugerencias[l.cuenta?.id] && (
+                      <div className="small text-info-emphasis mt-1" title={`Regla por ${sugerencias[l.cuenta.id].criterio}`}>
+                        <i className="bi bi-magic me-1" />
+                        Por regla ({sugerencias[l.cuenta.id].criterio})
+                      </div>
+                    )}
                   </td>
                   <td>
                     <Form.Control

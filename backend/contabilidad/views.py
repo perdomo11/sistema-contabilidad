@@ -123,7 +123,7 @@ class AsientoViewSet(viewsets.GenericViewSet):
 
     serializer_class = AsientoSerializer
     queryset = Asiento.objects.select_related(
-        "periodo", "creado_por", "modificado_por", "contabilizado_por", "reversion_de", "reversion"
+        "periodo", "proveedor", "creado_por", "modificado_por", "contabilizado_por", "reversion_de", "reversion"
     )
 
     def get_permissions(self):

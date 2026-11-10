@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from centros_costo.models import CentroCosto
+from tesoreria.models import Proveedor
 
 from .models import Asiento, Cuenta, LineaAsiento, PeriodoContable
 
@@ -122,12 +123,14 @@ class LineaAsientoSerializer(serializers.ModelSerializer):
     cuenta_exenta_centro_costo = serializers.BooleanField(source="cuenta.exenta_centro_costo", read_only=True)
     centro_codigo = serializers.CharField(source="centro_costo.codigo", read_only=True, default=None)
     centro_nombre = serializers.CharField(source="centro_costo.nombre", read_only=True, default=None)
+    asignacion = serializers.CharField(read_only=True)
 
     class Meta:
         model = LineaAsiento
         fields = [
             "id", "numero_linea", "cuenta", "cuenta_codigo", "cuenta_nombre", "cuenta_exenta_centro_costo",
-            "centro_costo", "centro_codigo", "centro_nombre", "descripcion", "debe", "haber", "linea_origen",
+            "centro_costo", "centro_codigo", "centro_nombre", "regla_asignacion", "asignacion", "descripcion", "debe",
+            "haber", "linea_origen",
         ]
         read_only_fields = fields
 
@@ -136,6 +139,7 @@ class AsientoSerializer(serializers.ModelSerializer):
     codigo = serializers.CharField(read_only=True)
     periodo_nombre = serializers.CharField(source="periodo.nombre", read_only=True)
     periodo_estado = serializers.CharField(source="periodo.estado", read_only=True)
+    proveedor_nombre = serializers.CharField(source="proveedor.nombre", read_only=True, default=None)
     tipo_display = serializers.CharField(source="get_tipo_display", read_only=True)
     estado_display = serializers.CharField(source="get_estado_display", read_only=True)
     cuadrado = serializers.SerializerMethodField()
@@ -158,6 +162,8 @@ class AsientoSerializer(serializers.ModelSerializer):
             "periodo_estado",
             "concepto",
             "referencia",
+            "proveedor",
+            "proveedor_nombre",
             "tipo",
             "tipo_display",
             "estado",
@@ -211,6 +217,9 @@ class AsientoEntradaSerializer(serializers.Serializer):
     fecha = serializers.DateField()
     concepto = serializers.CharField(max_length=300, allow_blank=True)
     referencia = serializers.CharField(max_length=50, required=False, allow_blank=True, default="")
+    proveedor = serializers.PrimaryKeyRelatedField(
+        queryset=Proveedor.objects.all(), required=False, allow_null=True, default=None
+    )
     lineas = LineaEntradaSerializer(many=True, allow_empty=True)
 
 
@@ -225,6 +234,7 @@ class FiltroAsientosSerializer(serializers.Serializer):
     desde = serializers.DateField(required=False)
     hasta = serializers.DateField(required=False)
     cuenta = serializers.PrimaryKeyRelatedField(queryset=Cuenta.objects.all(), required=False)
+    proveedor = serializers.PrimaryKeyRelatedField(queryset=Proveedor.objects.all(), required=False)
     q = serializers.CharField(required=False, allow_blank=True)
 
 

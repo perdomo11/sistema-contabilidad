@@ -169,6 +169,10 @@ class Asiento(models.Model):
     periodo = models.ForeignKey(PeriodoContable, on_delete=models.PROTECT, related_name="asientos")
     concepto = models.CharField(max_length=300)
     referencia = models.CharField(max_length=50, blank=True, help_text="Documento fuente (factura, cheque, etc.).")
+    # T2.2: tercero del asiento; alimenta las reglas de asignación proveedor→centro.
+    proveedor = models.ForeignKey(
+        "tesoreria.Proveedor", null=True, blank=True, on_delete=models.PROTECT, related_name="asientos"
+    )
     tipo = models.CharField(max_length=12, choices=TipoAsiento.choices, default=TipoAsiento.DIARIO)
     estado = models.CharField(max_length=15, choices=EstadoAsiento.choices, default=EstadoAsiento.BORRADOR)
     total_debe = models.DecimalField(**MONTO, default=0)
@@ -240,6 +244,10 @@ class LineaAsiento(models.Model):
     centro_costo = models.ForeignKey(
         "centros_costo.CentroCosto", null=True, blank=True, on_delete=models.PROTECT, related_name="lineas"
     )
+    # T2.2: regla que asignó el centro (vacía = asignación directa por el usuario).
+    regla_asignacion = models.ForeignKey(
+        "centros_costo.ReglaAsignacion", null=True, blank=True, on_delete=models.PROTECT, related_name="lineas"
+    )
 
     class Meta:
         verbose_name = "línea de asiento"
@@ -251,7 +259,18 @@ class LineaAsiento(models.Model):
                 condition=(Q(debe__gt=0) & Q(haber=0)) | (Q(haber__gt=0) & Q(debe=0)),
                 name="linea_cargo_o_abono",
             ),
+            models.CheckConstraint(
+                condition=Q(regla_asignacion__isnull=True) | Q(centro_costo__isnull=False),
+                name="linea_regla_con_centro",
+            ),
         ]
+
+    @property
+    def asignacion(self):
+        """Cómo se obtuvo el centro: DIRECTA, REGLA o None (cuenta exenta sin centro)."""
+        if self.centro_costo_id is None:
+            return None
+        return "REGLA" if self.regla_asignacion_id else "DIRECTA"
 
     def __str__(self):
         return f"{self.asiento_id}/{self.numero_linea} {self.cuenta_id} D{self.debe} H{self.haber}"

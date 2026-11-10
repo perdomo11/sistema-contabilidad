@@ -93,3 +93,17 @@ export async function mensajeError(resp) {
   }
   return `Error ${resp.status}`
 }
+
+/** Recorre todas las páginas de un listado paginado de DRF y devuelve los resultados (o [] si falla). */
+export async function apiTodas(url) {
+  const resultados = []
+  let siguiente = url
+  while (siguiente) {
+    const resp = await api(siguiente)
+    if (!resp.ok) return resultados
+    const pagina = await resp.json()
+    resultados.push(...pagina.results)
+    siguiente = pagina.next ? pagina.next.replace(/^https?:\/\/[^/]+/, '') : null
+  }
+  return resultados
+}

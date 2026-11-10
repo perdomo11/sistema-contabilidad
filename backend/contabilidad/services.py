@@ -9,6 +9,8 @@ from django.db.models import Count, Exists, Max, OuterRef, Q
 from django.utils import timezone
 
 from centros_costo.models import CentroCosto
+from centros_costo.services import resolver_regla
+from tesoreria.services import validar_proveedor_activo
 from usuarios.models import Bitacora
 from usuarios.services import registrar_evento
 
@@ -459,11 +461,11 @@ def _validar_cuenta_imputable(cuenta, n, errores, permitir_inactivas=False):
         errores.append(f"Línea {n}: la cuenta {cuenta.codigo} está inactiva.")
 
 
-def _validar_centro(cuenta, centro, fecha, n, errores):
+def _validar_centro(cuenta, centro, fecha, n, errores, mensaje_sin_centro="exige centro de costo"):
     """Regla 3: centro obligatorio salvo cuenta exenta; si se indica, de detalle y vigente en la fecha."""
     if centro is None:
         if cuenta is not None and not cuenta.exenta_centro_costo:
-            errores.append(f"Línea {n}: la cuenta {cuenta.codigo} exige centro de costo.")
+            errores.append(f"Línea {n}: la cuenta {cuenta.codigo} {mensaje_sin_centro}.")
         return
     if not centro.acepta_movimientos:
         errores.append(f"Línea {n}: el centro {centro.codigo} es de agrupación y no recibe movimientos.")
@@ -471,9 +473,11 @@ def _validar_centro(cuenta, centro, fecha, n, errores):
         errores.append(f"Línea {n}: el centro {centro.codigo} no está vigente el {fecha:%d/%m/%Y}.")
 
 
-def _normalizar_lineas(lineas, fecha):
+def _normalizar_lineas(lineas, fecha, proveedor=None):
     """Valida las líneas de un borrador ({cuenta, centro_costo, descripcion, debe, haber}).
 
+    Asignación (T2.2): el centro indicado en la línea prevalece (directa); si falta y la cuenta lo exige,
+    se aplica la regla vigente por proveedor y/o cuenta (`centros_costo.services.resolver_regla`).
     Un borrador puede estar descuadrado; la partida doble se exige al contabilizar.
     """
     if not lineas:
@@ -487,9 +491,13 @@ def _normalizar_lineas(lineas, fecha):
         cuenta = cuentas.get(cuenta.pk) if cuenta is not None else None
         centro = linea.get("centro_costo")
         centro = centros.get(centro.pk) if centro is not None else None
-        linea = {**linea, "cuenta": cuenta, "centro_costo": centro}
+        regla = None
+        if centro is None and cuenta is not None and cuenta.acepta_movimientos:
+            regla = resolver_regla(cuenta, proveedor, fecha)
+            centro = regla.centro_costo if regla else None
+        linea = {**linea, "cuenta": cuenta, "centro_costo": centro, "regla_asignacion": regla}
         _validar_cuenta_imputable(cuenta, n, errores)
-        _validar_centro(cuenta, centro, fecha, n, errores)
+        _validar_centro(cuenta, centro, fecha, n, errores, "exige centro de costo y no hay regla de asignación aplicable")
         debe, error_debe = _monto(linea.get("debe"))
         haber, error_haber = _monto(linea.get("haber"))
         if error_debe:
@@ -502,6 +510,7 @@ def _normalizar_lineas(lineas, fecha):
             {
                 "cuenta": linea.get("cuenta"),
                 "centro_costo": linea.get("centro_costo"),
+                "regla_asignacion": linea.get("regla_asignacion"),
                 "descripcion": (linea.get("descripcion") or "").strip()[:200],
                 "debe": debe,
                 "haber": haber,
@@ -527,6 +536,7 @@ def instantanea_asiento(asiento):
         "fecha": asiento.fecha.isoformat(),
         "concepto": asiento.concepto,
         "referencia": asiento.referencia,
+        "proveedor": asiento.proveedor.nit if asiento.proveedor_id else None,
         "tipo": asiento.tipo,
         "estado": asiento.estado,
         "total_debe": str(asiento.total_debe),
@@ -535,6 +545,7 @@ def instantanea_asiento(asiento):
             {
                 "cuenta": l.cuenta.codigo,
                 "centro_costo": l.centro_costo.codigo if l.centro_costo_id else None,
+                "regla_asignacion": l.regla_asignacion_id,
                 "descripcion": l.descripcion,
                 "debe": str(l.debe),
                 "haber": str(l.haber),
@@ -552,16 +563,18 @@ def _validar_encabezado(concepto, referencia):
 
 
 @transaction.atomic
-def crear_asiento(*, usuario, fecha, concepto, lineas, referencia="", request=None):
+def crear_asiento(*, usuario, fecha, concepto, lineas, referencia="", proveedor=None, request=None):
     """Crea un asiento en borrador."""
     concepto, referencia = _validar_encabezado(concepto, referencia)
     periodo = validar_fecha_registrable(fecha)
-    normalizadas, total_debe, total_haber = _normalizar_lineas(lineas, fecha)
+    proveedor = validar_proveedor_activo(proveedor)
+    normalizadas, total_debe, total_haber = _normalizar_lineas(lineas, fecha, proveedor)
     asiento = Asiento(
         fecha=fecha,
         periodo=periodo,
         concepto=concepto,
         referencia=referencia,
+        proveedor=proveedor,
         tipo=TipoAsiento.DIARIO,
         estado=EstadoAsiento.BORRADOR,
         total_debe=total_debe,
@@ -594,16 +607,18 @@ def _bloquear_borrador(asiento):
 
 
 @transaction.atomic
-def actualizar_asiento(asiento, *, usuario, fecha, concepto, lineas, referencia="", request=None):
-    """Reemplaza encabezado y líneas de un borrador."""
+def actualizar_asiento(asiento, *, usuario, fecha, concepto, lineas, referencia="", proveedor=None, request=None):
+    """Reemplaza encabezado y líneas de un borrador (las reglas de asignación se vuelven a resolver)."""
     asiento = _bloquear_borrador(asiento)
     antes = instantanea_asiento(asiento)
     concepto, referencia = _validar_encabezado(concepto, referencia)
     asiento.periodo = validar_fecha_registrable(fecha)
-    normalizadas, asiento.total_debe, asiento.total_haber = _normalizar_lineas(lineas, fecha)
+    proveedor = validar_proveedor_activo(proveedor)
+    normalizadas, asiento.total_debe, asiento.total_haber = _normalizar_lineas(lineas, fecha, proveedor)
     asiento.fecha = fecha
     asiento.concepto = concepto
     asiento.referencia = referencia
+    asiento.proveedor = proveedor
     asiento.modificado_por = usuario
     asiento.full_clean()
     asiento.save()
@@ -721,6 +736,7 @@ def revertir_asiento(asiento, *, usuario, motivo, fecha=None, request=None):
         periodo=validar_fecha_registrable(fecha),
         concepto=f"Reversión de {original.codigo}: {motivo}"[:300],
         referencia=original.referencia,
+        proveedor_id=original.proveedor_id,
         tipo=TipoAsiento.REVERSION,
         estado=EstadoAsiento.BORRADOR,
         total_debe=original.total_haber,
@@ -737,6 +753,7 @@ def revertir_asiento(asiento, *, usuario, motivo, fecha=None, request=None):
             numero_linea=linea.numero_linea,
             cuenta_id=linea.cuenta_id,
             centro_costo_id=linea.centro_costo_id,
+            regla_asignacion_id=linea.regla_asignacion_id,
             descripcion=linea.descripcion,
             debe=linea.haber,
             haber=linea.debe,
@@ -759,9 +776,9 @@ def revertir_asiento(asiento, *, usuario, motivo, fecha=None, request=None):
     return reversion
 
 
-def consultar_asientos(*, estado=None, tipo=None, desde=None, hasta=None, cuenta=None, q=None):
+def consultar_asientos(*, estado=None, tipo=None, desde=None, hasta=None, cuenta=None, proveedor=None, q=None):
     qs = Asiento.objects.select_related(
-        "periodo", "creado_por", "contabilizado_por", "reversion_de", "reversion"
+        "periodo", "proveedor", "creado_por", "contabilizado_por", "reversion_de", "reversion"
     ).order_by("-fecha", "-id")
     if estado:
         qs = qs.filter(estado=estado)
@@ -773,6 +790,8 @@ def consultar_asientos(*, estado=None, tipo=None, desde=None, hasta=None, cuenta
         qs = qs.filter(fecha__lte=hasta)
     if cuenta:
         qs = qs.filter(Exists(LineaAsiento.objects.filter(asiento=OuterRef("pk"), cuenta=cuenta)))
+    if proveedor:
+        qs = qs.filter(proveedor=proveedor)
     if q:
         q = q.strip()
         qs = qs.filter(Q(concepto__icontains=q) | Q(referencia__icontains=q))
