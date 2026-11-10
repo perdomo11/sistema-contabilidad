@@ -29,6 +29,10 @@ const MENU = [
     ],
   },
   {
+    seccion: 'Reportes',
+    items: [{ a: '/reportes/estado-resultados', icono: 'bi-graph-up', texto: 'Estado de resultados' }],
+  },
+  {
     seccion: 'Tesorería',
     items: [{ a: '/proveedores', icono: 'bi-truck', texto: 'Proveedores' }],
   },

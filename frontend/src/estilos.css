@@ -363,6 +363,40 @@ code {
   }
 }
 
+/* --- Reportes matriciales (estado de resultados) -------------------------------- */
+.tabla-matriz th:first-child,
+.tabla-matriz td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--bs-body-bg);
+  min-width: 16rem;
+}
+.tabla-matriz thead th:first-child,
+.tabla-matriz tfoot td:first-child {
+  background: var(--bs-tertiary-bg);
+}
+.tabla-matriz .fila-seccion td {
+  background: var(--bs-tertiary-bg);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.03em;
+  color: var(--bs-secondary-color);
+}
+.tabla-matriz .fila-subtotal td {
+  font-weight: 600;
+  border-top: 1px solid var(--bs-border-color);
+}
+.tabla-matriz .fila-resultado td {
+  font-weight: 700;
+  border-top: 2px solid var(--bs-emphasis-color);
+}
+.tabla-matriz .col-total {
+  background: var(--bs-tertiary-bg);
+  font-weight: 600;
+}
+
 /* --- Impresión ---------------------------------------------------------------- */
 .encabezado-reporte {
   display: none;
