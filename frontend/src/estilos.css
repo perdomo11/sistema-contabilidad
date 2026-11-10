@@ -1,0 +1,50 @@
+/* Estilos globales complementarios a Bootstrap. */
+
+.monto {
+  font-family: var(--bs-font-monospace);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.encabezado-reporte {
+  display: none;
+}
+
+@media print {
+  @page {
+    size: landscape;
+    margin: 12mm;
+  }
+
+  body {
+    font-size: 10pt;
+  }
+
+  .navbar,
+  .no-imprimir {
+    display: none !important;
+  }
+
+  .encabezado-reporte {
+    display: block;
+    margin-bottom: 8pt;
+  }
+
+  .card {
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  .table-responsive {
+    overflow: visible !important;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  tr {
+    break-inside: avoid;
+  }
+}

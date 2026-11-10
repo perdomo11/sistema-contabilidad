@@ -5,7 +5,10 @@ import BarraNavegacion from './components/BarraNavegacion'
 import AsientoDetalle from './pages/AsientoDetalle'
 import AsientoEditor from './pages/AsientoEditor'
 import Asientos from './pages/Asientos'
+import Balanza from './pages/Balanza'
 import Bitacora from './pages/Bitacora'
+import LibroDiario from './pages/LibroDiario'
+import LibroMayor from './pages/LibroMayor'
 import Catalogo from './pages/Catalogo'
 import Inicio from './pages/Inicio'
 import Login from './pages/Login'
@@ -70,6 +73,30 @@ export default function App() {
           element={
             <RutaProtegida roles={[ROLES.CONTADOR]}>
               <AsientoEditor />
+            </RutaProtegida>
+          }
+        />
+        <Route
+          path="/libros/diario"
+          element={
+            <RutaProtegida>
+              <LibroDiario />
+            </RutaProtegida>
+          }
+        />
+        <Route
+          path="/libros/mayor"
+          element={
+            <RutaProtegida>
+              <LibroMayor />
+            </RutaProtegida>
+          }
+        />
+        <Route
+          path="/libros/balanza"
+          element={
+            <RutaProtegida>
+              <Balanza />
             </RutaProtegida>
           }
         />

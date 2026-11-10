@@ -744,3 +744,167 @@ class AsientosApiTests(BaseAsientos):
         self.assertEqual(self.client.post("/api/asientos/", self.cuerpo(), format="json").status_code, 403)
         resp = self.client.post(f"/api/asientos/{asiento.pk}/revertir/", {"motivo": "x"}, format="json")
         self.assertEqual(resp.status_code, 403)
+
+
+# =============================================================================
+# Libros: diario, mayor y balanza (T1.4)
+# =============================================================================
+
+from . import libros  # noqa: E402
+
+
+class BaseLibros(TestCase):
+    """Catálogo y movimientos:
+    - 10/02: Caja D 1000 / Depósitos H 1000
+    - 05/03: Salarios D 300 / Caja H 300
+    - 20/03: Otro activo (112) D 50 / Bancos H 50
+    - 25/03: borrador Caja D 999 / Depósitos H 999 (no cuenta)
+    """
+
+    def setUp(self):
+        c = self.contador = crear_usuario("contador", roles.CONTADOR)
+        crear = lambda **kw: services.crear_cuenta(usuario=c, **kw)  # noqa: E731
+        activo = crear(codigo="1", nombre="Activo", tipo=T.ACTIVO, acepta_movimientos=False)
+        self.fondos = crear(codigo="11", nombre="Fondos", padre=activo, acepta_movimientos=False)
+        self.caja = crear(codigo="1101", nombre="Caja", padre=self.fondos)
+        self.bancos = crear(codigo="1102", nombre="Bancos", padre=self.fondos)
+        # Hija directa de "1" cuyo código empieza con "11" pero NO es subcuenta de "11".
+        self.otro = crear(codigo="112", nombre="Otro activo", padre=activo)
+        pasivo = crear(codigo="2", nombre="Pasivo", tipo=T.PASIVO, acepta_movimientos=False)
+        self.depositos = crear(codigo="2101", nombre="Depósitos", padre=pasivo)
+        gastos = crear(codigo="5", nombre="Gastos", tipo=T.GASTO, acepta_movimientos=False)
+        self.salarios = crear(codigo="5201", nombre="Salarios", padre=gastos)
+        crear(codigo="9", nombre="Orden sin uso", tipo=T.ORDEN)
+        services.crear_ejercicio(usuario=c, anio=2026)
+
+        self.registrar(date(2026, 2, 10), (self.caja, "1000", 0), (self.depositos, 0, "1000"))
+        self.registrar(date(2026, 3, 5), (self.salarios, "300", 0), (self.caja, 0, "300"))
+        self.registrar(date(2026, 3, 20), (self.otro, "50", 0), (self.bancos, 0, "50"))
+        self.registrar(date(2026, 3, 25), (self.caja, "999", 0), (self.depositos, 0, "999"), contabilizar=False)
+
+    def registrar(self, fecha, *pares, contabilizar=True):
+        asiento = services.crear_asiento(
+            usuario=self.contador,
+            fecha=fecha,
+            concepto=f"Movimiento {fecha}",
+            lineas=[{"cuenta": cta, "debe": d, "haber": h} for cta, d, h in pares],
+        )
+        if contabilizar:
+            asiento = services.contabilizar_asiento(asiento, usuario=self.contador)
+        return asiento
+
+    MARZO = {"desde": date(2026, 3, 1), "hasta": date(2026, 3, 31)}
+
+
+class BalanzaTests(BaseLibros):
+    def fila(self, balanza, codigo):
+        return next(f for f in balanza["filas"] if f["codigo"] == codigo)
+
+    def test_saldos_por_cuenta_y_cuadre(self):
+        b = libros.balanza_comprobacion(**self.MARZO)
+        caja = self.fila(b, "1101")
+        self.assertEqual(
+            (caja["inicial_deudor"], caja["cargos"], caja["abonos"], caja["final_deudor"]),
+            ("1000.00", "0.00", "300.00", "700.00"),
+        )
+        depositos = self.fila(b, "2101")
+        self.assertEqual((depositos["inicial_acreedor"], depositos["final_acreedor"]), ("1000.00", "1000.00"))
+        self.assertEqual(self.fila(b, "1102")["final_acreedor"], "50.00")
+        self.assertTrue(b["cuadra"])
+        self.assertEqual(
+            b["totales"],
+            {
+                "inicial_deudor": "1000.00",
+                "inicial_acreedor": "1000.00",
+                "cargos": "350.00",
+                "abonos": "350.00",
+                "final_deudor": "1050.00",
+                "final_acreedor": "1050.00",
+            },
+        )
+
+    def test_borradores_no_cuentan(self):
+        b = libros.balanza_comprobacion(**self.MARZO)
+        self.assertEqual(self.fila(b, "1101")["cargos"], "0.00")
+
+    def test_agrupacion_suma_solo_descendientes(self):
+        b = libros.balanza_comprobacion(**self.MARZO)
+        fondos = self.fila(b, "11")  # Caja + Bancos, sin "112"
+        self.assertEqual((fondos["inicial_deudor"], fondos["abonos"], fondos["final_deudor"]), ("1000.00", "350.00", "650.00"))
+        self.assertEqual(fondos["cargos"], "0.00")
+        activo = self.fila(b, "1")
+        self.assertEqual((activo["cargos"], activo["abonos"], activo["final_deudor"]), ("50.00", "350.00", "700.00"))
+
+    def test_filtro_por_nivel_no_altera_totales(self):
+        completa = libros.balanza_comprobacion(**self.MARZO)
+        nivel1 = libros.balanza_comprobacion(**self.MARZO, nivel=1)
+        self.assertEqual([f["codigo"] for f in nivel1["filas"]], ["1", "2", "5"])
+        self.assertEqual(nivel1["totales"], completa["totales"])
+
+    def test_cuentas_sin_movimiento(self):
+        sin = libros.balanza_comprobacion(**self.MARZO)
+        con = libros.balanza_comprobacion(**self.MARZO, incluir_sin_movimiento=True)
+        self.assertNotIn("9", [f["codigo"] for f in sin["filas"]])
+        self.assertEqual(len(con["filas"]), Cuenta.objects.count())
+
+    def test_rango_invalido(self):
+        with self.assertRaises(ValidationError):
+            libros.balanza_comprobacion(desde=date(2026, 3, 31), hasta=date(2026, 3, 1))
+
+
+class MayorTests(BaseLibros):
+    def test_saldo_corriente_cuenta_deudora(self):
+        m = libros.libro_mayor(cuenta=self.caja, **self.MARZO)
+        self.assertEqual(m["saldo_inicial"], "1000.00")
+        self.assertEqual([(x["haber"], x["saldo"]) for x in m["movimientos"]], [("300.00", "700.00")])
+        self.assertEqual(m["saldo_final"], "700.00")
+
+    def test_saldo_positivo_en_cuenta_acreedora(self):
+        m = libros.libro_mayor(cuenta=self.depositos, desde=date(2026, 1, 1), hasta=date(2026, 12, 31))
+        self.assertEqual(m["saldo_inicial"], "0.00")
+        self.assertEqual(m["saldo_final"], "1000.00")  # el borrador de 999 no cuenta
+
+    def test_mayor_de_agrupacion_incluye_subcuentas_reales(self):
+        m = libros.libro_mayor(cuenta=self.fondos, **self.MARZO)
+        self.assertEqual(sorted(x["cuenta_codigo"] for x in m["movimientos"]), ["1101", "1102"])
+        self.assertEqual((m["saldo_inicial"], m["saldo_final"]), ("1000.00", "650.00"))
+        self.assertEqual(m["totales"], {"debe": "0.00", "haber": "350.00"})
+
+
+class DiarioTests(BaseLibros):
+    def test_orden_totales_y_exclusion_de_borradores(self):
+        asientos, totales = libros.libro_diario(**self.MARZO)
+        self.assertEqual([a.fecha for a in asientos], [date(2026, 3, 5), date(2026, 3, 20)])
+        self.assertEqual(totales, {"debe": "350.00", "haber": "350.00"})
+
+
+class LibrosApiTests(BaseLibros):
+    def setUp(self):
+        super().setUp()
+        self.client = APIClient()
+        self.client.force_authenticate(crear_usuario("auditor", roles.AUDITOR))
+
+    def test_endpoints(self):
+        rango = {"desde": "2026-03-01", "hasta": "2026-03-31"}
+        resp = self.client.get("/api/libros/diario/", rango)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data["count"], 2)
+        self.assertEqual(resp.data["totales"]["debe"], "350.00")
+        self.assertEqual(len(resp.data["results"][0]["lineas"]), 2)
+
+        resp = self.client.get("/api/libros/mayor/", {**rango, "cuenta": self.caja.pk})
+        self.assertEqual(resp.data["saldo_final"], "700.00")
+
+        resp = self.client.get("/api/libros/balanza/", {**rango, "nivel": 2})
+        self.assertTrue(resp.data["cuadra"])
+        self.assertTrue(all(f["nivel"] <= 2 for f in resp.data["filas"]))
+
+    def test_validaciones(self):
+        self.assertEqual(self.client.get("/api/libros/balanza/").status_code, 400)
+        resp = self.client.get("/api/libros/diario/", {"desde": "2026-03-31", "hasta": "2026-03-01"})
+        self.assertEqual(resp.status_code, 400)
+        self.assertIn("hasta", resp.data)
+
+    def test_requiere_sesion(self):
+        self.client.force_authenticate(None)
+        self.assertEqual(self.client.get("/api/libros/balanza/", {"desde": "2026-01-01", "hasta": "2026-12-31"}).status_code, 401)

@@ -1,11 +1,12 @@
-import { Badge, Button, Container, Nav, Navbar } from 'react-bootstrap'
-import { NavLink, useNavigate } from 'react-router-dom'
+import { Badge, Button, Container, Nav, Navbar, NavDropdown } from 'react-bootstrap'
+import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { ROLES, tieneRol } from '../auth/roles'
 
 export default function BarraNavegacion() {
   const { usuario, logout } = useAuth()
   const navegar = useNavigate()
+  const ubicacion = useLocation()
 
   const cerrarSesion = async () => {
     await logout()
@@ -29,6 +30,17 @@ export default function BarraNavegacion() {
                 <Nav.Link as={NavLink} to="/asientos">
                   Asientos
                 </Nav.Link>
+                <NavDropdown title="Libros" id="menu-libros" active={ubicacion.pathname.startsWith('/libros')}>
+                  <NavDropdown.Item as={NavLink} to="/libros/diario">
+                    Libro diario
+                  </NavDropdown.Item>
+                  <NavDropdown.Item as={NavLink} to="/libros/mayor">
+                    Libro mayor
+                  </NavDropdown.Item>
+                  <NavDropdown.Item as={NavLink} to="/libros/balanza">
+                    Balanza de comprobación
+                  </NavDropdown.Item>
+                </NavDropdown>
                 <Nav.Link as={NavLink} to="/catalogo">
                   Catálogo de cuentas
                 </Nav.Link>

@@ -6,9 +6,13 @@ from rest_framework.response import Response
 from usuarios import roles
 from usuarios.permissions import EsSuperusuario, TieneRol
 
-from . import services
+from . import libros, services
 from .models import Asiento, Cuenta, PeriodoContable
 from .serializers import (
+    AsientoDiarioSerializer,
+    FiltroBalanzaSerializer,
+    FiltroMayorSerializer,
+    RangoFechasSerializer,
     AsientoDetalleSerializer,
     AsientoEntradaSerializer,
     AsientoSerializer,
@@ -171,3 +175,32 @@ class AsientoViewSet(viewsets.GenericViewSet):
             self.get_object(), usuario=request.user, request=request, **entrada.validated_data
         )
         return self._detalle(reversion, status.HTTP_201_CREATED)
+
+
+class LibrosViewSet(viewsets.GenericViewSet):
+    """Libros contables de solo lectura sobre asientos contabilizados. Cualquier usuario autenticado."""
+
+    permission_classes = [IsAuthenticated]
+    serializer_class = AsientoDiarioSerializer
+
+    @action(detail=False)
+    def diario(self, request):
+        filtros = RangoFechasSerializer(data=request.query_params)
+        filtros.is_valid(raise_exception=True)
+        asientos, totales = libros.libro_diario(**filtros.validated_data)
+        pagina = self.paginate_queryset(asientos)
+        respuesta = self.get_paginated_response(AsientoDiarioSerializer(pagina, many=True).data)
+        respuesta.data["totales"] = totales
+        return respuesta
+
+    @action(detail=False)
+    def mayor(self, request):
+        filtros = FiltroMayorSerializer(data=request.query_params)
+        filtros.is_valid(raise_exception=True)
+        return Response(libros.libro_mayor(**filtros.validated_data))
+
+    @action(detail=False)
+    def balanza(self, request):
+        filtros = FiltroBalanzaSerializer(data=request.query_params)
+        filtros.is_valid(raise_exception=True)
+        return Response(libros.balanza_comprobacion(**filtros.validated_data))

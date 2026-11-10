@@ -215,3 +215,33 @@ class FiltroAsientosSerializer(serializers.Serializer):
     hasta = serializers.DateField(required=False)
     cuenta = serializers.PrimaryKeyRelatedField(queryset=Cuenta.objects.all(), required=False)
     q = serializers.CharField(required=False, allow_blank=True)
+
+
+# =============================================================================
+# Libros (T1.4)
+# =============================================================================
+
+
+class RangoFechasSerializer(serializers.Serializer):
+    desde = serializers.DateField()
+    hasta = serializers.DateField()
+
+
+class FiltroMayorSerializer(RangoFechasSerializer):
+    cuenta = serializers.PrimaryKeyRelatedField(queryset=Cuenta.objects.all())
+
+
+class FiltroBalanzaSerializer(RangoFechasSerializer):
+    nivel = serializers.IntegerField(required=False, allow_null=True, min_value=1, default=None)
+    incluir_sin_movimiento = serializers.BooleanField(required=False, default=False)
+
+
+class AsientoDiarioSerializer(serializers.ModelSerializer):
+    codigo = serializers.CharField(read_only=True)
+    tipo_display = serializers.CharField(source="get_tipo_display", read_only=True)
+    lineas = LineaAsientoSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Asiento
+        fields = ["id", "codigo", "fecha", "concepto", "referencia", "tipo", "tipo_display", "total_debe", "total_haber", "lineas"]
+        read_only_fields = fields
