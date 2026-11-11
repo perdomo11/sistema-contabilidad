@@ -22,6 +22,7 @@ Las pantallas muestran solo los botones que su rol permite usar.
 ### Elementos comunes
 - **Montos:** dos decimales, separador de miles; los negativos entre paréntesis y en rojo cuando indican pérdida o faltante.
 - **Exportar CSV e Imprimir:** en reportes y tableros. La impresión oculta menús y botones.
+- **Exportar a Excel:** en el catálogo de cuentas, el libro diario y el libro mayor. Genera un libro .xlsx con el nombre, NIT y NRC de la empresa, el periodo, montos numéricos con dos decimales, totales y la fila de títulos fija.
 - **Migas de pan** arriba de cada pantalla para volver a la sección.
 
 ---
@@ -50,7 +51,7 @@ Un asiento **contabilizado no se modifica ni se elimina**: para corregirlo use *
 
 ### 2.4 Libros (*Contabilidad*)
 - **Libro diario:** asientos contabilizados por rango de fechas.
-- **Libro mayor:** movimientos y saldo de una cuenta (o de un grupo con sus subcuentas).
+- **Libro mayor:** movimientos y saldo de una cuenta (o de un grupo con sus subcuentas). "Mayor general a Excel" descarga en un solo archivo el mayor de todas las cuentas con movimiento en el rango.
 - **Balanza de comprobación:** saldos por cuenta al nivel elegido; cargos y abonos totales deben coincidir.
 
 ---

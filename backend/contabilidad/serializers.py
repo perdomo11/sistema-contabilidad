@@ -265,6 +265,12 @@ class FiltroMayorSerializer(RangoFechasSerializer):
     cuenta = serializers.PrimaryKeyRelatedField(queryset=Cuenta.objects.all())
 
 
+class FiltroMayorExportarSerializer(RangoFechasSerializer):
+    """Sin cuenta, el mayor exportado incluye todas las cuentas de detalle con saldo o movimientos."""
+
+    cuenta = serializers.PrimaryKeyRelatedField(queryset=Cuenta.objects.all(), required=False, allow_null=True)
+
+
 class FiltroBalanzaSerializer(RangoFechasSerializer):
     nivel = serializers.IntegerField(required=False, allow_null=True, min_value=1, default=None)
     incluir_sin_movimiento = serializers.BooleanField(required=False, default=False)

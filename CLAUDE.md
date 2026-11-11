@@ -47,6 +47,7 @@ Implementación por tareas: T4.1 monto institucional, T4.2 distribución, T4.3 e
 - **B4** Presupuesto top-down y ejecución
 - **B5** Tesorería: cuentas por pagar, proyección de egresos 30/60/90 días, flujo de efectivo con alertas de déficit, dashboard
 - **B6** Cierre: pruebas, respaldos, manuales
+- **B7** Libros legales y datos de demostración: exportación a Excel, IVA y libro de compras, ventas y libro de ventas, datos de demostración
 
 ## Fuera de alcance (según el documento)
 Nómina, facturación electrónica e integración bancaria en tiempo real.
@@ -91,7 +92,10 @@ docker compose exec backend python manage.py test
 - [x] T5.3 Flujo de efectivo actual y proyectado con alertas de déficit (ver `docs/tareas/T5.3.md`)
 - [x] T5.4 Dashboard de tesorería (ver `docs/tareas/T5.4.md`)
 - [x] T6.1 Pruebas, respaldos y manuales (ver `docs/tareas/T6.1.md`)
-- Plan de tareas completo.
+- [x] T7.1 Exportación a Excel: catálogo, libro diario y libro mayor (ver `docs/tareas/T7.1.md`)
+- [ ] T7.2 IVA en compras y Libro de compras
+- [ ] T7.3 Ventas y Libro de ventas
+- [ ] T7.4 Datos de demostración realistas
 
 Notas de implementación:
 - Roles = grupos de Django (`usuarios/roles.py`). Proteger vistas con `permission_classes = [TieneRol(roles.X)]` (`usuarios/permissions.py`).
@@ -117,6 +121,7 @@ Notas de implementación:
 - Libros (diario, mayor, balanza): servicios de solo lectura en `contabilidad/libros.py` (separados de `services.py`). Saldos acumulados desde el inicio; las cuentas de resultado se ponen en cero con un asiento de cierre, no en el reporte. Agrupaciones = descendientes reales del árbol (no prefijo de código).
 - Frontend (T1.5): las pantallas viven dentro de `layout/Layout.jsx` (menú lateral en `MENU`, agregar ahí los módulos nuevos). Cada página usa `EncabezadoPagina` (título, descripción, migas, acciones), filtros en `Card`, tablas dentro de `Card`, montos con clase `monto`, insignias en tonos `*-subtle`, íconos `bootstrap-icons` y `EstadoVacio` para listas vacías. Estilos del tema en `src/estilos.css`.
 - Cierre (T6.1): `config/tests_integracion.py` (ciclo completo con todos los datos de ejemplo; al agregar módulos, extenderlo). `reportes/integridad.py` + comando `verificar_integridad [--anio]` (código 1 si falla; al crear un trigger nuevo, agregarlo a `TRIGGERS`). Respaldos con Data Pump en `scripts/` (`respaldo.sh`, `verificar_respaldo.sh`, `restaurar.sh`; credenciales del contenedor; `docker compose exec` que no lee entrada debe llevar `</dev/null`). Manuales: `docs/MANUAL_USUARIO.md`, `docs/MANUAL_TECNICO.md`; matriz de pruebas `docs/PRUEBAS.md` (actualizar conteos al agregar pruebas).
+- Exportación a Excel (T7.1): `config/excel.py` da el formato común (encabezado con `EMPRESA_NOMBRE`/`EMPRESA_NIT`/`EMPRESA_NRC` de `.env`, títulos fijos en la fila 7, montos numéricos `#,##0.00`, filas `Fila(valores, estilo="grupo"|"subtotal"|"total")`); cada app arma sus filas desde sus servicios (`contabilidad/exportacion.py`) y responde con `respuesta_excel`. Rutas `…/exportar/`; en el frontend, `descargarDesdeApi` (`src/exportar.js`) y la prop `onExportarExcel` de `AccionesReporte`. Reutilizar en los libros de compras y ventas.
 - Usuarios de prueba: `docker compose exec backend python manage.py crear_usuarios_demo` (contraseña `Demo_2026!`).
 - Desde Git Bash en Windows, anteponer `MSYS_NO_PATHCONV=1` a `docker compose exec` con rutas absolutas del contenedor.
 

@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 import { api, mensajeError } from '../api'
 import EncabezadoPagina from '../components/EncabezadoPagina'
 import { AccionesReporte, CamposRango, rangoPorDefecto } from '../components/FiltroRango'
-import { descargarCSV } from '../exportar'
+import { descargarCSV, descargarDesdeApi } from '../exportar'
 import { formatoFecha, formatoMonto } from '../formato'
 
 const TAMANO_PAGINA = 50
@@ -56,7 +56,18 @@ export default function LibroDiario() {
     setExportando(false)
   }
 
-  const totalPaginas = datos ? Math.max(1, Math.ceil(datos.count / TAMANO_PAGINA)) : 1
+  // El Excel lo genera el backend con todo el rango consultado.
+  const exportarExcel = async () => {
+    setExportando(true)
+    const fallo = await descargarDesdeApi(
+      `/api/libros/diario/exportar/?${new URLSearchParams(consultado)}`,
+      `libro_diario_${consultado.desde}_${consultado.hasta}.xlsx`,
+    )
+    setExportando(false)
+    if (fallo) setError(fallo)
+  }
+
+  const totalPaginas =datos ? Math.max(1, Math.ceil(datos.count / TAMANO_PAGINA)) : 1
 
   return (
     <Container fluid className="px-0">
@@ -77,7 +88,12 @@ export default function LibroDiario() {
           >
             <Row className="g-2 align-items-end">
               <CamposRango rango={rango} onChange={setRango} />
-              <AccionesReporte onExportar={exportar} deshabilitado={!datos || exportando} />
+              <AccionesReporte
+                onExportar={exportar}
+                onExportarExcel={exportarExcel}
+                exportandoExcel={exportando}
+                deshabilitado={!datos || exportando}
+              />
             </Row>
           </Form>
         </Card.Body>

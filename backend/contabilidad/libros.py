@@ -129,6 +129,72 @@ def libro_mayor(*, cuenta, desde, hasta):
     }
 
 
+def libro_mayor_general(*, desde, hasta):
+    """Mayor de todas las cuentas de detalle con saldo inicial o movimientos en el rango.
+
+    Misma forma que `libro_mayor` por cuenta, pero con dos consultas de líneas en total.
+    """
+    _validar_rango(desde, hasta)
+    previo = _sumas_por_cuenta(_lineas_contabilizadas().filter(asiento__fecha__lt=desde))
+    lineas = (
+        _lineas_contabilizadas()
+        .filter(asiento__fecha__gte=desde, asiento__fecha__lte=hasta)
+        .select_related("asiento", "cuenta", "centro_costo")
+        .order_by("asiento__fecha", "asiento__ejercicio", "asiento__numero", "numero_linea")
+    )
+    por_cuenta = defaultdict(list)
+    for linea in lineas:
+        por_cuenta[linea.cuenta_id].append(linea)
+
+    resultado = []
+    for cuenta in Cuenta.objects.filter(acepta_movimientos=True).order_by("codigo"):
+        d0, h0 = previo.get(cuenta.pk, (CERO, CERO))
+        movs = por_cuenta.get(cuenta.pk, [])
+        if not movs and d0 == h0:
+            continue
+        signo = 1 if cuenta.naturaleza == Cuenta.Naturaleza.DEUDORA else -1
+        saldo = saldo_inicial = signo * (d0 - h0)
+        total_debe = total_haber = CERO
+        movimientos = []
+        for linea in movs:
+            saldo += signo * (linea.debe - linea.haber)
+            total_debe += linea.debe
+            total_haber += linea.haber
+            movimientos.append(
+                {
+                    "fecha": linea.asiento.fecha.isoformat(),
+                    "asiento_id": linea.asiento_id,
+                    "asiento_codigo": linea.asiento.codigo,
+                    "concepto": linea.asiento.concepto,
+                    "descripcion": linea.descripcion,
+                    "cuenta_codigo": cuenta.codigo,
+                    "cuenta_nombre": cuenta.nombre,
+                    "centro_codigo": linea.centro_costo.codigo if linea.centro_costo_id else None,
+                    "debe": _texto(linea.debe),
+                    "haber": _texto(linea.haber),
+                    "saldo": _texto(saldo),
+                }
+            )
+        resultado.append(
+            {
+                "cuenta": {
+                    "id": cuenta.pk,
+                    "codigo": cuenta.codigo,
+                    "nombre": cuenta.nombre,
+                    "naturaleza": cuenta.naturaleza,
+                    "acepta_movimientos": True,
+                },
+                "desde": desde.isoformat(),
+                "hasta": hasta.isoformat(),
+                "saldo_inicial": _texto(saldo_inicial),
+                "movimientos": movimientos,
+                "totales": {"debe": _texto(total_debe), "haber": _texto(total_haber)},
+                "saldo_final": _texto(saldo),
+            }
+        )
+    return resultado
+
+
 # --- Balanza de comprobación -------------------------------------------------
 
 def _columnas(saldo):

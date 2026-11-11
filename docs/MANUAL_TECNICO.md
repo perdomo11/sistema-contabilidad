@@ -49,6 +49,7 @@ docker compose exec backend python manage.py crear_usuarios_demo   # contador, t
 | `DEBUG` | `True` solo en desarrollo |
 | `ALLOWED_HOSTS` | Hosts permitidos, separados por coma |
 | `JWT_ACCESS_MINUTOS`, `JWT_REFRESH_HORAS` | Vigencia de los tokens |
+| `EMPRESA_NOMBRE`, `EMPRESA_NIT`, `EMPRESA_NRC` | Encabezado de los libros exportados a Excel (T7.1) |
 
 `.env` nunca se sube a git; `.env.example` se mantiene actualizado.
 
@@ -118,10 +119,10 @@ Todas bajo `/api/`, con `Authorization: Bearer <token>` salvo `health` y `auth/l
 |---|---|---|
 | Autenticación | `auth/login/`, `auth/refresh/`, `auth/logout/`, `auth/me/` | — |
 | Usuarios y bitácora | `usuarios/` (lista para selectores), `bitacora/` (solo Auditor) | Usuarios y roles: `/admin/` (superusuario) |
-| Catálogo | `cuentas/`, `cuentas/arbol/` | Contador |
+| Catálogo | `cuentas/`, `cuentas/arbol/`, `cuentas/exportar/` (.xlsx) | Contador |
 | Periodos | `periodos/`, `periodos/ejercicios/`, `periodos/{id}/cerrar/`, `…/reabrir/` (superusuario) | Contador |
 | Asientos | `asientos/`, `asientos/{id}/contabilizar/`, `asientos/{id}/revertir/` | Contador |
-| Libros | `libros/diario/`, `libros/mayor/`, `libros/balanza/` | — |
+| Libros | `libros/diario/`, `libros/mayor/`, `libros/balanza/`; Excel: `libros/diario/exportar/`, `libros/mayor/exportar/` (sin `cuenta` = mayor general) | — |
 | Centros de costo | `centros-costo/`, `centros-costo/arbol/`, `reglas-asignacion/`, `reglas-asignacion/resolver/` | Contador |
 | Prorrateo | `prorrateo/bases/`, `prorrateo/medidas/`, `prorrateo/reglas/`, `prorrateo/ejecuciones/` (`previsualizar/`, `pendientes/`, `{id}/anular/`) | Contador |
 | Reportes | `reportes/estado-resultados/`, `reportes/enfoque-contribucion/`, `reportes/indicadores/` | — |

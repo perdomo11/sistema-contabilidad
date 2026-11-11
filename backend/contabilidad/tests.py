@@ -993,3 +993,105 @@ class CentroEnLineasTests(BaseAsientos):
         client.force_authenticate(self.contador)
         linea = client.get(f"/api/asientos/{asiento.pk}/").data["lineas"][0]
         self.assertEqual((linea["centro_costo"], linea["centro_codigo"]), (self.centro.pk, "01"))
+
+
+# =============================================================================
+# Exportación a Excel (T7.1)
+# =============================================================================
+
+from io import BytesIO  # noqa: E402
+
+from django.test import override_settings  # noqa: E402
+from openpyxl import load_workbook  # noqa: E402
+
+from config.excel import FILA_TITULOS, FORMATO_MONTO  # noqa: E402
+
+
+@override_settings(EMPRESA_NOMBRE="Banco de Prueba, S.A.", EMPRESA_NIT="0614-010101-101-1", EMPRESA_NRC="1111-1")
+class ExportacionExcelTests(BaseLibros):
+    def setUp(self):
+        super().setUp()
+        self.client = APIClient()
+        self.client.force_authenticate(crear_usuario("auditor", roles.AUDITOR))
+
+    def hoja(self, url, params=None):
+        resp = self.client.get(url, params or {})
+        self.assertEqual(resp.status_code, 200, getattr(resp, "data", None))
+        self.assertEqual(resp["Content-Type"], "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        self.assertIn("attachment;", resp["Content-Disposition"])
+        return load_workbook(BytesIO(resp.content)).active
+
+    def filas(self, ws):
+        return [list(f) for f in ws.iter_rows(min_row=FILA_TITULOS + 1, values_only=True)]
+
+    def fila(self, ws, texto):
+        return next(f for f in self.filas(ws) if texto in f)
+
+    def test_encabezado_y_formato_comun(self):
+        ws = self.hoja("/api/libros/diario/exportar/", {"desde": "2026-03-01", "hasta": "2026-03-31"})
+        self.assertEqual(ws["A1"].value, "Banco de Prueba, S.A.")
+        self.assertIn("NIT: 0614-010101-101-1", ws["A2"].value)
+        self.assertIn("NRC: 1111-1", ws["A2"].value)
+        self.assertEqual(ws["A3"].value, "Libro diario")
+        self.assertEqual(ws["A4"].value, "Del 01/03/2026 al 31/03/2026")
+        self.assertEqual(ws.freeze_panes, f"A{FILA_TITULOS + 1}")
+        self.assertEqual(ws.cell(row=FILA_TITULOS, column=7).value, "Cargo")
+        self.assertTrue(all(ws.column_dimensions[c].width > 0 for c in "ABCDEFGH"))
+
+    def test_diario_partidas_lineas_y_totales(self):
+        ws = self.hoja("/api/libros/diario/exportar/", {"desde": "2026-03-01", "hasta": "2026-03-31"})
+        filas = self.filas(ws)
+        partidas = [f for f in filas if f[1] and f[1].startswith("2026-")]
+        self.assertEqual(len(partidas), 2)  # el borrador del 25/03 no aparece
+        self.assertEqual(partidas[0][0].date(), date(2026, 3, 5))
+        salarios = self.fila(ws, "Salarios")
+        self.assertEqual((salarios[6], salarios[7]), (300, None))
+        totales = self.fila(ws, "TOTALES DEL PERIODO")
+        self.assertEqual((totales[6], totales[7]), (350, 350))
+        # Montos como número con 2 decimales, no como texto.
+        celda = next(c for c in ws["G"] if c.value == 350)
+        self.assertEqual(celda.number_format, FORMATO_MONTO)
+        self.assertIsInstance(celda.value, (int, float))
+
+    def test_mayor_de_una_cuenta(self):
+        ws = self.hoja("/api/libros/mayor/exportar/", {"desde": "2026-03-01", "hasta": "2026-03-31", "cuenta": self.caja.pk})
+        self.assertEqual(ws["A3"].value, "Libro mayor: 1101 Caja")
+        self.assertEqual(self.fila(ws, "Saldo inicial")[8], 1000)
+        final = self.fila(ws, "Totales y saldo final 1101")
+        self.assertEqual((final[6], final[7], final[8]), (0, 300, 700))
+
+    def test_mayor_general_todas_las_cuentas_con_saldo_o_movimiento(self):
+        ws = self.hoja("/api/libros/mayor/exportar/", {"desde": "2026-03-01", "hasta": "2026-03-31"})
+        grupos = [f[2] for f in self.filas(ws) if f[2] and "(naturaleza" in f[2]]
+        self.assertEqual([g.split()[0] for g in grupos], ["1101", "1102", "112", "2101", "5201"])
+        totales = self.fila(ws, "TOTALES DEL PERIODO")
+        self.assertEqual((totales[6], totales[7]), (350, 350))
+        depositos = self.fila(ws, "Totales y saldo final 2101")
+        self.assertEqual(depositos[8], 1000)  # saldo inicial sin movimientos en marzo
+
+    def test_mayor_general_servicio_igual_al_mayor_por_cuenta(self):
+        general = {m["cuenta"]["codigo"]: m for m in libros.libro_mayor_general(**self.MARZO)}
+        for cuenta in (self.caja, self.bancos, self.depositos, self.salarios):
+            self.assertEqual(general[cuenta.codigo], libros.libro_mayor(cuenta=cuenta, **self.MARZO))
+
+    def test_catalogo_con_filtros(self):
+        ws = self.hoja("/api/cuentas/exportar/")
+        titulos = [c.value for c in ws[FILA_TITULOS]]
+        self.assertEqual(
+            titulos,
+            ["Código", "Nombre de la cuenta", "Nivel", "Tipo", "Naturaleza", "Acepta movimientos", "Activa", "Cuenta padre"],
+        )
+        filas = [f for f in self.filas(ws) if f[2]]
+        self.assertEqual(len(filas), Cuenta.objects.count())
+        caja = next(f for f in filas if f[0] == "1101")
+        self.assertEqual((caja[2], caja[3], caja[5], caja[6], caja[7]), (3, "Activo", "Sí", "Sí", "11 Fondos"))
+
+        ws = self.hoja("/api/cuentas/exportar/", {"tipo": "GASTO"})
+        self.assertEqual([f[0] for f in self.filas(ws) if f[2]], ["5", "5201"])
+
+    def test_validaciones_y_permisos(self):
+        resp = self.client.get("/api/libros/diario/exportar/", {"desde": "2026-03-31", "hasta": "2026-03-01"})
+        self.assertEqual(resp.status_code, 400)
+        self.assertEqual(self.client.get("/api/libros/mayor/exportar/").status_code, 400)
+        self.client.force_authenticate(None)
+        self.assertEqual(self.client.get("/api/cuentas/exportar/").status_code, 401)

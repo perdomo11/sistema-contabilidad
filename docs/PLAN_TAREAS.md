@@ -36,3 +36,9 @@ Trabajar una tarea a la vez; validar antes de avanzar.
 
 ## Bloque 6: Cierre
 - **T6.1** Pruebas, respaldos, manuales
+
+## Bloque 7: Libros legales y datos de demostración
+- **T7.1** Exportación a Excel (.xlsx): catálogo de cuentas, libro diario y libro mayor con encabezado de la empresa (nombre, NIT, NRC), título, periodo, montos con 2 decimales, totales, columnas ajustadas y encabezado fijo
+- **T7.2** IVA en compras (gravadas, exentas, crédito fiscal 13 %, retención/percepción 1 %) y Libro de compras mensual con el formato de El Salvador y exportación a Excel
+- **T7.3** Ventas (clientes, CCF y factura de consumidor final con IVA débito fiscal 13 %, asiento automático y anulación por reversión) y Libro de ventas mensual (contribuyentes y consumidor final) con exportación a Excel
+- **T7.4** Datos de demostración realistas: comando `cargar_datos_demo` idempotente que usa los servicios para generar varios meses de operación verosímil de una agencia bancaria (proveedores, clientes, compras, ventas, planillas, pagos, depreciaciones, prorrateo) y verifica la integridad al final

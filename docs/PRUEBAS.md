@@ -14,13 +14,13 @@ Las pruebas corren contra **Oracle** (una base temporal que Django crea y destru
 | Módulo | Archivos | Pruebas | Cubre |
 |---|---|---|---|
 | `usuarios` | `tests.py` | 17 | Roles, login/logout JWT, permisos, bitácora inmutable (modelo y trigger) |
-| `contabilidad` | `tests.py` | 94 | Catálogo jerárquico, periodos, asientos (partida doble, inmutabilidad, reversión), centro obligatorio, libros |
+| `contabilidad` | `tests.py` | 101 | Catálogo jerárquico, periodos, asientos (partida doble, inmutabilidad, reversión), centro obligatorio, libros, exportación a Excel |
 | `centros_costo` | `tests.py`, `tests_asignacion.py`, `tests_prorrateo.py` | 65 | Jerarquía y vigencia, reglas de asignación, motor de prorrateo y trazabilidad |
 | `reportes` | `tests.py`, `tests_contribucion.py`, `tests_indicadores.py` | 25 | Estado de resultados absorbente, enfoque de contribución, indicadores |
 | `presupuesto` | `tests.py`, `tests_distribucion.py`, `tests_ejecucion.py` | 42 | Presupuesto versionado, distribución top-down con topes, ejecución y alertas |
 | `tesoreria` | `tests.py`, `tests_cuentas_por_pagar.py`, `tests_proyeccion.py`, `tests_flujo.py`, `tests_dashboard.py` | 45 | Proveedores, cuentas por pagar, proyección de egresos, flujo de efectivo, dashboard |
 | `config` | `tests_integracion.py` | 6 | Ciclo completo con datos de ejemplo; los módulos cuadran entre sí; `verificar_integridad` |
-| **Total** | | **294** | |
+| **Total** | | **301** | |
 
 ## Matriz: reglas contables no negociables → pruebas
 "Servicio" = la regla se valida en `services.py`; "BD" = Oracle la impide aunque se salte el servicio (restricción o trigger).

@@ -5,6 +5,7 @@ import { useAuth } from '../auth/AuthContext'
 import { ROLES, tieneRol } from '../auth/roles'
 import CuentaFormModal, { NOMBRE_TIPO, TIPOS } from '../components/CuentaFormModal'
 import EncabezadoPagina from '../components/EncabezadoPagina'
+import { descargarDesdeApi } from '../exportar'
 
 const normalizar = (texto) =>
   texto
@@ -81,6 +82,18 @@ export default function Catalogo() {
     setExpandidos(ids)
   }
 
+  // Exporta con el filtro de tipo y la búsqueda de la pantalla (sin filtro: catálogo completo).
+  const [exportando, setExportando] = useState(false)
+  const exportarExcel = async () => {
+    const filtro = {}
+    if (tipo) filtro.tipo = tipo
+    if (busqueda.trim()) filtro.q = busqueda.trim()
+    setExportando(true)
+    const fallo = await descargarDesdeApi(`/api/cuentas/exportar/?${new URLSearchParams(filtro)}`, 'catalogo_cuentas.xlsx')
+    setExportando(false)
+    if (fallo) setError(fallo)
+  }
+
   const notificar = (texto) => {
     setError('')
     setAviso(texto)
@@ -127,6 +140,9 @@ export default function Catalogo() {
         descripcion="Estructura jerárquica de cuentas. Solo las cuentas de detalle reciben movimientos."
         migas={[{ texto: 'Configuración' }, { texto: 'Catálogo de cuentas' }]}
       >
+        <Button variant="outline-success" onClick={exportarExcel} disabled={exportando}>
+          <i className="bi bi-file-earmark-excel me-1" /> {exportando ? 'Generando…' : 'Exportar a Excel'}
+        </Button>
         {puedeEditar && (
           <Button onClick={() => setFormulario({ show: true, cuenta: null, padre: null })}>
             <i className="bi bi-plus-lg me-1" /> Nueva cuenta raíz

@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Alert, Card, Col, Container, Form, Row, Spinner, Table } from 'react-bootstrap'
+import { Alert, Button, Card, Col, Container, Form, Row, Spinner, Table } from 'react-bootstrap'
 import { Link, useSearchParams } from 'react-router-dom'
 import { api, mensajeError } from '../api'
 import EncabezadoPagina from '../components/EncabezadoPagina'
 import { AccionesReporte, CamposRango, rangoPorDefecto } from '../components/FiltroRango'
 import SelectorCuenta from '../components/SelectorCuenta'
-import { descargarCSV } from '../exportar'
+import { descargarCSV, descargarDesdeApi } from '../exportar'
 import { formatoFecha, formatoMonto } from '../formato'
 
 export default function LibroMayor() {
@@ -84,6 +84,18 @@ export default function LibroMayor() {
       ],
     )
 
+  // Excel generado en el backend. Sin cuenta: mayor general de todas las cuentas del rango del filtro.
+  const [exportandoExcel, setExportandoExcel] = useState('')
+  const exportarExcel = async (general) => {
+    const filtro = general
+      ? { desde: rango.desde, hasta: rango.hasta }
+      : { cuenta: datos.cuenta.id, desde: datos.desde, hasta: datos.hasta }
+    setExportandoExcel(general ? 'general' : 'cuenta')
+    const fallo = await descargarDesdeApi(`/api/libros/mayor/exportar/?${new URLSearchParams(filtro)}`, 'libro_mayor.xlsx')
+    setExportandoExcel('')
+    if (fallo) setError(fallo)
+  }
+
   const esAgrupacion = datos && !datos.cuenta.acepta_movimientos
 
   return (
@@ -92,7 +104,17 @@ export default function LibroMayor() {
         titulo="Libro mayor"
         descripcion="Movimientos y saldo corriente de una cuenta. En cuentas de agrupación se incluyen todas sus subcuentas."
         migas={[{ texto: 'Libros' }, { texto: 'Libro mayor' }]}
-      />
+      >
+        <Button
+          variant="outline-success"
+          onClick={() => exportarExcel(true)}
+          disabled={!!exportandoExcel || !rango.desde || !rango.hasta}
+          title="Todas las cuentas de detalle con saldo o movimientos en el rango del filtro"
+        >
+          <i className="bi bi-file-earmark-excel me-1" />
+          {exportandoExcel === 'general' ? 'Generando…' : 'Mayor general a Excel'}
+        </Button>
+      </EncabezadoPagina>
 
       <Card className="mb-3 shadow-sm no-imprimir">
         <Card.Body>
@@ -109,7 +131,12 @@ export default function LibroMayor() {
                 )}
               </Col>
               <CamposRango rango={rango} onChange={setRango} />
-              <AccionesReporte onExportar={exportar} deshabilitado={!datos} />
+              <AccionesReporte
+                onExportar={exportar}
+                onExportarExcel={() => exportarExcel(false)}
+                exportandoExcel={exportandoExcel === 'cuenta'}
+                deshabilitado={!datos}
+              />
             </Row>
           </Form>
         </Card.Body>

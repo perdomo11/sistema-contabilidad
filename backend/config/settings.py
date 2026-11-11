@@ -128,3 +128,8 @@ SIMPLE_JWT = {
     "UPDATE_LAST_LOGIN": True,
     "AUTH_HEADER_TYPES": ("Bearer",),
 }
+
+# Datos de la empresa para el encabezado de los libros y reportes exportados (T7.1).
+EMPRESA_NOMBRE = os.environ.get("EMPRESA_NOMBRE", "Banco Demostración, S.A.")
+EMPRESA_NIT = os.environ.get("EMPRESA_NIT", "0614-150395-101-7")
+EMPRESA_NRC = os.environ.get("EMPRESA_NRC", "123456-7")

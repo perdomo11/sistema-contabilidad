@@ -6,11 +6,14 @@ from rest_framework.response import Response
 from usuarios import roles
 from usuarios.permissions import EsSuperusuario, TieneRol
 
-from . import libros, services
+from config.excel import respuesta_excel
+
+from . import exportacion, libros, services
 from .models import Asiento, Cuenta, PeriodoContable
 from .serializers import (
     AsientoDiarioSerializer,
     FiltroBalanzaSerializer,
+    FiltroMayorExportarSerializer,
     FiltroMayorSerializer,
     RangoFechasSerializer,
     AsientoDetalleSerializer,
@@ -28,7 +31,7 @@ from .serializers import (
     ReabrirPeriodoSerializer,
 )
 
-ACCIONES_LECTURA = {"list", "retrieve", "arbol"}
+ACCIONES_LECTURA = {"list", "retrieve", "arbol", "exportar"}
 
 
 class CuentaViewSet(viewsets.GenericViewSet):
@@ -55,6 +58,14 @@ class CuentaViewSet(viewsets.GenericViewSet):
     @action(detail=False)
     def arbol(self, request):
         return Response(services.arbol_cuentas())
+
+    @action(detail=False)
+    def exportar(self, request):
+        """Catálogo en Excel con los mismos filtros del listado (tipo, activa, acepta_movimientos, q)."""
+        filtros = FiltroCuentasSerializer(data=request.query_params)
+        filtros.is_valid(raise_exception=True)
+        cuentas = services.consultar_cuentas(**filtros.validated_data)
+        return respuesta_excel("catalogo_cuentas.xlsx", exportacion.catalogo_xlsx(cuentas, usuario=request.user))
 
     def create(self, request):
         entrada = CuentaCrearSerializer(data=request.data)
@@ -198,6 +209,24 @@ class LibrosViewSet(viewsets.GenericViewSet):
         filtros = FiltroMayorSerializer(data=request.query_params)
         filtros.is_valid(raise_exception=True)
         return Response(libros.libro_mayor(**filtros.validated_data))
+
+    @action(detail=False, url_path="diario/exportar")
+    def diario_exportar(self, request):
+        filtros = RangoFechasSerializer(data=request.query_params)
+        filtros.is_valid(raise_exception=True)
+        d = filtros.validated_data
+        contenido = exportacion.diario_xlsx(**d, usuario=request.user)
+        return respuesta_excel(f"libro_diario_{d['desde']}_{d['hasta']}.xlsx", contenido)
+
+    @action(detail=False, url_path="mayor/exportar")
+    def mayor_exportar(self, request):
+        filtros = FiltroMayorExportarSerializer(data=request.query_params)
+        filtros.is_valid(raise_exception=True)
+        d = filtros.validated_data
+        cuenta = d.get("cuenta")
+        contenido = exportacion.mayor_xlsx(desde=d["desde"], hasta=d["hasta"], cuenta=cuenta, usuario=request.user)
+        sufijo = cuenta.codigo if cuenta else "general"
+        return respuesta_excel(f"libro_mayor_{sufijo}_{d['desde']}_{d['hasta']}.xlsx", contenido)
 
     @action(detail=False)
     def balanza(self, request):

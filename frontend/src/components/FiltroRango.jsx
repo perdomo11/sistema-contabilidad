@@ -41,13 +41,19 @@ export function CamposRango({ rango, onChange }) {
   )
 }
 
-/** Botones Consultar / Exportar CSV / Imprimir. */
-export function AccionesReporte({ onExportar, deshabilitado }) {
+/** Botones Consultar / Exportar a Excel (opcional) / Exportar CSV / Imprimir. */
+export function AccionesReporte({ onExportar, deshabilitado, onExportarExcel, exportandoExcel = false }) {
   return (
-    <Col xs={12} md="auto" className="d-flex gap-1 ms-md-auto">
+    <Col xs={12} md="auto" className="d-flex flex-wrap gap-1 ms-md-auto">
       <Button size="sm" type="submit">
         Consultar
       </Button>
+      {onExportarExcel && (
+        <Button size="sm" variant="outline-success" onClick={onExportarExcel} disabled={deshabilitado || exportandoExcel}>
+          <i className="bi bi-file-earmark-excel me-1" />
+          {exportandoExcel ? 'Generando…' : 'Exportar a Excel'}
+        </Button>
+      )}
       <Button size="sm" variant="outline-secondary" onClick={onExportar} disabled={deshabilitado}>
         Exportar CSV
       </Button>
