@@ -20,8 +20,8 @@ Las pruebas corren contra **Oracle** (una base temporal que Django crea y destru
 | `presupuesto` | `tests.py`, `tests_distribucion.py`, `tests_ejecucion.py` | 42 | Presupuesto versionado, distribución top-down con topes, ejecución y alertas |
 | `tesoreria` | `tests.py`, `tests_cuentas_por_pagar.py`, `tests_libro_compras.py`, `tests_proyeccion.py`, `tests_flujo.py`, `tests_dashboard.py` | 60 | Proveedores, cuentas por pagar, IVA en compras y libro de compras, proyección de egresos, flujo de efectivo, dashboard |
 | `ventas` | `tests.py` | 18 | Clientes, documentos de venta con IVA débito fiscal, anulación por reversión, libro de ventas |
-| `config` | `tests_integracion.py` | 6 | Ciclo completo con datos de ejemplo; los módulos cuadran entre sí; `verificar_integridad` |
-| **Total** | | **334** | |
+| `config` | `tests_integracion.py` | 13 | Ciclo completo con datos de ejemplo (incluye IVA en compras y ventas); los módulos cuadran entre sí; `verificar_integridad`; carga de datos de demostración (`cargar_datos_demo`) |
+| **Total** | | **341** | |
 
 ## Matriz: reglas contables no negociables → pruebas
 "Servicio" = la regla se valida en `services.py`; "BD" = Oracle la impide aunque se salte el servicio (restricción o trigger).
@@ -68,6 +68,8 @@ Las pruebas corren contra **Oracle** (una base temporal que Django crea y destru
 - estado de resultados = ingresos − gastos; enfoque de contribución e indicadores = absorbente; el prorrateo no cambia el total;
 - ejecución presupuestaria = gastos directos del estado de resultados por departamento;
 - flujo de efectivo real cuadra con el saldo contable; el dashboard coincide con sus fuentes;
+- los libros de compras y ventas cuadran con las cuentas 1403, 2405 y 2406;
+- `DatosDemoTests`: `cargar_datos_demo` (marzo y abril) respeta la partida doble y el centro de costo en ingresos y gastos, los libros de IVA cuadran con sus cuentas, el flujo cuadra, la agencia opera con utilidad, una segunda corrida no crea nada (idempotente) y un periodo cerrado detiene la carga sin registrar nada;
 - `verificar_integridad` no encuentra fallas, y detecta un saldo de cuenta por pagar alterado por fuera del sistema (`IntegridadDetectaFallasTests`).
 
 ## Verificación sobre la base real

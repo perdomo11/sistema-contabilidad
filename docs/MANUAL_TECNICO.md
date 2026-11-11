@@ -60,8 +60,11 @@ docker compose exec backend python manage.py cargar_centros_base --usuario conta
 docker compose exec backend python manage.py cargar_asignacion_base --usuario contador    # proveedores y reglas cuenta/proveedor → centro
 docker compose exec backend python manage.py cargar_prorrateo_base --usuario contador --anio 2026   # bases, medidas y reglas de prorrateo
 docker compose exec backend python manage.py cargar_flujo_base --usuario contador         # cuentas de efectivo y actividades del flujo
+docker compose exec backend python manage.py cargar_datos_demo --usuario contador --desde 2026-08-01 --hasta 2026-11-30   # T7.4: meses de operación de demostración
 ```
 Todos son idempotentes (no pisan lo existente). El ejercicio contable se crea desde la pantalla *Periodos contables*.
+
+`cargar_datos_demo` (T7.4, datos en `config/datos_demo.py`) ejecuta antes los comandos anteriores y crea el ejercicio si falta; luego carga, con los servicios de cada módulo, 18 proveedores, 25 clientes, saldos iniciales y aporte de capital, compras (CCF con IVA y retención, factura, servicio exento, equipo), pagos en su vencimiento, ventas (CCF a empresas con intereses exentos y comisiones gravadas; facturas semanales de ventanilla y a personas), planilla con ISSS/AFP/renta y su pago, intereses sobre depósitos, depreciación, movimientos de cartera y depósitos y el prorrateo de cada mes completo. Rechaza el rango si algún periodo está cerrado (sin cargar nada), es idempotente (claves: NIT, número de documento, referencia del asiento; cada mes se genera con semilla fija) y termina con un resumen por mes y `verificar_integridad` (código de salida 1 si falla). Si el prorrateo de un mes ya estaba ejecutado, avisa en lugar de anularlo.
 
 ## 3. Estructura del código
 

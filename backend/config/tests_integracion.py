@@ -1,8 +1,9 @@
-"""Prueba de integración de punta a punta (T6.1).
+"""Prueba de integración de punta a punta (T6.1, ampliada en T7.2–T7.4).
 
 Con los datos de ejemplo de todos los módulos recorre un ciclo completo de marzo de 2026 (aporte de capital,
-ingresos y gastos directos y por regla, factura por pagar y su pago, prorrateo escalonado, presupuesto
-aprobado y distribuido) y verifica que los módulos cuadran entre sí.
+ingresos y gastos directos y por regla, factura por pagar y su pago, CCF de compra con IVA y retención,
+CCF de venta con IVA débito, prorrateo escalonado, presupuesto aprobado y distribuido) y verifica que los
+módulos cuadran entre sí. `DatosDemoTests` prueba la carga de datos de demostración (T7.4).
 """
 from datetime import date
 from decimal import Decimal
@@ -10,6 +11,8 @@ from io import StringIO
 
 from django.contrib.auth.models import Group, User
 from django.core.management import call_command
+from django.core.management.base import CommandError
+from django.db.models import Sum
 from django.test import TestCase
 
 from centros_costo import prorrateo
@@ -23,8 +26,13 @@ from reportes import services as reportes
 from tesoreria import cuentas_por_pagar as cpp
 from tesoreria import flujo
 from tesoreria.dashboard import dashboard_tesoreria
-from tesoreria.models import Proveedor
+from tesoreria.libro_compras import libro_compras
+from tesoreria.models import CuentaPorPagar, Proveedor
 from usuarios import roles
+from ventas import documentos as documentos_venta
+from ventas import services as clientes
+from ventas.libro import libro_ventas
+from ventas.models import Cliente, DocumentoVenta
 
 D = Decimal
 DESDE, HASTA = date(2026, 1, 1), date(2026, 12, 31)
@@ -82,6 +90,22 @@ class CicloCompletoTests(TestCase):
             concepto="Enlaces de marzo", lineas=[{"cuenta": cuenta["520203"], "monto": D("500")}],
         )
         cpp.registrar_pago(cls.factura, usuario=cls.tesorero, fecha=date(2026, 3, 20), monto=D("300"), cuenta_banco=banco)
+        # T7.2: CCF de vigilancia (proveedor → Gerencia general por regla) con IVA y retención del 1 %; queda pendiente.
+        cls.ccf_compra = cpp.registrar_cuenta_por_pagar(
+            usuario=cls.tesorero, proveedor=Proveedor.objects.get(nit="0614-300610-104-2"), tipo_documento="CCF",
+            numero_documento="S-200", fecha_emision=date(2026, 3, 6), fecha_vencimiento=date(2026, 4, 4),
+            concepto="Vigilancia de marzo", lineas=[{"cuenta": cuenta["520206"], "monto": D("1000")}], aplica_retencion=True,
+        )
+        # T7.3: CCF de venta cobrado en banco: intereses exentos y comisión gravada.
+        cliente = clientes.crear_cliente(usuario=cls.contador, nombre="Comercial de Prueba, S.A. de C.V.", tipo="CONTRIBUYENTE",
+                                         nit="0614-010101-999-1", nrc="999999-9")
+        cls.venta = documentos_venta.registrar_documento_venta(
+            usuario=cls.contador, cliente=cliente, tipo_documento="CCF", numero_documento="CCF-1", fecha_emision=date(2026, 3, 15),
+            concepto="Intereses y comisiones de marzo", lineas=[
+                {"cuenta": cuenta["4101"], "centro_costo": centro["02-02"], "monto": D("2000"), "exenta": True},
+                {"cuenta": cuenta["4201"], "centro_costo": centro["02-02"], "monto": D("1000")},
+            ],
+        )
         # Prorrateo escalonado de marzo (las tres reglas de ejemplo).
         prorrateo.ejecutar_pendientes(usuario=cls.contador, periodo=PeriodoContable.objects.get(anio=2026, mes=3))
         # Presupuesto 2026 aprobado y distribuido.
@@ -105,9 +129,10 @@ class CicloCompletoTests(TestCase):
 
     def test_reportes_cuadran(self):
         absorbente = reportes.estado_resultados(desde=DESDE, hasta=HASTA)
-        self.assertEqual(absorbente["resultado"]["total"], "9500.00")  # 20,000 − 7,000 − 3,000 − 500
+        # 20,000 − 7,000 − 3,000 − 500 − 1,000 (vigilancia, sin IVA) + 3,000 (venta, sin IVA)
+        self.assertEqual(absorbente["resultado"]["total"], "11500.00")
         contribucion = reportes.enfoque_contribucion(desde=DESDE, hasta=HASTA)
-        self.assertEqual(contribucion["resultado"], "9500.00")
+        self.assertEqual(contribucion["resultado"], "11500.00")
         self.assertEqual(contribucion["resultado_segmento"]["valores"], absorbente["resultado"]["valores"])
         indicadores = reportes.indicadores_rentabilidad(desde=DESDE, hasta=HASTA)
         neto = next(m for m in indicadores["montos"] if m["clave"] == "resultado_neto")
@@ -124,7 +149,7 @@ class CicloCompletoTests(TestCase):
         directos = dict(zip([c["codigo"] for c in matriz["columnas"]], matriz["secciones"][1]["valores"]))
         for codigo in ("01-01", "01-03", "01-04"):
             self.assertEqual(ejecutado[codigo], directos[codigo], codigo)
-        self.assertEqual(ejecutado["01-01"], "3000.00")  # energía + alquileres, sin lo prorrateado
+        self.assertEqual(ejecutado["01-01"], "4000.00")  # energía + alquileres + vigilancia, sin lo prorrateado
         estados = {d["centro"]["codigo"]: d["estado"] for d in r["departamentos"]}
         self.assertEqual(estados["01-04"], "EN_RANGO")  # ejecutó exactamente lo presupuestado
         self.assertEqual(estados["01-03"], "SIN_PRESUPUESTO")
@@ -132,13 +157,23 @@ class CicloCompletoTests(TestCase):
     def test_tesoreria_cuadra(self):
         real = flujo.flujo_efectivo(desde=DESDE, hasta=date(2026, 3, 31))
         self.assertTrue(real["cuadra"])
-        self.assertEqual(real["saldo_final"], "109700.00")  # 100,000 + 20,000 − 7,000 − 3,000 − 300
+        self.assertEqual(real["saldo_final"], "112830.00")  # 100,000 + 20,000 − 7,000 − 3,000 − 300 + 3,130 (venta con IVA)
         operacion = next(a for a in real["actividades"] if a["actividad"] == "OPERACION")
-        self.assertEqual((operacion["entradas"], operacion["salidas"]), ("20000.00", "10300.00"))
+        self.assertEqual((operacion["entradas"], operacion["salidas"]), ("23130.00", "10300.00"))
         tablero = dashboard_tesoreria(fecha=date(2026, 3, 31))
-        self.assertEqual(tablero["flujo"]["saldo_actual"], "109700.00")
-        self.assertEqual(tablero["cuentas_por_pagar"]["pendiente"], "200.00")
-        self.assertEqual(tablero["egresos"]["tramos"][1]["monto"], "200.00")  # vence el 04/04, en 0-30 días
+        self.assertEqual(tablero["flujo"]["saldo_actual"], "112830.00")
+        self.assertEqual(tablero["cuentas_por_pagar"]["pendiente"], "1320.00")  # 200 + CCF neto de retención (1,120)
+        self.assertEqual(tablero["egresos"]["tramos"][1]["monto"], "1320.00")  # ambos vencen el 04/04, en 0-30 días
+
+    def test_libros_de_iva(self):
+        compras = libro_compras(anio=2026, mes=3)
+        self.assertEqual([f["numero_documento"] for f in compras["filas"]], ["S-200"])  # la factura T-100 no da crédito fiscal
+        self.assertEqual((compras["totales"]["iva_credito_fiscal"], compras["totales"]["iva_retenido"]), ("130.00", "10.00"))
+        ventas = libro_ventas(anio=2026, mes=3)
+        self.assertEqual((ventas["resumen"]["iva_debito_fiscal"], ventas["resumen"]["total_ventas"]), ("130.00", "3130.00"))
+        saldos = {c: LineaAsiento.objects.filter(cuenta__codigo=c, asiento__estado=Asiento.Estado.CONTABILIZADO)
+                  .aggregate(s=Sum("debe") - Sum("haber"))["s"] for c in ("1403", "2405", "2406")}
+        self.assertEqual(saldos, {"1403": D("130.00"), "2405": D("-10.00"), "2406": D("-130.00")})
 
     def test_integridad(self):
         resultados = integridad.verificar(2026)
@@ -166,3 +201,70 @@ class IntegridadDetectaFallasTests(TestCase):
         resultados = {r["codigo"]: r for r in integridad.verificar(2026)}
         self.assertEqual(resultados["CUENTAS_POR_PAGAR"]["estado"], integridad.FALLA)
         self.assertIn("saldo 950.00", resultados["CUENTAS_POR_PAGAR"]["detalle"][0])
+
+
+class DatosDemoTests(TestCase):
+    """T7.4: `cargar_datos_demo` sobre una base limpia (marzo y abril de 2026)."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.contador = usuario("contador", roles.CONTADOR)
+        cls.salida = StringIO()
+        call_command("cargar_datos_demo", usuario="contador", desde="2026-03-01", hasta="2026-04-30", stdout=cls.salida)
+
+    def test_carga_completa_y_verificada(self):
+        texto = self.salida.getvalue()
+        self.assertIn("Datos de demostración cargados y verificados.", texto)
+        self.assertIn("Integridad verificada", texto)
+        self.assertEqual(Proveedor.objects.count(), 18)
+        self.assertEqual(Cliente.objects.count(), 25)
+        self.assertEqual(Asiento.objects.filter(referencia__startswith="PLANILLA-").count(), 2)
+        self.assertEqual(Asiento.objects.filter(referencia="PAGO-PLANILLA-2026-03").count(), 1)  # el de abril vence en mayo
+        self.assertEqual(EjecucionProrrateo.objects.count(), 6)  # 3 reglas × 2 meses
+        self.assertTrue(CuentaPorPagar.objects.filter(estado="PAGADA").exists())
+        self.assertTrue(CuentaPorPagar.objects.filter(estado="PENDIENTE").exists())  # documentos que vencen después del rango
+        self.assertTrue(CuentaPorPagar.objects.filter(iva_retenido__gt=0).exists())
+        self.assertTrue(CuentaPorPagar.objects.filter(compras_exentas__gt=0).exists())
+        self.assertTrue(DocumentoVenta.objects.filter(tipo_documento="CCF").exists())
+        self.assertTrue(DocumentoVenta.objects.filter(tipo_documento="FACTURA").exists())
+
+    def test_reglas_contables(self):
+        lineas = LineaAsiento.objects.filter(asiento__estado=Asiento.Estado.CONTABILIZADO)
+        totales = lineas.aggregate(d=Sum("debe"), h=Sum("haber"))
+        self.assertEqual(totales["d"], totales["h"])
+        sin_centro = lineas.filter(cuenta__tipo__in=[Cuenta.Tipo.INGRESO, Cuenta.Tipo.GASTO], centro_costo__isnull=True)
+        self.assertFalse(sin_centro.exists())
+        self.assertFalse(integridad.hay_fallas(integridad.verificar(2026)))
+
+    def test_libros_cuadran_con_las_cuentas(self):
+        def movimiento(codigo, mes, signo):
+            s = LineaAsiento.objects.filter(cuenta__codigo=codigo, asiento__estado=Asiento.Estado.CONTABILIZADO,
+                                            asiento__fecha__month=mes).aggregate(d=Sum("debe"), h=Sum("haber"))
+            return signo * ((s["d"] or D(0)) - (s["h"] or D(0)))
+
+        for mes in (3, 4):
+            self.assertEqual(movimiento("1403", mes, 1), D(libro_compras(anio=2026, mes=mes)["totales"]["iva_credito_fiscal"]))
+            self.assertEqual(movimiento("2406", mes, -1), D(libro_ventas(anio=2026, mes=mes)["resumen"]["iva_debito_fiscal"]))
+
+    def test_reportes_y_flujo(self):
+        estado = reportes.estado_resultados(desde=date(2026, 3, 1), hasta=date(2026, 4, 30))
+        self.assertGreater(D(estado["resultado"]["total"]), 0)  # la agencia opera con utilidad
+        self.assertEqual(reportes.enfoque_contribucion(desde=date(2026, 3, 1), hasta=date(2026, 4, 30))["resultado"],
+                         estado["resultado"]["total"])
+        self.assertTrue(flujo.flujo_efectivo(desde=date(2026, 3, 1), hasta=date(2026, 4, 30))["cuadra"])
+
+    def test_idempotente(self):
+        antes = (Asiento.objects.count(), CuentaPorPagar.objects.count(), DocumentoVenta.objects.count())
+        salida = StringIO()
+        call_command("cargar_datos_demo", usuario="contador", desde="2026-03-01", hasta="2026-04-30", stdout=salida)
+        self.assertEqual((Asiento.objects.count(), CuentaPorPagar.objects.count(), DocumentoVenta.objects.count()), antes)
+        self.assertIn("No se creó nada nuevo", salida.getvalue())
+
+    def test_periodo_cerrado(self):
+        for p in PeriodoContable.objects.filter(anio=2026, mes__in=[1, 2]).order_by("mes"):
+            contabilidad.cerrar_periodo(p, usuario=self.contador)
+        antes = Asiento.objects.count()
+        with self.assertRaises(CommandError) as e:
+            call_command("cargar_datos_demo", usuario="contador", desde="2026-02-01", hasta="2026-02-28", stdout=StringIO())
+        self.assertIn("cerrados", str(e.exception))
+        self.assertEqual(Asiento.objects.count(), antes)

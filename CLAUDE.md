@@ -95,7 +95,7 @@ docker compose exec backend python manage.py test
 - [x] T7.1 Exportación a Excel: catálogo, libro diario y libro mayor (ver `docs/tareas/T7.1.md`)
 - [x] T7.2 IVA en compras y Libro de compras (ver `docs/tareas/T7.2.md`)
 - [x] T7.3 Ventas y Libro de ventas (ver `docs/tareas/T7.3.md`)
-- [ ] T7.4 Datos de demostración realistas
+- [x] T7.4 Datos de demostración realistas (ver `docs/tareas/T7.4.md`)
 
 Notas de implementación:
 - Roles = grupos de Django (`usuarios/roles.py`). Proteger vistas con `permission_classes = [TieneRol(roles.X)]` (`usuarios/permissions.py`).
@@ -124,6 +124,7 @@ Notas de implementación:
 - Exportación a Excel (T7.1): `config/excel.py` da el formato común (encabezado con `EMPRESA_NOMBRE`/`EMPRESA_NIT`/`EMPRESA_NRC` de `.env`, títulos fijos en la fila 7, montos numéricos `#,##0.00`, filas `Fila(valores, estilo="grupo"|"subtotal"|"total")`); cada app arma sus filas desde sus servicios (`contabilidad/exportacion.py`) y responde con `respuesta_excel`. Rutas `…/exportar/`; en el frontend, `descargarDesdeApi` (`src/exportar.js`) y la prop `onExportarExcel` de `AccionesReporte`. Reutilizar en los libros de compras y ventas.
 - IVA en compras (T7.2): `CuentaPorPagar` lleva `compras_gravadas`, `compras_exentas`, `iva_credito_fiscal`, `iva_retenido`; `monto_total` = gravadas + exentas + IVA − retención (servicio `cuentas_por_pagar.desglose_fiscal` y CHECK `cxp_desglose_cuadra`, `cxp_iva_solo_ccf`; `TRG_CXP_REGLAS` protege el desglose). Las líneas de imputación van sin IVA; solo el CCF da crédito fiscal (13 %, cargo a 1403) y retención del 1 % (gravadas ≥ US$100, abono a 2405); 1403 y 2405 vienen en `cargar_catalogo_base`. Libro de compras: `tesoreria/libro_compras.py` (CCF vigentes del mes) y `tesoreria/exportacion.py` (`/api/tesoreria/libro-compras/[exportar/]?anio=&mes=`).
 - Ventas (T7.3): app `ventas`. `Cliente` (CONTRIBUYENTE con NIT y NRC → CCF; CONSUMIDOR_FINAL → factura; NIT nulo si no hay, en Oracle '' = NULL) y `DocumentoVenta` (`ventas/documentos.py`): líneas de ingreso sin IVA con centro y marca `exenta`; IVA débito 13 % de las gravadas a 2406; cargo a la cuenta de cobro (1103 por defecto). Número único por tipo y no reutilizable. Anular = `revertir_asiento(..., permitir_ventas=True)`; desde Asientos bloqueado (`_es_asiento_de_ventas`). Trigger `TRG_DOC_VENTA_REGLAS`; verificación VENTAS en `integridad.py`. Libro de ventas: `ventas/libro.py` (CCF por documento, anulados en cero; consumidor final por día con IVA incluido) y Excel de dos hojas con `config.excel.construir_libro_hojas`.
+- Datos de demostración (T7.4): `cargar_datos_demo --usuario contador --desde AAAA-MM-DD --hasta AAAA-MM-DD` (comando en `reportes`, datos en `config/datos_demo.py`). Solo usa servicios; prepara los datos base; rechaza rangos con periodos cerrados sin cargar nada; idempotente por NIT, número de documento y referencia de asiento (plan mensual con semilla fija); ejecuta el prorrateo de cada mes completo (si ya estaba ejecutado, avisa); termina con resumen por mes y `verificar_integridad`. Al agregar módulos, sumar sus datos aquí y en `DatosDemoTests`.
 - Usuarios de prueba: `docker compose exec backend python manage.py crear_usuarios_demo` (contraseña `Demo_2026!`).
 - Desde Git Bash en Windows, anteponer `MSYS_NO_PATHCONV=1` a `docker compose exec` con rutas absolutas del contenedor.
 
