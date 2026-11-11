@@ -50,6 +50,7 @@ const MENU = [
       { a: '/tesoreria', icono: 'bi-speedometer', texto: 'Dashboard', exacto: true },
       { a: '/proveedores', icono: 'bi-truck', texto: 'Proveedores' },
       { a: '/tesoreria/cuentas-por-pagar', icono: 'bi-receipt', texto: 'Cuentas por pagar' },
+      { a: '/tesoreria/libro-compras', icono: 'bi-journal-text', texto: 'Libro de compras' },
       { a: '/tesoreria/proyeccion-egresos', icono: 'bi-calendar-range', texto: 'Proyección de egresos' },
       { a: '/tesoreria/egresos-programados', icono: 'bi-calendar-plus', texto: 'Egresos programados' },
       { a: '/tesoreria/flujo-efectivo', icono: 'bi-cash-stack', texto: 'Flujo de efectivo' },

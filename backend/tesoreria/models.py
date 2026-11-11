@@ -69,6 +69,11 @@ class CuentaPorPagar(models.Model):
     # T5.2: política interna de programación; la proyección usa esta fecha si existe, si no el vencimiento.
     fecha_pago_programada = models.DateField(null=True, blank=True)
     concepto = models.CharField(max_length=300)
+    # T7.2: desglose fiscal. monto_total (lo que se debe al proveedor) = gravadas + exentas + IVA − retención.
+    compras_gravadas = models.DecimalField(max_digits=18, decimal_places=2, default=0)
+    compras_exentas = models.DecimalField(max_digits=18, decimal_places=2, default=0)
+    iva_credito_fiscal = models.DecimalField("IVA crédito fiscal", max_digits=18, decimal_places=2, default=0)
+    iva_retenido = models.DecimalField("retención de IVA 1 %", max_digits=18, decimal_places=2, default=0)
     monto_total = models.DecimalField(max_digits=18, decimal_places=2)
     saldo = models.DecimalField(max_digits=18, decimal_places=2)
     estado = models.CharField(max_length=10, choices=Estado.choices, default=Estado.PENDIENTE)
@@ -115,6 +120,22 @@ class CuentaPorPagar(models.Model):
             models.CheckConstraint(
                 condition=~Q(estado="ANULADA") | Q(asiento_anulacion__isnull=False, anulado_por__isnull=False),
                 name="cxp_anulacion_completa",
+            ),
+            # T7.2: desglose fiscal.
+            models.CheckConstraint(
+                condition=Q(compras_gravadas__gte=0, compras_exentas__gte=0, iva_credito_fiscal__gte=0, iva_retenido__gte=0),
+                name="cxp_desglose_no_negativo",
+            ),
+            models.CheckConstraint(
+                condition=Q(
+                    monto_total=F("compras_gravadas") + F("compras_exentas") + F("iva_credito_fiscal") - F("iva_retenido")
+                ),
+                name="cxp_desglose_cuadra",
+            ),
+            # Solo el comprobante de crédito fiscal da derecho a crédito fiscal y a retención.
+            models.CheckConstraint(
+                condition=Q(tipo_documento="CCF") | Q(iva_credito_fiscal=0, iva_retenido=0),
+                name="cxp_iva_solo_ccf",
             ),
         ]
 

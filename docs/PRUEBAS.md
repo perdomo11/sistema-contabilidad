@@ -18,9 +18,9 @@ Las pruebas corren contra **Oracle** (una base temporal que Django crea y destru
 | `centros_costo` | `tests.py`, `tests_asignacion.py`, `tests_prorrateo.py` | 65 | Jerarquía y vigencia, reglas de asignación, motor de prorrateo y trazabilidad |
 | `reportes` | `tests.py`, `tests_contribucion.py`, `tests_indicadores.py` | 25 | Estado de resultados absorbente, enfoque de contribución, indicadores |
 | `presupuesto` | `tests.py`, `tests_distribucion.py`, `tests_ejecucion.py` | 42 | Presupuesto versionado, distribución top-down con topes, ejecución y alertas |
-| `tesoreria` | `tests.py`, `tests_cuentas_por_pagar.py`, `tests_proyeccion.py`, `tests_flujo.py`, `tests_dashboard.py` | 45 | Proveedores, cuentas por pagar, proyección de egresos, flujo de efectivo, dashboard |
+| `tesoreria` | `tests.py`, `tests_cuentas_por_pagar.py`, `tests_libro_compras.py`, `tests_proyeccion.py`, `tests_flujo.py`, `tests_dashboard.py` | 60 | Proveedores, cuentas por pagar, IVA en compras y libro de compras, proyección de egresos, flujo de efectivo, dashboard |
 | `config` | `tests_integracion.py` | 6 | Ciclo completo con datos de ejemplo; los módulos cuadran entre sí; `verificar_integridad` |
-| **Total** | | **301** | |
+| **Total** | | **316** | |
 
 ## Matriz: reglas contables no negociables → pruebas
 "Servicio" = la regla se valida en `services.py`; "BD" = Oracle la impide aunque se salte el servicio (restricción o trigger).
@@ -44,6 +44,14 @@ Las pruebas corren contra **Oracle** (una base temporal que Django crea y destru
 | Σ distribuido ≤ institucional; saldo sin distribuir | `tests_distribucion.py::test_no_excede_el_monto_institucional`, `test_saldo_sin_distribuir`, `test_monto_institucional_no_baja_de_lo_distribuido` | `test_tope_institucional_en_bd`, `test_monto_institucional_en_bd` |
 | Σ detalle ≤ asignación del departamento | `test_detalle_no_excede_lo_asignado` | `test_tope_departamento_en_bd` |
 | Ejecución vs. presupuesto y alertas | `tests_ejecucion.py::*` | — |
+
+### IVA en compras (T7.2)
+| Regla | Servicio | Base de datos |
+|---|---|---|
+| Total = gravadas + exentas + IVA − retención | `tests_libro_compras.py::test_ccf_carga_iva_credito_fiscal`, `test_ccf_con_exentas_y_retencion` | `test_oracle_exige_que_el_desglose_cuadre` (`cxp_desglose_cuadra`) |
+| IVA 13 % y retención 1 % solo en CCF; retención desde US$100 | `test_validaciones`, `test_iva_con_redondeo_del_documento` | `cxp_iva_solo_ccf` (mismo test) |
+| Desglose inmutable; anulación por reversión | `test_anulacion_revierte_iva_y_retencion` | `TRG_CXP_REGLAS` (mismo test) |
+| Libro de compras = CCF vigentes del mes; IVA del libro = cuenta 1403 | `LibroComprasTests::*` | — |
 
 ### Coherencia entre módulos (integración)
 `config/tests_integracion.py::CicloCompletoTests` comprueba con los datos de ejemplo que:

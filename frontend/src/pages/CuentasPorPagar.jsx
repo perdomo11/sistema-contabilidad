@@ -93,6 +93,9 @@ function RegistroModal({ show, catalogos, onHide, onGuardado }) {
       fecha_vencimiento: sumarDias(hoy, 30),
       concepto: '',
       cuenta_pasivo: catalogos.pasivos.find((c) => c.codigo === '2401')?.id || '',
+      compras_exentas: '',
+      iva_credito_fiscal: '', // vacío = 13 % de las gravadas
+      aplica_retencion: false,
     })
     setLineas([LINEA_VACIA()])
     setErrores({})
@@ -101,6 +104,16 @@ function RegistroModal({ show, catalogos, onHide, onGuardado }) {
   const cambiar = (campo, valor) => setDatos((d) => ({ ...d, [campo]: valor }))
   const cambiarLinea = (i, campo, valor) => setLineas((ls) => ls.map((l, j) => (j === i ? { ...l, [campo]: valor } : l)))
   const total = lineas.reduce((s, l) => s + (Number.isNaN(aCentavos(l.monto)) ? 0 : aCentavos(l.monto)), 0)
+
+  // Desglose fiscal (T7.2): lo valida el backend; aquí solo se muestra el cálculo.
+  const esCCF = datos.tipo_documento === 'CCF'
+  const exentas = Number.isNaN(aCentavos(datos.compras_exentas)) ? 0 : aCentavos(datos.compras_exentas)
+  const gravadas = total - exentas
+  const ivaAuto = esCCF ? Math.round(gravadas * 0.13) : 0
+  const ivaManual = esCCF && datos.iva_credito_fiscal !== '' ? aCentavos(datos.iva_credito_fiscal) : null
+  const iva = ivaManual === null || Number.isNaN(ivaManual) ? ivaAuto : ivaManual
+  const retencion = esCCF && datos.aplica_retencion ? Math.round(gravadas * 0.01) : 0
+  const totalDocumento = total + iva - retencion
 
   const guardar = async (e) => {
     e.preventDefault()
@@ -112,6 +125,9 @@ function RegistroModal({ show, catalogos, onHide, onGuardado }) {
       body: {
         ...datos,
         cuenta_pasivo: datos.cuenta_pasivo || null,
+        compras_exentas: String(datos.compras_exentas || '0').replace(/,/g, ''),
+        iva_credito_fiscal: esCCF && datos.iva_credito_fiscal !== '' ? String(datos.iva_credito_fiscal).replace(/,/g, '') : null,
+        aplica_retencion: esCCF && datos.aplica_retencion,
         lineas: lineas.map((l) => ({
           cuenta: l.cuenta.id,
           centro_costo: l.centro_costo || null,
@@ -125,7 +141,10 @@ function RegistroModal({ show, catalogos, onHide, onGuardado }) {
     setErrores(await erroresDe(resp))
   }
 
-  const conocidos = ['proveedor', 'tipo_documento', 'numero_documento', 'fecha_emision', 'fecha_vencimiento', 'concepto', 'cuenta_pasivo', 'lineas']
+  const conocidos = [
+    'proveedor', 'tipo_documento', 'numero_documento', 'fecha_emision', 'fecha_vencimiento', 'concepto', 'cuenta_pasivo', 'lineas',
+    'compras_gravadas', 'compras_exentas', 'iva_credito_fiscal', 'aplica_retencion',
+  ]
   const generales = Object.entries(errores).filter(([c]) => !conocidos.includes(c))
 
   return (
@@ -204,7 +223,7 @@ function RegistroModal({ show, catalogos, onHide, onGuardado }) {
             </Col>
           </Row>
 
-          <h3 className="h6 mt-4 mb-2">Imputación (cargo)</h3>
+          <h3 className="h6 mt-4 mb-2">Imputación (cargo, sin IVA)</h3>
           {errores.lineas && <Alert variant="danger" className="small py-2">{errores.lineas}</Alert>}
           <Table size="sm" className="align-middle">
             <thead className="table-light">
@@ -268,9 +287,68 @@ function RegistroModal({ show, catalogos, onHide, onGuardado }) {
               </tr>
             </tfoot>
           </Table>
-          <div className="small text-suave">
+          <h3 className="h6 mt-3 mb-2">Desglose fiscal</h3>
+          <Row className="g-3 align-items-start">
+            <Col xs={6} md={2}>
+              <Campo id="cxp-exentas" etiqueta="Compras exentas" error={errores.compras_exentas}>
+                <Form.Control
+                  size="sm"
+                  inputMode="decimal"
+                  className="text-end"
+                  placeholder="0.00"
+                  value={datos.compras_exentas || ''}
+                  isInvalid={Number.isNaN(aCentavos(datos.compras_exentas))}
+                  onChange={(e) => cambiar('compras_exentas', e.target.value)}
+                />
+              </Campo>
+            </Col>
+            <Col xs={6} md={2}>
+              <Campo id="cxp-gravadas" etiqueta="Compras gravadas" error={errores.compras_gravadas}>
+                <Form.Control size="sm" className="text-end" readOnly plaintext value={centavosATexto(gravadas)} />
+              </Campo>
+            </Col>
+            {esCCF ? (
+              <>
+                <Col xs={6} md={2}>
+                  <Campo id="cxp-iva" etiqueta="IVA crédito fiscal 13 %" error={errores.iva_credito_fiscal} ayuda="Vacío: se calcula.">
+                    <Form.Control
+                      size="sm"
+                      inputMode="decimal"
+                      className="text-end"
+                      placeholder={centavosATexto(ivaAuto)}
+                      value={datos.iva_credito_fiscal || ''}
+                      isInvalid={Number.isNaN(ivaManual)}
+                      onChange={(e) => cambiar('iva_credito_fiscal', e.target.value)}
+                    />
+                  </Campo>
+                </Col>
+                <Col xs={6} md={3}>
+                  <Form.Group controlId="cxp-retencion" className="pt-md-4">
+                    <Form.Check
+                      type="checkbox"
+                      label={`Retener 1 % de IVA (${centavosATexto(retencion)})`}
+                      checked={Boolean(datos.aplica_retencion)}
+                      onChange={(e) => cambiar('aplica_retencion', e.target.checked)}
+                    />
+                    {errores.aplica_retencion && <div className="invalid-feedback d-block">{errores.aplica_retencion}</div>}
+                    <Form.Text>Gran contribuyente que compra a otro contribuyente; gravadas de US$100 o más.</Form.Text>
+                  </Form.Group>
+                </Col>
+              </>
+            ) : (
+              <Col md={5} className="small text-suave pt-md-4">
+                Solo el comprobante de crédito fiscal da derecho a crédito fiscal; en otros documentos el IVA forma parte del costo.
+              </Col>
+            )}
+            <Col md={3} className="text-md-end">
+              <div className="small text-suave">Total a pagar al proveedor</div>
+              <div className="fs-5 fw-semibold monto">{centavosATexto(totalDocumento)}</div>
+            </Col>
+          </Row>
+          <div className="small text-suave mt-2">
             <i className="bi bi-info-circle me-1" />
-            Al guardar se contabiliza el asiento: cargo a estas líneas y abono a la cuenta por pagar por el total. Si una línea de gasto no
+            Al guardar se contabiliza el asiento: cargo a estas líneas{esCCF ? ' y al IVA crédito fiscal (1403)' : ''}, abono a la cuenta
+            por pagar por el total a pagar{esCCF ? ' y, si se retiene, al IVA retenido por pagar (2405)' : ''}. Si una línea de gasto no
             trae centro, se aplica la regla de asignación del proveedor o de la cuenta.
           </div>
         </Modal.Body>
@@ -485,6 +563,21 @@ function DetalleModal({ id, puedeEditar, bancos, onHide, onCambio }) {
                 <Col xs={4} md={2}>
                   <div className="text-suave">Estado</div>
                   <InsigniaEstado estado={cxp.estado} texto={cxp.estado_display} />
+                </Col>
+                <Col xs={12}>
+                  <div className="d-flex flex-wrap gap-3 p-2 rounded bg-body-tertiary">
+                    {[
+                      ['Compras exentas', cxp.compras_exentas],
+                      ['Compras gravadas', cxp.compras_gravadas],
+                      ['IVA crédito fiscal', cxp.iva_credito_fiscal],
+                      ['Retención IVA 1 %', cxp.iva_retenido],
+                    ].map(([t, v]) => (
+                      <div key={t}>
+                        <span className="text-suave">{t}: </span>
+                        <span className="monto">{formatoMonto(v)}</span>
+                      </div>
+                    ))}
+                  </div>
                 </Col>
                 <Col xs={12}>
                   <span className="text-suave">Asiento de registro: </span>

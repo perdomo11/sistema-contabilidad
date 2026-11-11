@@ -116,11 +116,15 @@ Catálogo con NIT y NRC. Un proveedor con movimientos no se elimina: desactível
 
 ### 6.3 Cuentas por pagar
 1. **Registrar documento:** proveedor, tipo y número, fechas de emisión y vencimiento, concepto y **líneas de imputación** (cuenta de gasto o activo y centro). Al guardar se **contabiliza automáticamente** el asiento contra la cuenta por pagar.
+   - **Desglose fiscal:** las líneas son el valor de la compra **sin IVA**. Indique las compras exentas (el resto son gravadas). En un **comprobante de crédito fiscal (CCF)** el IVA crédito fiscal del 13 % se calcula solo (puede corregirlo hasta en un centavo si el documento lo redondea distinto) y se carga a la cuenta 1403; marque **Retener 1 %** cuando el banco retenga IVA al proveedor (compras gravadas de US$100 o más): se abona a 2405 y se le paga el total menos la retención. Facturas, recibos y otros no dan crédito fiscal: el IVA forma parte del costo.
 2. Abra un documento para ver su detalle:
    - **Registrar pago** (parcial o total, desde una cuenta de banco o caja): genera su asiento.
    - **Programar pago:** fecha en que se piensa pagar; la usa la proyección.
    - **Anular pago** o **anular documento** (sin pagos vigentes), con motivo: se revierte el asiento.
 3. Las tarjetas superiores muestran saldo pendiente, vencido, por vencer y la **antigüedad de saldos**; un clic filtra la lista.
+
+### 6.3.1 Libro de compras
+Tesorería → **Libro de compras**: elija el mes. Lista los **CCF** vigentes del mes en orden de fecha con correlativo, tipo y número de documento, NRC, NIT y nombre del proveedor, compras exentas, gravadas, IVA crédito fiscal, retención y total de compras. Las facturas de consumidor final, recibos y documentos anulados no se anotan. **Exportar a Excel** genera el libro con el encabezado de la empresa.
 
 ### 6.4 Proyección de egresos y egresos programados
 - **Egresos programados:** planilla, impuestos, alquileres, cuotas de préstamos… únicos o mensuales.

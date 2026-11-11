@@ -9,6 +9,7 @@ import Balanza from './pages/Balanza'
 import Bitacora from './pages/Bitacora'
 import Catalogo from './pages/Catalogo'
 import CuentasPorPagar from './pages/CuentasPorPagar'
+import LibroCompras from './pages/LibroCompras'
 import DashboardTesoreria from './pages/DashboardTesoreria'
 import CentrosCosto from './pages/CentrosCosto'
 import DistribucionPresupuesto from './pages/DistribucionPresupuesto'
@@ -62,6 +63,7 @@ export default function App() {
         <Route path="proveedores" element={<Proveedores />} />
         <Route path="tesoreria" element={<DashboardTesoreria />} />
         <Route path="tesoreria/cuentas-por-pagar" element={<CuentasPorPagar />} />
+        <Route path="tesoreria/libro-compras" element={<LibroCompras />} />
         <Route path="tesoreria/proyeccion-egresos" element={<ProyeccionEgresos />} />
         <Route path="tesoreria/egresos-programados" element={<EgresosProgramados />} />
         <Route path="tesoreria/flujo-efectivo" element={<FlujoEfectivo />} />

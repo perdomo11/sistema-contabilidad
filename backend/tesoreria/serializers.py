@@ -81,8 +81,8 @@ class CuentaPorPagarSerializer(serializers.ModelSerializer):
         model = CuentaPorPagar
         fields = [
             "id", "proveedor", "tipo_documento", "tipo_documento_display", "numero_documento", "fecha_emision",
-            "fecha_vencimiento", "fecha_pago_programada", "concepto", "monto_total", "saldo", "estado", "estado_display",
-            "vencimiento", "dias", "asiento",
+            "fecha_vencimiento", "fecha_pago_programada", "concepto", "compras_gravadas", "compras_exentas", "iva_credito_fiscal",
+            "iva_retenido", "monto_total", "saldo", "estado", "estado_display", "vencimiento", "dias", "asiento",
         ]
         read_only_fields = fields
 
@@ -123,7 +123,9 @@ class CuentaPorPagarDetalleSerializer(CuentaPorPagarSerializer):
         return {"id": obj.cuenta_pasivo_id, "codigo": obj.cuenta_pasivo.codigo, "nombre": obj.cuenta_pasivo.nombre}
 
     def get_lineas(self, obj):
-        """Imputación: las líneas de cargo del asiento de registro."""
+        """Imputación: las líneas de cargo del asiento de registro, sin la del IVA crédito fiscal (T7.2)."""
+        from .cuentas_por_pagar import CODIGO_IVA_CREDITO
+
         return [
             {
                 "cuenta": {"codigo": l.cuenta.codigo, "nombre": l.cuenta.nombre},
@@ -132,7 +134,7 @@ class CuentaPorPagarDetalleSerializer(CuentaPorPagarSerializer):
                 "monto": f"{l.debe:.2f}",
             }
             for l in obj.asiento.lineas.select_related("cuenta", "centro_costo").order_by("numero_linea")
-            if l.debe > 0
+            if l.debe > 0 and not (obj.iva_credito_fiscal and l.cuenta.codigo == CODIGO_IVA_CREDITO)
         ]
 
     def get_asiento_anulacion(self, obj):
@@ -155,6 +157,11 @@ class CuentaPorPagarCrearSerializer(serializers.Serializer):
     concepto = serializers.CharField(max_length=300)
     cuenta_pasivo = serializers.PrimaryKeyRelatedField(queryset=Cuenta.objects.all(), required=False, allow_null=True, default=None)
     lineas = LineaImputacionSerializer(many=True)
+    # T7.2: desglose fiscal (opcional; ver tesoreria.cuentas_por_pagar.desglose_fiscal).
+    compras_gravadas = serializers.DecimalField(max_digits=18, decimal_places=2, required=False, allow_null=True, default=None)
+    compras_exentas = serializers.DecimalField(max_digits=18, decimal_places=2, required=False, allow_null=True, default=None)
+    iva_credito_fiscal = serializers.DecimalField(max_digits=18, decimal_places=2, required=False, allow_null=True, default=None)
+    aplica_retencion = serializers.BooleanField(required=False, default=False)
 
 
 class PagoCrearSerializer(serializers.Serializer):
@@ -249,3 +256,12 @@ class AsignarActividadSerializer(serializers.Serializer):
 class ConfiguracionTesoreriaSerializer(serializers.Serializer):
     saldo_minimo = serializers.DecimalField(max_digits=18, decimal_places=2, required=False, min_value=0)
     dias_historia = serializers.IntegerField(required=False, min_value=7, max_value=730)
+
+
+# =============================================================================
+# T7.2: libro de compras
+# =============================================================================
+
+class FiltroLibroMesSerializer(serializers.Serializer):
+    anio = serializers.IntegerField(min_value=2000, max_value=2100)
+    mes = serializers.IntegerField(min_value=1, max_value=12)

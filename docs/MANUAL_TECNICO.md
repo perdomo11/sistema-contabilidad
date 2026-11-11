@@ -107,7 +107,9 @@ Además de las restricciones `CHECK`/`UNIQUE` de cada modelo, 13 triggers garant
 | `TRG_ASIG_PPTO_TOPE`, `TRG_DET_PPTO_TOPE`, `TRG_PPTO_TOPE_DISTRIBUIDO` | distribución | Σ asignaciones ≤ institucional; Σ detalle ≤ asignación |
 | `TRG_ASIG_PPTO_REGLAS`, `TRG_DET_PPTO_REGLAS` | distribución | Sin cambios con el presupuesto cerrado |
 | `TRG_CAMBIO_DIST_INMUTABLE` | historial de distribución | Inmutable |
-| `TRG_CXP_REGLAS`, `TRG_PAGO_CXP_REGLAS` | cuentas por pagar y pagos | No se eliminan; datos registrados inmutables; anulados inmutables |
+| `TRG_CXP_REGLAS`, `TRG_PAGO_CXP_REGLAS` | cuentas por pagar y pagos | No se eliminan; datos registrados inmutables (incluido el desglose fiscal, T7.2); anulados inmutables |
+
+Además de los triggers, restricciones `CHECK` del desglose fiscal de compras (T7.2): `cxp_desglose_cuadra` (total = gravadas + exentas + IVA − retención), `cxp_desglose_no_negativo` y `cxp_iva_solo_ccf` (IVA y retención solo en CCF).
 
 Se crean en migraciones `RunPython` con el cursor nativo de `oracledb` (el de Django recorta el `;` final del PL/SQL). `verificar_integridad` comprueba que existan y estén habilitados.
 
@@ -127,7 +129,7 @@ Todas bajo `/api/`, con `Authorization: Bearer <token>` salvo `health` y `auth/l
 | Prorrateo | `prorrateo/bases/`, `prorrateo/medidas/`, `prorrateo/reglas/`, `prorrateo/ejecuciones/` (`previsualizar/`, `pendientes/`, `{id}/anular/`) | Contador |
 | Reportes | `reportes/estado-resultados/`, `reportes/enfoque-contribucion/`, `reportes/indicadores/` | — |
 | Presupuesto | `presupuestos/` (`cambiar-monto/`, `aprobar/`, `cerrar/`, `distribucion/`, `distribucion/{centro}/`, `historial-distribucion/`, `ejecucion/`) | Contador |
-| Tesorería | `proveedores/`, `cuentas-por-pagar/` (`resumen/`, `pagos/`, `anular/`, `programar/`), `egresos-programados/`, `tesoreria/proyeccion-egresos/`, `tesoreria/flujo-efectivo/`, `tesoreria/flujo-proyectado/`, `tesoreria/clasificacion-flujo/`, `tesoreria/configuracion/`, `tesoreria/dashboard/` | Contador o Tesorero |
+| Tesorería | `proveedores/`, `cuentas-por-pagar/` (`resumen/`, `pagos/`, `anular/`, `programar/`), `egresos-programados/`, `tesoreria/proyeccion-egresos/`, `tesoreria/flujo-efectivo/`, `tesoreria/flujo-proyectado/`, `tesoreria/clasificacion-flujo/`, `tesoreria/configuracion/`, `tesoreria/dashboard/`, `tesoreria/libro-compras/` (`?anio=&mes=`; Excel: `exportar/`) | Contador o Tesorero |
 
 Listas paginadas de 50 (`?page=`). Parámetros y respuestas de cada endpoint: `docs/tareas/T*.md`.
 

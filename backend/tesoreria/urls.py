@@ -10,6 +10,8 @@ from .views import (
     dashboard,
     flujo_efectivo,
     flujo_proyectado,
+    libro_compras,
+    libro_compras_exportar,
     proyeccion_egresos,
 )
 
@@ -25,5 +27,7 @@ urlpatterns = [
     path("tesoreria/flujo-proyectado/", flujo_proyectado, name="flujo-proyectado"),
     path("tesoreria/configuracion/", ConfiguracionTesoreriaView.as_view(), name="configuracion-tesoreria"),
     path("tesoreria/dashboard/", dashboard, name="dashboard-tesoreria"),
+    path("tesoreria/libro-compras/", libro_compras, name="libro-compras"),
+    path("tesoreria/libro-compras/exportar/", libro_compras_exportar, name="libro-compras-exportar"),
     *router.urls,
 ]

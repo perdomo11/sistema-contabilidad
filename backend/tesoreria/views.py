@@ -6,12 +6,14 @@ from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from config.excel import respuesta_excel
 from usuarios import roles
 from usuarios.permissions import TieneRol
 
 from . import cuentas_por_pagar as cpp
-from . import flujo, proyeccion, services
+from . import exportacion, flujo, proyeccion, services
 from .dashboard import dashboard_tesoreria
+from .libro_compras import libro_compras as libro_compras_servicio
 from .models import ClasificacionFlujo, CuentaPorPagar, EgresoProgramado, PagoCuentaPorPagar, Proveedor
 from .serializers import (
     AnularSerializer,
@@ -25,6 +27,7 @@ from .serializers import (
     FiltroCuentasPorPagarSerializer,
     FiltroFlujoProyectadoSerializer,
     FiltroFlujoSerializer,
+    FiltroLibroMesSerializer,
     FiltroProveedoresSerializer,
     FiltroProyeccionSerializer,
     PagoCrearSerializer,
@@ -307,3 +310,29 @@ def dashboard(request):
     filtros = FiltroProyeccionSerializer(data=request.query_params)
     filtros.is_valid(raise_exception=True)
     return Response(dashboard_tesoreria(fecha=filtros.validated_data["fecha"] or timezone.localdate()))
+
+
+# =============================================================================
+# T7.2: libro de compras
+# =============================================================================
+
+def _filtro_mes(request):
+    filtros = FiltroLibroMesSerializer(data=request.query_params)
+    filtros.is_valid(raise_exception=True)
+    return filtros.validated_data
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def libro_compras(request):
+    """Libro de compras del mes (?anio=&mes=): CCF recibidos con su desglose fiscal."""
+    return Response(libro_compras_servicio(**_filtro_mes(request)))
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def libro_compras_exportar(request):
+    """Libro de compras del mes en Excel."""
+    f = _filtro_mes(request)
+    contenido = exportacion.libro_compras_xlsx(usuario=request.user, **f)
+    return respuesta_excel(f"libro_compras_{f['anio']}_{f['mes']:02d}.xlsx", contenido)

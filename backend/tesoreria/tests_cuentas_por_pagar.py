@@ -208,7 +208,7 @@ class CxPApiTests(BaseCxP):
         client = APIClient()
         client.force_authenticate(self.tesorero)
         cuerpo = {
-            "proveedor": self.proveedor.pk, "tipo_documento": "CCF", "numero_documento": "CCF-77",
+            "proveedor": self.proveedor.pk, "tipo_documento": "FACTURA", "numero_documento": "F-77",
             "fecha_emision": "2026-03-01", "fecha_vencimiento": "2026-03-31", "concepto": "Energía",
             "lineas": [{"cuenta": self.energia.pk, "centro_costo": self.ti.pk, "monto": "250.00"}],
         }

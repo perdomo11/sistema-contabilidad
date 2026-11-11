@@ -1,11 +1,12 @@
-"""Cuentas por pagar con vencimientos (T5.1).
+"""Cuentas por pagar con vencimientos (T5.1) e IVA en compras (T7.2).
 
-Cada documento genera su asiento (cargo a las líneas de imputación con su centro, abono a la cuenta por
-pagar) y cada pago otro (cargo a la cuenta por pagar, abono a banco/caja). Las anulaciones revierten el
-asiento correspondiente. Documentos y pagos no se editan ni se eliminan (también lo impide Oracle).
+Cada documento genera su asiento (cargo a las líneas de imputación con su centro y, en un CCF, al IVA
+crédito fiscal; abono a la cuenta por pagar y, si se retiene, al IVA retenido por pagar) y cada pago otro
+(cargo a la cuenta por pagar, abono a banco/caja). Las anulaciones revierten el asiento correspondiente.
+Documentos y pagos no se editan ni se eliminan (también lo impide Oracle).
 """
 from datetime import timedelta
-from decimal import Decimal
+from decimal import ROUND_HALF_UP, Decimal
 
 from django.core.exceptions import ValidationError
 from django.db import transaction
@@ -19,6 +20,12 @@ from .models import CuentaPorPagar, PagoCuentaPorPagar, Proveedor
 
 CERO = Decimal("0.00")
 CODIGO_CUENTA_PASIVO = "2401"  # Cuentas por pagar a proveedores (catálogo base)
+CODIGO_IVA_CREDITO = "1403"  # IVA crédito fiscal (T7.2)
+CODIGO_IVA_RETENIDO = "2405"  # IVA retenido a terceros por pagar (T7.2)
+TASA_IVA = Decimal("0.13")
+TASA_RETENCION = Decimal("0.01")
+MINIMO_RETENCION = Decimal("100.00")  # la retención del 1 % aplica a compras gravadas de US$100 o más
+TOLERANCIA_IVA = Decimal("0.01")  # diferencia de redondeo admitida frente al 13 % del documento
 DIAS_POR_VENCER = 7
 TRAMOS = ((1, 30, "1-30"), (31, 60, "31-60"), (61, 90, "61-90"), (91, None, "mas_90"))
 Estado, EstadoPago = CuentaPorPagar.Estado, PagoCuentaPorPagar.Estado
@@ -54,6 +61,10 @@ def instantanea(cxp):
         "documento": f"{cxp.tipo_documento} {cxp.numero_documento}",
         "fecha_emision": cxp.fecha_emision.isoformat(),
         "fecha_vencimiento": cxp.fecha_vencimiento.isoformat(),
+        "compras_gravadas": f"{cxp.compras_gravadas:.2f}",
+        "compras_exentas": f"{cxp.compras_exentas:.2f}",
+        "iva_credito_fiscal": f"{cxp.iva_credito_fiscal:.2f}",
+        "iva_retenido": f"{cxp.iva_retenido:.2f}",
         "monto_total": f"{cxp.monto_total:.2f}",
         "saldo": f"{cxp.saldo:.2f}",
         "estado": cxp.estado,
@@ -78,6 +89,82 @@ def _validar_cuenta_tesoreria(cuenta, tipo, campo, nombre):
     return cuenta
 
 
+def _centavos(monto):
+    return monto.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+
+
+def _monto_no_negativo(valor, campo):
+    if valor is None or valor == "":
+        return None
+    try:
+        monto = Decimal(str(valor))
+    except Exception:  # noqa: BLE001
+        raise ValidationError({campo: "Monto inválido."}) from None
+    if not monto.is_finite() or monto != monto.quantize(Decimal("0.01")):
+        raise ValidationError({campo: "El monto admite como máximo 2 decimales."})
+    if monto < 0:
+        raise ValidationError({campo: "El monto no puede ser negativo."})
+    return monto.quantize(Decimal("0.01"))
+
+
+def desglose_fiscal(*, tipo_documento, base, compras_gravadas=None, compras_exentas=None, iva_credito_fiscal=None,
+                    aplica_retencion=False):
+    """Desglose fiscal de una compra cuya imputación (gastos o activos) suma `base`.
+
+    - gravadas + exentas = base. Sin indicarlas: factura y CCF son gravadas; recibo y otro, exentas/no sujetas.
+    - Solo el CCF da crédito fiscal: IVA = 13 % de las gravadas (se admite ±0.01 de redondeo del documento).
+      Retención del 1 % de las gravadas si se indica y las gravadas son de US$100 o más.
+    - En factura, recibo u otro el IVA pagado forma parte del costo: no hay crédito fiscal ni retención.
+    Devuelve (gravadas, exentas, iva, retencion, monto_total).
+    """
+    gravadas = _monto_no_negativo(compras_gravadas, "compras_gravadas")
+    exentas = _monto_no_negativo(compras_exentas, "compras_exentas")
+    iva = _monto_no_negativo(iva_credito_fiscal, "iva_credito_fiscal")
+    es_fiscal = tipo_documento in (CuentaPorPagar.TipoDocumento.CCF, CuentaPorPagar.TipoDocumento.FACTURA)
+    if gravadas is None and exentas is None:
+        gravadas, exentas = (base, CERO) if es_fiscal else (CERO, base)
+    elif gravadas is None:
+        gravadas = base - exentas
+    elif exentas is None:
+        exentas = base - gravadas
+    if gravadas < 0 or exentas < 0 or gravadas + exentas != base:
+        raise ValidationError({
+            "compras_gravadas": f"Compras gravadas ({gravadas:,.2f}) más exentas ({exentas:,.2f}) deben sumar la imputación ({base:,.2f})."
+        })
+
+    if tipo_documento != CuentaPorPagar.TipoDocumento.CCF:
+        if iva or aplica_retencion:
+            raise ValidationError({
+                "iva_credito_fiscal": "Solo el comprobante de crédito fiscal (CCF) da derecho a crédito fiscal y retención; "
+                "en una factura el IVA forma parte del costo."
+            })
+        return gravadas, exentas, CERO, CERO, base
+
+    esperado = _centavos(gravadas * TASA_IVA)
+    if iva is None:
+        iva = esperado
+    elif abs(iva - esperado) > TOLERANCIA_IVA:
+        raise ValidationError({
+            "iva_credito_fiscal": f"El IVA crédito fiscal debe ser el 13 % de las compras gravadas ({esperado:,.2f})."
+        })
+    retencion = CERO
+    if aplica_retencion:
+        if gravadas < MINIMO_RETENCION:
+            raise ValidationError({
+                "aplica_retencion": f"La retención del 1 % aplica a compras gravadas de {MINIMO_RETENCION:,.2f} o más."
+            })
+        retencion = _centavos(gravadas * TASA_RETENCION)
+    return gravadas, exentas, iva, retencion, base + iva - retencion
+
+
+def _cuenta_fiscal(codigo, tipo, campo, nombre):
+    _, Cuenta = _contabilidad()
+    cuenta = Cuenta.objects.filter(codigo=codigo).first()
+    if cuenta is None:
+        raise ValidationError({campo: f"Falta la cuenta {codigo} ({nombre}) en el catálogo; cárguela con cargar_catalogo_base."})
+    return _validar_cuenta_tesoreria(cuenta, tipo, campo, nombre)
+
+
 def _estado_por_saldo(cxp):
     if cxp.saldo == 0:
         return Estado.PAGADA
@@ -95,8 +182,10 @@ def _bloquear(cxp):
 @transaction.atomic
 def registrar_cuenta_por_pagar(
     *, usuario, proveedor, tipo_documento, numero_documento, fecha_emision, fecha_vencimiento, concepto, lineas,
-    cuenta_pasivo=None, request=None,
+    cuenta_pasivo=None, compras_gravadas=None, compras_exentas=None, iva_credito_fiscal=None, aplica_retencion=False,
+    request=None,
 ):
+    """Registra el documento y contabiliza su asiento. Las líneas son la imputación (sin IVA): ver `desglose_fiscal`."""
     contabilidad, Cuenta = _contabilidad()
     proveedor = Proveedor.objects.get(pk=proveedor.pk)
     if not proveedor.activo:
@@ -125,20 +214,37 @@ def registrar_cuenta_por_pagar(
         raise ValidationError({"cuenta_pasivo": f"Indique la cuenta por pagar (no existe la {CODIGO_CUENTA_PASIVO})."})
     cuenta_pasivo = _validar_cuenta_tesoreria(cuenta_pasivo, Cuenta.Tipo.PASIVO, "cuenta_pasivo", "cuenta por pagar")
 
-    lineas_asiento, total = [], CERO
+    lineas_asiento, base = [], CERO
     for n, linea in enumerate(lineas, start=1):
         monto = _monto(linea.get("monto"), "lineas")
         if linea["cuenta"].pk == cuenta_pasivo.pk:
             raise ValidationError({"lineas": f"Línea {n}: no impute a la misma cuenta por pagar."})
-        total += monto
+        base += monto
         lineas_asiento.append({
             "cuenta": linea["cuenta"], "centro_costo": linea.get("centro_costo"),
             "descripcion": _texto(linea.get("descripcion")) or concepto[:200], "debe": monto, "haber": CERO,
+        })
+
+    gravadas, exentas, iva, retencion, total = desglose_fiscal(
+        tipo_documento=tipo_documento, base=base, compras_gravadas=compras_gravadas, compras_exentas=compras_exentas,
+        iva_credito_fiscal=iva_credito_fiscal, aplica_retencion=aplica_retencion,
+    )
+    if iva:
+        cuenta_iva = _cuenta_fiscal(CODIGO_IVA_CREDITO, Cuenta.Tipo.ACTIVO, "iva_credito_fiscal", "cuenta de IVA crédito fiscal")
+        lineas_asiento.append({
+            "cuenta": cuenta_iva, "centro_costo": None,
+            "descripcion": f"IVA crédito fiscal 13 % · {numero}"[:200], "debe": iva, "haber": CERO,
         })
     lineas_asiento.append({
         "cuenta": cuenta_pasivo, "centro_costo": None,
         "descripcion": f"{proveedor.nombre} · {numero}"[:200], "debe": CERO, "haber": total,
     })
+    if retencion:
+        cuenta_retencion = _cuenta_fiscal(CODIGO_IVA_RETENIDO, Cuenta.Tipo.PASIVO, "aplica_retencion", "cuenta de IVA retenido por pagar")
+        lineas_asiento.append({
+            "cuenta": cuenta_retencion, "centro_costo": None,
+            "descripcion": f"Retención IVA 1 % · {proveedor.nombre} · {numero}"[:200], "debe": CERO, "haber": retencion,
+        })
 
     tipo_label = CuentaPorPagar.TipoDocumento(tipo_documento).label
     asiento = contabilidad.crear_asiento(
@@ -149,7 +255,8 @@ def registrar_cuenta_por_pagar(
 
     cxp = CuentaPorPagar.objects.create(
         proveedor=proveedor, tipo_documento=tipo_documento, numero_documento=numero, fecha_emision=fecha_emision,
-        fecha_vencimiento=fecha_vencimiento, concepto=concepto, monto_total=total, saldo=total,
+        fecha_vencimiento=fecha_vencimiento, concepto=concepto, compras_gravadas=gravadas, compras_exentas=exentas,
+        iva_credito_fiscal=iva, iva_retenido=retencion, monto_total=total, saldo=total,
         cuenta_pasivo=cuenta_pasivo, asiento=asiento, creado_por=usuario, modificado_por=usuario,
     )
     registrar_evento(
