@@ -19,8 +19,9 @@ Las pruebas corren contra **Oracle** (una base temporal que Django crea y destru
 | `reportes` | `tests.py`, `tests_contribucion.py`, `tests_indicadores.py` | 25 | Estado de resultados absorbente, enfoque de contribución, indicadores |
 | `presupuesto` | `tests.py`, `tests_distribucion.py`, `tests_ejecucion.py` | 42 | Presupuesto versionado, distribución top-down con topes, ejecución y alertas |
 | `tesoreria` | `tests.py`, `tests_cuentas_por_pagar.py`, `tests_libro_compras.py`, `tests_proyeccion.py`, `tests_flujo.py`, `tests_dashboard.py` | 60 | Proveedores, cuentas por pagar, IVA en compras y libro de compras, proyección de egresos, flujo de efectivo, dashboard |
+| `ventas` | `tests.py` | 18 | Clientes, documentos de venta con IVA débito fiscal, anulación por reversión, libro de ventas |
 | `config` | `tests_integracion.py` | 6 | Ciclo completo con datos de ejemplo; los módulos cuadran entre sí; `verificar_integridad` |
-| **Total** | | **316** | |
+| **Total** | | **334** | |
 
 ## Matriz: reglas contables no negociables → pruebas
 "Servicio" = la regla se valida en `services.py`; "BD" = Oracle la impide aunque se salte el servicio (restricción o trigger).
@@ -53,6 +54,14 @@ Las pruebas corren contra **Oracle** (una base temporal que Django crea y destru
 | Desglose inmutable; anulación por reversión | `test_anulacion_revierte_iva_y_retencion` | `TRG_CXP_REGLAS` (mismo test) |
 | Libro de compras = CCF vigentes del mes; IVA del libro = cuenta 1403 | `LibroComprasTests::*` | — |
 
+### Ventas (T7.3)
+| Regla | Servicio | Base de datos |
+|---|---|---|
+| Total = gravadas + exentas + IVA (13 % de gravadas); ingresos con centro | `ventas/tests.py::test_ccf_genera_asiento_con_iva_debito`, `test_validaciones` | `test_reglas_en_bd` (`doc_venta_total_cuadra`) |
+| CCF solo a contribuyentes con NIT y NRC | `test_validaciones`, `test_contribuyente_exige_nit_y_nrc` | `test_restriccion_en_bd` (`cliente_contribuyente_nit_nrc`) |
+| Documento inmutable; anulación por reversión; número no reutilizable | `test_anular_revierte_el_asiento`, `test_numero_no_se_reutiliza`, `test_asiento_no_se_revierte_desde_asientos` | `TRG_DOC_VENTA_REGLAS`, `doc_venta_numero_unico` (`test_reglas_en_bd`) |
+| Libro de ventas; débito fiscal = cuenta 2406 | `LibroVentasTests::*` | `verificar_integridad` (VENTAS) |
+
 ### Coherencia entre módulos (integración)
 `config/tests_integracion.py::CicloCompletoTests` comprueba con los datos de ejemplo que:
 - la balanza cuadra (cargos = abonos);
@@ -62,4 +71,4 @@ Las pruebas corren contra **Oracle** (una base temporal que Django crea y destru
 - `verificar_integridad` no encuentra fallas, y detecta un saldo de cuenta por pagar alterado por fuera del sistema (`IntegridadDetectaFallasTests`).
 
 ## Verificación sobre la base real
-`python manage.py verificar_integridad [--anio AAAA]` revisa: partida doble, líneas sin centro (aviso), trazabilidad de prorrateos, saldos de cuentas por pagar, presupuesto (versiones y topes), reportes vs. balanza y que los 13 triggers existan y estén habilitados. Termina con código 1 si hay fallas. Úsela antes de cerrar un periodo y después de restaurar un respaldo.
+`python manage.py verificar_integridad [--anio AAAA]` revisa: partida doble, líneas sin centro (aviso), trazabilidad de prorrateos, saldos de cuentas por pagar, documentos de venta frente a sus asientos, presupuesto (versiones y topes), reportes vs. balanza y que los 14 triggers existan y estén habilitados. Termina con código 1 si hay fallas. Úsela antes de cerrar un periodo y después de restaurar un respaldo.

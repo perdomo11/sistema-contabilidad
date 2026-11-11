@@ -57,6 +57,14 @@ const MENU = [
     ],
   },
   {
+    seccion: 'Ventas',
+    items: [
+      { a: '/ventas/clientes', icono: 'bi-people', texto: 'Clientes' },
+      { a: '/ventas/documentos', icono: 'bi-receipt-cutoff', texto: 'Documentos de venta' },
+      { a: '/ventas/libro', icono: 'bi-journal-richtext', texto: 'Libro de ventas' },
+    ],
+  },
+  {
     seccion: 'Configuración',
     items: [
       { a: '/catalogo', icono: 'bi-diagram-3', texto: 'Catálogo de cuentas' },

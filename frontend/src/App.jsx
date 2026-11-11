@@ -10,6 +10,9 @@ import Bitacora from './pages/Bitacora'
 import Catalogo from './pages/Catalogo'
 import CuentasPorPagar from './pages/CuentasPorPagar'
 import LibroCompras from './pages/LibroCompras'
+import Clientes from './pages/Clientes'
+import DocumentosVenta from './pages/DocumentosVenta'
+import LibroVentas from './pages/LibroVentas'
 import DashboardTesoreria from './pages/DashboardTesoreria'
 import CentrosCosto from './pages/CentrosCosto'
 import DistribucionPresupuesto from './pages/DistribucionPresupuesto'
@@ -67,6 +70,9 @@ export default function App() {
         <Route path="tesoreria/proyeccion-egresos" element={<ProyeccionEgresos />} />
         <Route path="tesoreria/egresos-programados" element={<EgresosProgramados />} />
         <Route path="tesoreria/flujo-efectivo" element={<FlujoEfectivo />} />
+        <Route path="ventas/clientes" element={<Clientes />} />
+        <Route path="ventas/documentos" element={<DocumentosVenta />} />
+        <Route path="ventas/libro" element={<LibroVentas />} />
         <Route path="catalogo" element={<Catalogo />} />
         <Route path="periodos" element={<Periodos />} />
         <Route path="bitacora" element={<RutaProtegida roles={[ROLES.AUDITOR]}>{<Bitacora />}</RutaProtegida>} />

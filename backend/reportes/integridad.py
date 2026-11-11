@@ -14,6 +14,7 @@ from centros_costo.models import EjecucionProrrateo
 from contabilidad.models import Asiento, Cuenta, LineaAsiento
 from presupuesto.models import AsignacionPresupuesto, DetallePresupuesto, PresupuestoInstitucional, VersionPresupuesto
 from tesoreria.models import CuentaPorPagar, PagoCuentaPorPagar
+from ventas.models import DocumentoVenta
 
 from . import services as reportes
 
@@ -25,7 +26,7 @@ TRIGGERS = (
     "TRG_BITACORA_INMUTABLE", "TRG_ASIENTO_REGLAS", "TRG_LINEA_ASIENTO_INMUTABLE",
     "TRG_PRESUPUESTO_REGLAS", "TRG_VERSION_PPTO_INMUTABLE", "TRG_ASIG_PPTO_TOPE", "TRG_DET_PPTO_TOPE",
     "TRG_PPTO_TOPE_DISTRIBUIDO", "TRG_ASIG_PPTO_REGLAS", "TRG_DET_PPTO_REGLAS", "TRG_CAMBIO_DIST_INMUTABLE",
-    "TRG_CXP_REGLAS", "TRG_PAGO_CXP_REGLAS",
+    "TRG_CXP_REGLAS", "TRG_PAGO_CXP_REGLAS", "TRG_DOC_VENTA_REGLAS",
 )
 
 
@@ -100,6 +101,26 @@ def cuentas_por_pagar():
     return _resultado("CUENTAS_POR_PAGAR", "Saldos y estados de cuentas por pagar coherentes con sus pagos", problemas, revisados=revisados)
 
 
+def documentos_venta():
+    """T7.3: cada documento vigente tiene su asiento contabilizado por el total y sin revertir; uno anulado, su reversión."""
+    revertidos = set(
+        Asiento.objects.filter(reversion_de__isnull=False, estado=Asiento.Estado.CONTABILIZADO).values_list("reversion_de_id", flat=True)
+    )
+    problemas, revisados = [], 0
+    for d in DocumentoVenta.objects.select_related("asiento"):
+        revisados += 1
+        nombre = f"{d.tipo_documento} {d.numero_documento}"
+        if d.estado == DocumentoVenta.Estado.ANULADO:
+            if d.asiento_anulacion_id is None or d.asiento_id not in revertidos:
+                problemas.append(f"{nombre}: anulado sin asiento de reversión")
+            continue
+        if d.asiento.estado != Asiento.Estado.CONTABILIZADO or d.asiento_id in revertidos:
+            problemas.append(f"{nombre}: vigente, pero su asiento no está contabilizado o fue revertido")
+        elif d.asiento.total_debe != d.total:
+            problemas.append(f"{nombre}: total {d.total} ≠ asiento {d.asiento.codigo} ({d.asiento.total_debe})")
+    return _resultado("VENTAS", "Documentos de venta coherentes con sus asientos", problemas, revisados=revisados)
+
+
 def presupuesto():
     ultima = dict(VersionPresupuesto.objects.values_list("presupuesto_id").annotate(n=Max("numero")))
     distribuido = dict(AsignacionPresupuesto.objects.values_list("presupuesto_id").annotate(s=Sum("monto")))
@@ -158,6 +179,7 @@ def verificar(anio=None):
         centro_obligatorio(),
         trazabilidad_prorrateo(),
         cuentas_por_pagar(),
+        documentos_venta(),
         presupuesto(),
         resultados_vs_balanza(anio),
         triggers(),

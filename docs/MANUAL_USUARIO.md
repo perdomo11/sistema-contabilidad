@@ -137,12 +137,18 @@ Tesorería → **Libro de compras**: elija el mes. Lista los **CCF** vigentes de
 
 ---
 
-## 7. Control (*Control → Bitácora de auditoría*, Auditor)
+## 7. Ventas (*Ventas*)
+- **Clientes:** contribuyentes (con NIT y NRC: reciben **CCF**) y consumidores finales (reciben **factura**; el NIT es opcional). Un cliente con documentos no se elimina ni cambia su tipo, NIT o NRC: desactívelo.
+- **Documentos de venta → Emitir documento** (Contador o Tesorero): cliente, tipo (CCF o factura), número, fecha, cuenta donde se cobra (banco, caja o cuenta por cobrar), concepto y **líneas de ingreso sin IVA** con su centro de costo; marque **Exenta** en las líneas sin IVA (p. ej. intereses de préstamos). El sistema calcula el IVA débito fiscal del 13 % sobre las gravadas y contabiliza el asiento (cargo a la cuenta de cobro, abono a ingresos y a 2406 *IVA débito fiscal*). El número emitido no se puede volver a usar, aunque se anule.
+- **Anular documento** (con motivo): revierte el asiento. Los asientos de ventas no se revierten desde *Asientos*.
+- **Libro de ventas:** elija el mes. *Ventas a contribuyentes*: un renglón por CCF (los anulados aparecen con montos en cero). *Ventas a consumidor final*: un renglón por día con el rango de facturas emitidas y las ventas gravadas con IVA incluido. **Exportar a Excel** genera un archivo con una hoja por libro.
+
+## 8. Control (*Control → Bitácora de auditoría*, Auditor)
 Registro de todas las acciones sensibles: quién, qué, cuándo, valor anterior y nuevo. Filtros por usuario, acción y rango de fechas. **No se puede modificar ni borrar.**
 
 ---
 
-## 8. Ciclos de trabajo
+## 9. Ciclos de trabajo
 
 ### Cierre mensual (Contador)
 1. Contabilizar todos los asientos del mes (no deben quedar borradores).
@@ -160,14 +166,14 @@ Registrar facturas recibidas → programar los pagos según la política interna
 
 ---
 
-## 9. Mensajes frecuentes
+## 10. Mensajes frecuentes
 
 | Mensaje | Qué hacer |
 |---|---|
 | "Partida doble: el total de cargos debe ser igual al total de abonos" | Revise los montos de las líneas |
 | "El periodo … está cerrado" | Registre en un periodo abierto o pida al administrador reabrirlo |
 | "La cuenta … exige centro de costo" | Indique el centro o cree una regla de asignación |
-| "Es un asiento de prorrateo / de cuentas por pagar" | Anúlelo desde Prorrateo o desde Cuentas por pagar |
+| "Es un asiento de prorrateo / de cuentas por pagar / de ventas" | Anúlelo desde Prorrateo, Cuentas por pagar o Documentos de venta |
 | "Excede el monto institucional: el saldo disponible es …" | Asigne como máximo el disponible o aumente el presupuesto |
 | "El pago excede el saldo pendiente" | Pague como máximo el saldo |
 | "No hay cuentas de efectivo configuradas" | Tesorería → Flujo de efectivo → Configuración |

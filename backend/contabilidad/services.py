@@ -807,14 +807,23 @@ def _es_asiento_de_tesoreria(asiento):
     )
 
 
+def _es_asiento_de_ventas(asiento):
+    # Importación local: ventas depende de contabilidad en sus modelos (T7.3).
+    from ventas.models import DocumentoVenta
+
+    return DocumentoVenta.objects.filter(asiento=asiento).exists()
+
+
 @transaction.atomic
 def revertir_asiento(
-    asiento, *, usuario, motivo, fecha=None, request=None, permitir_prorrateo=False, permitir_tesoreria=False
+    asiento, *, usuario, motivo, fecha=None, request=None, permitir_prorrateo=False, permitir_tesoreria=False,
+    permitir_ventas=False,
 ):
     """Registra y contabiliza el asiento de reversión del asiento indicado. Devuelve la reversión.
 
-    Los asientos de prorrateo (T2.3) y de cuentas por pagar (T5.1) solo se revierten desde su módulo, que
-    pasa `permitir_prorrateo` o `permitir_tesoreria` para que su estado no se separe de la contabilidad.
+    Los asientos de prorrateo (T2.3), de cuentas por pagar (T5.1) y de ventas (T7.3) solo se revierten desde
+    su módulo, que pasa `permitir_prorrateo`, `permitir_tesoreria` o `permitir_ventas` para que su estado no
+    se separe de la contabilidad.
     """
     motivo = (motivo or "").strip()
     if not motivo:
@@ -830,6 +839,8 @@ def revertir_asiento(
         raise ValidationError("Es un asiento de prorrateo: anúlelo desde Centros de costo → Prorrateo.")
     if not permitir_tesoreria and _es_asiento_de_tesoreria(original):
         raise ValidationError("Es un asiento de cuentas por pagar: anule el documento o el pago desde Tesorería → Cuentas por pagar.")
+    if not permitir_ventas and _es_asiento_de_ventas(original):
+        raise ValidationError("Es un asiento de ventas: anule el documento desde Ventas → Documentos de venta.")
     existente = Asiento.objects.filter(reversion_de=original).first()
     if existente:
         raise ValidationError(f"El asiento {original.codigo} ya fue revertido por {existente.codigo}.")

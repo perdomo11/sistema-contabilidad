@@ -53,7 +53,7 @@ Implementación por tareas: T4.1 monto institucional, T4.2 distribución, T4.3 e
 Nómina, facturación electrónica e integración bancaria en tiempo real.
 
 ## Convenciones
-- Estructura: `backend/` (Django, proyecto `config`, una app por módulo: `usuarios`, `contabilidad`, `centros_costo`, `presupuesto`, `tesoreria`, `reportes`), `frontend/` (React + Vite).
+- Estructura: `backend/` (Django, proyecto `config`, una app por módulo: `usuarios`, `contabilidad`, `centros_costo`, `presupuesto`, `tesoreria`, `reportes`, `ventas`), `frontend/` (React + Vite).
 - API REST bajo `/api/`, versionada solo si hace falta. Endpoint de salud: `/api/health/`.
 - Lógica de negocio en `services.py` de cada app, no en las vistas ni en los serializers.
 - Pruebas con `pytest` o `manage.py test`; toda regla contable lleva prueba.
@@ -94,7 +94,7 @@ docker compose exec backend python manage.py test
 - [x] T6.1 Pruebas, respaldos y manuales (ver `docs/tareas/T6.1.md`)
 - [x] T7.1 Exportación a Excel: catálogo, libro diario y libro mayor (ver `docs/tareas/T7.1.md`)
 - [x] T7.2 IVA en compras y Libro de compras (ver `docs/tareas/T7.2.md`)
-- [ ] T7.3 Ventas y Libro de ventas
+- [x] T7.3 Ventas y Libro de ventas (ver `docs/tareas/T7.3.md`)
 - [ ] T7.4 Datos de demostración realistas
 
 Notas de implementación:
@@ -123,6 +123,7 @@ Notas de implementación:
 - Cierre (T6.1): `config/tests_integracion.py` (ciclo completo con todos los datos de ejemplo; al agregar módulos, extenderlo). `reportes/integridad.py` + comando `verificar_integridad [--anio]` (código 1 si falla; al crear un trigger nuevo, agregarlo a `TRIGGERS`). Respaldos con Data Pump en `scripts/` (`respaldo.sh`, `verificar_respaldo.sh`, `restaurar.sh`; credenciales del contenedor; `docker compose exec` que no lee entrada debe llevar `</dev/null`). Manuales: `docs/MANUAL_USUARIO.md`, `docs/MANUAL_TECNICO.md`; matriz de pruebas `docs/PRUEBAS.md` (actualizar conteos al agregar pruebas).
 - Exportación a Excel (T7.1): `config/excel.py` da el formato común (encabezado con `EMPRESA_NOMBRE`/`EMPRESA_NIT`/`EMPRESA_NRC` de `.env`, títulos fijos en la fila 7, montos numéricos `#,##0.00`, filas `Fila(valores, estilo="grupo"|"subtotal"|"total")`); cada app arma sus filas desde sus servicios (`contabilidad/exportacion.py`) y responde con `respuesta_excel`. Rutas `…/exportar/`; en el frontend, `descargarDesdeApi` (`src/exportar.js`) y la prop `onExportarExcel` de `AccionesReporte`. Reutilizar en los libros de compras y ventas.
 - IVA en compras (T7.2): `CuentaPorPagar` lleva `compras_gravadas`, `compras_exentas`, `iva_credito_fiscal`, `iva_retenido`; `monto_total` = gravadas + exentas + IVA − retención (servicio `cuentas_por_pagar.desglose_fiscal` y CHECK `cxp_desglose_cuadra`, `cxp_iva_solo_ccf`; `TRG_CXP_REGLAS` protege el desglose). Las líneas de imputación van sin IVA; solo el CCF da crédito fiscal (13 %, cargo a 1403) y retención del 1 % (gravadas ≥ US$100, abono a 2405); 1403 y 2405 vienen en `cargar_catalogo_base`. Libro de compras: `tesoreria/libro_compras.py` (CCF vigentes del mes) y `tesoreria/exportacion.py` (`/api/tesoreria/libro-compras/[exportar/]?anio=&mes=`).
+- Ventas (T7.3): app `ventas`. `Cliente` (CONTRIBUYENTE con NIT y NRC → CCF; CONSUMIDOR_FINAL → factura; NIT nulo si no hay, en Oracle '' = NULL) y `DocumentoVenta` (`ventas/documentos.py`): líneas de ingreso sin IVA con centro y marca `exenta`; IVA débito 13 % de las gravadas a 2406; cargo a la cuenta de cobro (1103 por defecto). Número único por tipo y no reutilizable. Anular = `revertir_asiento(..., permitir_ventas=True)`; desde Asientos bloqueado (`_es_asiento_de_ventas`). Trigger `TRG_DOC_VENTA_REGLAS`; verificación VENTAS en `integridad.py`. Libro de ventas: `ventas/libro.py` (CCF por documento, anulados en cero; consumidor final por día con IVA incluido) y Excel de dos hojas con `config.excel.construir_libro_hojas`.
 - Usuarios de prueba: `docker compose exec backend python manage.py crear_usuarios_demo` (contraseña `Demo_2026!`).
 - Desde Git Bash en Windows, anteponer `MSYS_NO_PATHCONV=1` a `docker compose exec` con rutas absolutas del contenedor.
 

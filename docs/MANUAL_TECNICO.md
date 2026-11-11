@@ -74,6 +74,7 @@ backend/
   reportes/        estado de resultados, contribución, indicadores (services.py), integridad.py
   presupuesto/     presupuesto institucional (services.py), distribución, ejecución
   tesoreria/       proveedores, cuentas por pagar, proyección, flujo, dashboard
+  ventas/          clientes, documentos de venta (documentos.py), libro de ventas (libro.py, exportacion.py)
 frontend/src/
   layout/Layout.jsx          menú lateral (MENU)
   pages/                     una pantalla por ruta (App.jsx)
@@ -95,7 +96,7 @@ docs/                        documento base, plan, especificación por tarea, ma
 
 ## 4. Reglas en la base de datos
 
-Además de las restricciones `CHECK`/`UNIQUE` de cada modelo, 13 triggers garantizan las reglas aunque se acceda a la base por fuera de la aplicación:
+Además de las restricciones `CHECK`/`UNIQUE` de cada modelo, 14 triggers garantizan las reglas aunque se acceda a la base por fuera de la aplicación:
 
 | Trigger | Tabla | Regla |
 |---|---|---|
@@ -108,6 +109,7 @@ Además de las restricciones `CHECK`/`UNIQUE` de cada modelo, 13 triggers garant
 | `TRG_ASIG_PPTO_REGLAS`, `TRG_DET_PPTO_REGLAS` | distribución | Sin cambios con el presupuesto cerrado |
 | `TRG_CAMBIO_DIST_INMUTABLE` | historial de distribución | Inmutable |
 | `TRG_CXP_REGLAS`, `TRG_PAGO_CXP_REGLAS` | cuentas por pagar y pagos | No se eliminan; datos registrados inmutables (incluido el desglose fiscal, T7.2); anulados inmutables |
+| `TRG_DOC_VENTA_REGLAS` | documentos de venta | No se eliminan; datos emitidos inmutables; anulados inmutables (T7.3) |
 
 Además de los triggers, restricciones `CHECK` del desglose fiscal de compras (T7.2): `cxp_desglose_cuadra` (total = gravadas + exentas + IVA − retención), `cxp_desglose_no_negativo` y `cxp_iva_solo_ccf` (IVA y retención solo en CCF).
 
@@ -130,6 +132,7 @@ Todas bajo `/api/`, con `Authorization: Bearer <token>` salvo `health` y `auth/l
 | Reportes | `reportes/estado-resultados/`, `reportes/enfoque-contribucion/`, `reportes/indicadores/` | — |
 | Presupuesto | `presupuestos/` (`cambiar-monto/`, `aprobar/`, `cerrar/`, `distribucion/`, `distribucion/{centro}/`, `historial-distribucion/`, `ejecucion/`) | Contador |
 | Tesorería | `proveedores/`, `cuentas-por-pagar/` (`resumen/`, `pagos/`, `anular/`, `programar/`), `egresos-programados/`, `tesoreria/proyeccion-egresos/`, `tesoreria/flujo-efectivo/`, `tesoreria/flujo-proyectado/`, `tesoreria/clasificacion-flujo/`, `tesoreria/configuracion/`, `tesoreria/dashboard/`, `tesoreria/libro-compras/` (`?anio=&mes=`; Excel: `exportar/`) | Contador o Tesorero |
+| Ventas | `clientes/`, `ventas/documentos/` (`anular/`), `ventas/libro/` (`?anio=&mes=`; Excel: `exportar/`) | Contador o Tesorero |
 
 Listas paginadas de 50 (`?page=`). Parámetros y respuestas de cada endpoint: `docs/tareas/T*.md`.
 

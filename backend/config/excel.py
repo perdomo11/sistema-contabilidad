@@ -80,10 +80,28 @@ def _texto_visible(valor, tipo):
 
 
 def construir_libro(*, titulo, periodo, columnas, filas, usuario=None, hoja="Libro"):
-    """Devuelve el contenido (bytes) del archivo .xlsx."""
+    """Devuelve el contenido (bytes) del archivo .xlsx de una hoja."""
+    return construir_libro_hojas(
+        [{"hoja": hoja, "titulo": titulo, "periodo": periodo, "columnas": columnas, "filas": filas}], usuario=usuario
+    )
+
+
+def construir_libro_hojas(hojas, *, usuario=None):
+    """Libro .xlsx con varias hojas (p. ej. el libro de ventas, T7.3), todas con el formato común.
+
+    hojas: lista de dicts con `hoja` (nombre de la pestaña), `titulo`, `periodo`, `columnas` y `filas`.
+    """
     libro = Workbook()
-    ws = libro.active
-    ws.title = hoja[:31]
+    libro.remove(libro.active)
+    for h in hojas:
+        _escribir_hoja(libro.create_sheet(h["hoja"][:31]), titulo=h["titulo"], periodo=h["periodo"],
+                       columnas=h["columnas"], filas=h["filas"], usuario=usuario)
+    salida = BytesIO()
+    libro.save(salida)
+    return salida.getvalue()
+
+
+def _escribir_hoja(ws, *, titulo, periodo, columnas, filas, usuario):
     ultima = get_column_letter(len(columnas))
     generado = timezone.localtime().strftime("%d/%m/%Y %H:%M")
     por = f" por {usuario.get_username()}" if usuario is not None else ""
@@ -150,10 +168,6 @@ def construir_libro(*, titulo, periodo, columnas, filas, usuario=None, hoja="Lib
     ws.page_setup.fitToHeight = 0
     ws.sheet_properties.pageSetUpPr.fitToPage = True
     ws.oddFooter.center.text = "Página &P de &N"
-
-    salida = BytesIO()
-    libro.save(salida)
-    return salida.getvalue()
 
 
 def respuesta_excel(nombre_archivo, contenido):

@@ -54,6 +54,7 @@ CATALOGO = [
     ("2403", "Impuestos por pagar", None, None),
     ("2404", "Provisiones laborales", None, None),
     ("2405", "IVA retenido a terceros por pagar", None, None),
+    ("2406", "IVA débito fiscal", None, None),
     ("3", "Patrimonio", Cuenta.Tipo.PATRIMONIO, None),
     ("31", "Capital social pagado", None, None),
     ("32", "Reservas de capital", None, None),
