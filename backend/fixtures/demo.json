@@ -1,0 +1,7664 @@
+[
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "!Z3vNvdhlhrGmMzDhGwfQ3D07PsffXEEb6fg1Ohzs",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "contador.demo",
+    "first_name": "",
+    "last_name": "",
+    "email": "",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-11-12T03:44:21.542Z",
+    "groups": [
+      [
+        "Contador"
+      ]
+    ],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 1,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:21.571Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "1",
+    "descripcion": "Alta de la cuenta 1 Activo",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "1",
+      "nombre": "Activo",
+      "padre": null,
+      "nivel": 1,
+      "tipo": "ACTIVO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": false,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 2,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:21.581Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "2",
+    "descripcion": "Alta de la cuenta 2 Pasivo",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "2",
+      "nombre": "Pasivo",
+      "padre": null,
+      "nivel": 1,
+      "tipo": "PASIVO",
+      "naturaleza": "ACREEDORA",
+      "acepta_movimientos": false,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 3,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:21.592Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "3",
+    "descripcion": "Alta de la cuenta 3 Patrimonio",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "3",
+      "nombre": "Patrimonio",
+      "padre": null,
+      "nivel": 1,
+      "tipo": "PATRIMONIO",
+      "naturaleza": "ACREEDORA",
+      "acepta_movimientos": false,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 4,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:21.607Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "4",
+    "descripcion": "Alta de la cuenta 4 Ingresos",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "4",
+      "nombre": "Ingresos",
+      "padre": null,
+      "nivel": 1,
+      "tipo": "INGRESO",
+      "naturaleza": "ACREEDORA",
+      "acepta_movimientos": false,
+      "exenta_centro_costo": false,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 5,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:21.628Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "5",
+    "descripcion": "Alta de la cuenta 5 Gastos",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "5",
+      "nombre": "Gastos",
+      "padre": null,
+      "nivel": 1,
+      "tipo": "GASTO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": false,
+      "exenta_centro_costo": false,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 6,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:21.638Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "6",
+    "descripcion": "Alta de la cuenta 6 Cuentas de orden y contingentes",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "6",
+      "nombre": "Cuentas de orden y contingentes",
+      "padre": null,
+      "nivel": 1,
+      "tipo": "ORDEN",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": false,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 7,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:21.653Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "7",
+    "descripcion": "Alta de la cuenta 11 Fondos disponibles",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "11",
+      "nombre": "Fondos disponibles",
+      "padre": "1",
+      "nivel": 2,
+      "tipo": "ACTIVO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": false,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 8,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:21.663Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "8",
+    "descripcion": "Alta de la cuenta 12 Inversiones financieras",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "12",
+      "nombre": "Inversiones financieras",
+      "padre": "1",
+      "nivel": 2,
+      "tipo": "ACTIVO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": false,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 9,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:21.676Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "9",
+    "descripcion": "Alta de la cuenta 13 Cartera de préstamos",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "13",
+      "nombre": "Cartera de préstamos",
+      "padre": "1",
+      "nivel": 2,
+      "tipo": "ACTIVO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": false,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 10,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:21.686Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "10",
+    "descripcion": "Alta de la cuenta 14 Otros activos",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "14",
+      "nombre": "Otros activos",
+      "padre": "1",
+      "nivel": 2,
+      "tipo": "ACTIVO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": false,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 11,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:21.697Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "11",
+    "descripcion": "Alta de la cuenta 15 Activo fijo",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "15",
+      "nombre": "Activo fijo",
+      "padre": "1",
+      "nivel": 2,
+      "tipo": "ACTIVO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": false,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 12,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:21.707Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "12",
+    "descripcion": "Alta de la cuenta 21 Depósitos de clientes",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "21",
+      "nombre": "Depósitos de clientes",
+      "padre": "2",
+      "nivel": 2,
+      "tipo": "PASIVO",
+      "naturaleza": "ACREEDORA",
+      "acepta_movimientos": false,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 13,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:21.721Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "13",
+    "descripcion": "Alta de la cuenta 22 Préstamos por pagar",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "22",
+      "nombre": "Préstamos por pagar",
+      "padre": "2",
+      "nivel": 2,
+      "tipo": "PASIVO",
+      "naturaleza": "ACREEDORA",
+      "acepta_movimientos": false,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 14,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:21.733Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "14",
+    "descripcion": "Alta de la cuenta 23 Obligaciones a la vista",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "23",
+      "nombre": "Obligaciones a la vista",
+      "padre": "2",
+      "nivel": 2,
+      "tipo": "PASIVO",
+      "naturaleza": "ACREEDORA",
+      "acepta_movimientos": false,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 15,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:21.744Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "15",
+    "descripcion": "Alta de la cuenta 24 Otros pasivos",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "24",
+      "nombre": "Otros pasivos",
+      "padre": "2",
+      "nivel": 2,
+      "tipo": "PASIVO",
+      "naturaleza": "ACREEDORA",
+      "acepta_movimientos": false,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 16,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:21.756Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "16",
+    "descripcion": "Alta de la cuenta 31 Capital social pagado",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "31",
+      "nombre": "Capital social pagado",
+      "padre": "3",
+      "nivel": 2,
+      "tipo": "PATRIMONIO",
+      "naturaleza": "ACREEDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 17,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:21.773Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "17",
+    "descripcion": "Alta de la cuenta 32 Reservas de capital",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "32",
+      "nombre": "Reservas de capital",
+      "padre": "3",
+      "nivel": 2,
+      "tipo": "PATRIMONIO",
+      "naturaleza": "ACREEDORA",
+      "acepta_movimientos": false,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 18,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:21.785Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "18",
+    "descripcion": "Alta de la cuenta 33 Resultados",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "33",
+      "nombre": "Resultados",
+      "padre": "3",
+      "nivel": 2,
+      "tipo": "PATRIMONIO",
+      "naturaleza": "ACREEDORA",
+      "acepta_movimientos": false,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 19,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:21.799Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "19",
+    "descripcion": "Alta de la cuenta 41 Ingresos de operaciones de intermediación",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "41",
+      "nombre": "Ingresos de operaciones de intermediación",
+      "padre": "4",
+      "nivel": 2,
+      "tipo": "INGRESO",
+      "naturaleza": "ACREEDORA",
+      "acepta_movimientos": false,
+      "exenta_centro_costo": false,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 20,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:21.811Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "20",
+    "descripcion": "Alta de la cuenta 42 Ingresos por servicios",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "42",
+      "nombre": "Ingresos por servicios",
+      "padre": "4",
+      "nivel": 2,
+      "tipo": "INGRESO",
+      "naturaleza": "ACREEDORA",
+      "acepta_movimientos": false,
+      "exenta_centro_costo": false,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 21,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:21.823Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "21",
+    "descripcion": "Alta de la cuenta 43 Otros ingresos",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "43",
+      "nombre": "Otros ingresos",
+      "padre": "4",
+      "nivel": 2,
+      "tipo": "INGRESO",
+      "naturaleza": "ACREEDORA",
+      "acepta_movimientos": false,
+      "exenta_centro_costo": false,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 22,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:21.833Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "22",
+    "descripcion": "Alta de la cuenta 51 Costos de intermediación",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "51",
+      "nombre": "Costos de intermediación",
+      "padre": "5",
+      "nivel": 2,
+      "tipo": "GASTO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": false,
+      "exenta_centro_costo": false,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 23,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:21.844Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "23",
+    "descripcion": "Alta de la cuenta 52 Gastos de operación",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "52",
+      "nombre": "Gastos de operación",
+      "padre": "5",
+      "nivel": 2,
+      "tipo": "GASTO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": false,
+      "exenta_centro_costo": false,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 24,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:21.855Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "24",
+    "descripcion": "Alta de la cuenta 53 Otros gastos",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "53",
+      "nombre": "Otros gastos",
+      "padre": "5",
+      "nivel": 2,
+      "tipo": "GASTO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": false,
+      "exenta_centro_costo": false,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 25,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:21.866Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "25",
+    "descripcion": "Alta de la cuenta 61 Contingentes deudoras",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "61",
+      "nombre": "Contingentes deudoras",
+      "padre": "6",
+      "nivel": 2,
+      "tipo": "ORDEN",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": false,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 26,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:21.878Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "26",
+    "descripcion": "Alta de la cuenta 62 Cuentas de orden deudoras",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "62",
+      "nombre": "Cuentas de orden deudoras",
+      "padre": "6",
+      "nivel": 2,
+      "tipo": "ORDEN",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": false,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 27,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:21.891Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "27",
+    "descripcion": "Alta de la cuenta 63 Contingentes y cuentas de orden por contra",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "63",
+      "nombre": "Contingentes y cuentas de orden por contra",
+      "padre": "6",
+      "nivel": 2,
+      "tipo": "ORDEN",
+      "naturaleza": "ACREEDORA",
+      "acepta_movimientos": false,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 28,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:21.904Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "28",
+    "descripcion": "Alta de la cuenta 1101 Caja",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "1101",
+      "nombre": "Caja",
+      "padre": "11",
+      "nivel": 3,
+      "tipo": "ACTIVO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": false,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 29,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:21.916Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "29",
+    "descripcion": "Alta de la cuenta 1102 Depósitos en el Banco Central de Reserva",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "1102",
+      "nombre": "Depósitos en el Banco Central de Reserva",
+      "padre": "11",
+      "nivel": 3,
+      "tipo": "ACTIVO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 30,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:21.928Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "30",
+    "descripcion": "Alta de la cuenta 1103 Depósitos en bancos locales",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "1103",
+      "nombre": "Depósitos en bancos locales",
+      "padre": "11",
+      "nivel": 3,
+      "tipo": "ACTIVO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 31,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:21.938Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "31",
+    "descripcion": "Alta de la cuenta 1104 Depósitos en bancos del exterior",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "1104",
+      "nombre": "Depósitos en bancos del exterior",
+      "padre": "11",
+      "nivel": 3,
+      "tipo": "ACTIVO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 32,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:21.951Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "32",
+    "descripcion": "Alta de la cuenta 1201 Títulos valores para conservarse hasta el vencimiento",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "1201",
+      "nombre": "Títulos valores para conservarse hasta el vencimiento",
+      "padre": "12",
+      "nivel": 3,
+      "tipo": "ACTIVO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 33,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:21.964Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "33",
+    "descripcion": "Alta de la cuenta 1202 Títulos valores disponibles para la venta",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "1202",
+      "nombre": "Títulos valores disponibles para la venta",
+      "padre": "12",
+      "nivel": 3,
+      "tipo": "ACTIVO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 34,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:21.977Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "34",
+    "descripcion": "Alta de la cuenta 1301 Préstamos vigentes",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "1301",
+      "nombre": "Préstamos vigentes",
+      "padre": "13",
+      "nivel": 3,
+      "tipo": "ACTIVO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": false,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 35,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:21.989Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "35",
+    "descripcion": "Alta de la cuenta 1302 Préstamos vencidos",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "1302",
+      "nombre": "Préstamos vencidos",
+      "padre": "13",
+      "nivel": 3,
+      "tipo": "ACTIVO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 36,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.002Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "36",
+    "descripcion": "Alta de la cuenta 1309 Estimación por incobrabilidad de préstamos",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "1309",
+      "nombre": "Estimación por incobrabilidad de préstamos",
+      "padre": "13",
+      "nivel": 3,
+      "tipo": "ACTIVO",
+      "naturaleza": "ACREEDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 37,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.014Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "37",
+    "descripcion": "Alta de la cuenta 1401 Cuentas por cobrar diversas",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "1401",
+      "nombre": "Cuentas por cobrar diversas",
+      "padre": "14",
+      "nivel": 3,
+      "tipo": "ACTIVO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 38,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.026Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "38",
+    "descripcion": "Alta de la cuenta 1402 Gastos pagados por anticipado",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "1402",
+      "nombre": "Gastos pagados por anticipado",
+      "padre": "14",
+      "nivel": 3,
+      "tipo": "ACTIVO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 39,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.037Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "39",
+    "descripcion": "Alta de la cuenta 1403 IVA crédito fiscal",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "1403",
+      "nombre": "IVA crédito fiscal",
+      "padre": "14",
+      "nivel": 3,
+      "tipo": "ACTIVO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 40,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.048Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "40",
+    "descripcion": "Alta de la cuenta 1501 Terrenos",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "1501",
+      "nombre": "Terrenos",
+      "padre": "15",
+      "nivel": 3,
+      "tipo": "ACTIVO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 41,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.061Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "41",
+    "descripcion": "Alta de la cuenta 1502 Edificaciones",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "1502",
+      "nombre": "Edificaciones",
+      "padre": "15",
+      "nivel": 3,
+      "tipo": "ACTIVO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 42,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.074Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "42",
+    "descripcion": "Alta de la cuenta 1503 Mobiliario y equipo",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "1503",
+      "nombre": "Mobiliario y equipo",
+      "padre": "15",
+      "nivel": 3,
+      "tipo": "ACTIVO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 43,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.088Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "43",
+    "descripcion": "Alta de la cuenta 1504 Equipo de cómputo",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "1504",
+      "nombre": "Equipo de cómputo",
+      "padre": "15",
+      "nivel": 3,
+      "tipo": "ACTIVO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 44,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.100Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "44",
+    "descripcion": "Alta de la cuenta 1509 Depreciación acumulada",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "1509",
+      "nombre": "Depreciación acumulada",
+      "padre": "15",
+      "nivel": 3,
+      "tipo": "ACTIVO",
+      "naturaleza": "ACREEDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 45,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.113Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "45",
+    "descripcion": "Alta de la cuenta 2101 Depósitos en cuenta corriente",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "2101",
+      "nombre": "Depósitos en cuenta corriente",
+      "padre": "21",
+      "nivel": 3,
+      "tipo": "PASIVO",
+      "naturaleza": "ACREEDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 46,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.123Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "46",
+    "descripcion": "Alta de la cuenta 2102 Depósitos de ahorro",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "2102",
+      "nombre": "Depósitos de ahorro",
+      "padre": "21",
+      "nivel": 3,
+      "tipo": "PASIVO",
+      "naturaleza": "ACREEDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 47,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.138Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "47",
+    "descripcion": "Alta de la cuenta 2103 Depósitos a plazo",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "2103",
+      "nombre": "Depósitos a plazo",
+      "padre": "21",
+      "nivel": 3,
+      "tipo": "PASIVO",
+      "naturaleza": "ACREEDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 48,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.150Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "48",
+    "descripcion": "Alta de la cuenta 2201 Préstamos del Banco Central de Reserva",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "2201",
+      "nombre": "Préstamos del Banco Central de Reserva",
+      "padre": "22",
+      "nivel": 3,
+      "tipo": "PASIVO",
+      "naturaleza": "ACREEDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 49,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.164Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "49",
+    "descripcion": "Alta de la cuenta 2202 Préstamos de otros bancos",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "2202",
+      "nombre": "Préstamos de otros bancos",
+      "padre": "22",
+      "nivel": 3,
+      "tipo": "PASIVO",
+      "naturaleza": "ACREEDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 50,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.178Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "50",
+    "descripcion": "Alta de la cuenta 2301 Cheques de caja y de gerencia",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "2301",
+      "nombre": "Cheques de caja y de gerencia",
+      "padre": "23",
+      "nivel": 3,
+      "tipo": "PASIVO",
+      "naturaleza": "ACREEDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 51,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.191Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "51",
+    "descripcion": "Alta de la cuenta 2401 Cuentas por pagar a proveedores",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "2401",
+      "nombre": "Cuentas por pagar a proveedores",
+      "padre": "24",
+      "nivel": 3,
+      "tipo": "PASIVO",
+      "naturaleza": "ACREEDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 52,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.205Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "52",
+    "descripcion": "Alta de la cuenta 2402 Retenciones y descuentos por pagar",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "2402",
+      "nombre": "Retenciones y descuentos por pagar",
+      "padre": "24",
+      "nivel": 3,
+      "tipo": "PASIVO",
+      "naturaleza": "ACREEDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 53,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.215Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "53",
+    "descripcion": "Alta de la cuenta 2403 Impuestos por pagar",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "2403",
+      "nombre": "Impuestos por pagar",
+      "padre": "24",
+      "nivel": 3,
+      "tipo": "PASIVO",
+      "naturaleza": "ACREEDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 54,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.228Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "54",
+    "descripcion": "Alta de la cuenta 2404 Provisiones laborales",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "2404",
+      "nombre": "Provisiones laborales",
+      "padre": "24",
+      "nivel": 3,
+      "tipo": "PASIVO",
+      "naturaleza": "ACREEDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 55,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.239Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "55",
+    "descripcion": "Alta de la cuenta 2405 IVA retenido a terceros por pagar",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "2405",
+      "nombre": "IVA retenido a terceros por pagar",
+      "padre": "24",
+      "nivel": 3,
+      "tipo": "PASIVO",
+      "naturaleza": "ACREEDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 56,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.250Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "56",
+    "descripcion": "Alta de la cuenta 2406 IVA débito fiscal",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "2406",
+      "nombre": "IVA débito fiscal",
+      "padre": "24",
+      "nivel": 3,
+      "tipo": "PASIVO",
+      "naturaleza": "ACREEDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 57,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.264Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "57",
+    "descripcion": "Alta de la cuenta 3201 Reserva legal",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "3201",
+      "nombre": "Reserva legal",
+      "padre": "32",
+      "nivel": 3,
+      "tipo": "PATRIMONIO",
+      "naturaleza": "ACREEDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 58,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.277Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "58",
+    "descripcion": "Alta de la cuenta 3301 Resultados de ejercicios anteriores",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "3301",
+      "nombre": "Resultados de ejercicios anteriores",
+      "padre": "33",
+      "nivel": 3,
+      "tipo": "PATRIMONIO",
+      "naturaleza": "ACREEDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 59,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.288Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "59",
+    "descripcion": "Alta de la cuenta 3302 Resultado del presente ejercicio",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "3302",
+      "nombre": "Resultado del presente ejercicio",
+      "padre": "33",
+      "nivel": 3,
+      "tipo": "PATRIMONIO",
+      "naturaleza": "ACREEDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 60,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.302Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "60",
+    "descripcion": "Alta de la cuenta 4101 Intereses sobre préstamos",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "4101",
+      "nombre": "Intereses sobre préstamos",
+      "padre": "41",
+      "nivel": 3,
+      "tipo": "INGRESO",
+      "naturaleza": "ACREEDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": false,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 61,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.313Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "61",
+    "descripcion": "Alta de la cuenta 4102 Comisiones y recargos sobre préstamos",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "4102",
+      "nombre": "Comisiones y recargos sobre préstamos",
+      "padre": "41",
+      "nivel": 3,
+      "tipo": "INGRESO",
+      "naturaleza": "ACREEDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": false,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 62,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.325Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "62",
+    "descripcion": "Alta de la cuenta 4103 Intereses sobre inversiones",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "4103",
+      "nombre": "Intereses sobre inversiones",
+      "padre": "41",
+      "nivel": 3,
+      "tipo": "INGRESO",
+      "naturaleza": "ACREEDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": false,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 63,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.336Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "63",
+    "descripcion": "Alta de la cuenta 4201 Comisiones por servicios bancarios",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "4201",
+      "nombre": "Comisiones por servicios bancarios",
+      "padre": "42",
+      "nivel": 3,
+      "tipo": "INGRESO",
+      "naturaleza": "ACREEDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": false,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 64,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.351Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "64",
+    "descripcion": "Alta de la cuenta 4202 Comisiones por tarjetas",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "4202",
+      "nombre": "Comisiones por tarjetas",
+      "padre": "42",
+      "nivel": 3,
+      "tipo": "INGRESO",
+      "naturaleza": "ACREEDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": false,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 65,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.362Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "65",
+    "descripcion": "Alta de la cuenta 4301 Ingresos no operacionales",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "4301",
+      "nombre": "Ingresos no operacionales",
+      "padre": "43",
+      "nivel": 3,
+      "tipo": "INGRESO",
+      "naturaleza": "ACREEDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": false,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 66,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.374Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "66",
+    "descripcion": "Alta de la cuenta 5101 Intereses sobre depósitos",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "5101",
+      "nombre": "Intereses sobre depósitos",
+      "padre": "51",
+      "nivel": 3,
+      "tipo": "GASTO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": false,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 67,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.387Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "67",
+    "descripcion": "Alta de la cuenta 5102 Intereses sobre préstamos recibidos",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "5102",
+      "nombre": "Intereses sobre préstamos recibidos",
+      "padre": "51",
+      "nivel": 3,
+      "tipo": "GASTO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": false,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 68,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.398Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "68",
+    "descripcion": "Alta de la cuenta 5103 Estimaciones por incobrabilidad",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "5103",
+      "nombre": "Estimaciones por incobrabilidad",
+      "padre": "51",
+      "nivel": 3,
+      "tipo": "GASTO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": false,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 69,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.408Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "69",
+    "descripcion": "Alta de la cuenta 5201 Gastos de funcionarios y empleados",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "5201",
+      "nombre": "Gastos de funcionarios y empleados",
+      "padre": "52",
+      "nivel": 3,
+      "tipo": "GASTO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": false,
+      "exenta_centro_costo": false,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 70,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.421Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "70",
+    "descripcion": "Alta de la cuenta 5202 Gastos generales",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "5202",
+      "nombre": "Gastos generales",
+      "padre": "52",
+      "nivel": 3,
+      "tipo": "GASTO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": false,
+      "exenta_centro_costo": false,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 71,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.431Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "71",
+    "descripcion": "Alta de la cuenta 5203 Depreciaciones y amortizaciones",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "5203",
+      "nombre": "Depreciaciones y amortizaciones",
+      "padre": "52",
+      "nivel": 3,
+      "tipo": "GASTO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": false,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 72,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.444Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "72",
+    "descripcion": "Alta de la cuenta 5301 Gastos no operacionales",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "5301",
+      "nombre": "Gastos no operacionales",
+      "padre": "53",
+      "nivel": 3,
+      "tipo": "GASTO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": false,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 73,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.455Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "73",
+    "descripcion": "Alta de la cuenta 6101 Garantías otorgadas",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "6101",
+      "nombre": "Garantías otorgadas",
+      "padre": "61",
+      "nivel": 3,
+      "tipo": "ORDEN",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 74,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.468Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "74",
+    "descripcion": "Alta de la cuenta 6201 Valores en custodia",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "6201",
+      "nombre": "Valores en custodia",
+      "padre": "62",
+      "nivel": 3,
+      "tipo": "ORDEN",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 75,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.478Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "75",
+    "descripcion": "Alta de la cuenta 6301 Responsabilidad por garantías otorgadas",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "6301",
+      "nombre": "Responsabilidad por garantías otorgadas",
+      "padre": "63",
+      "nivel": 3,
+      "tipo": "ORDEN",
+      "naturaleza": "ACREEDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 76,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.489Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "76",
+    "descripcion": "Alta de la cuenta 6302 Responsabilidad por valores en custodia",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "6302",
+      "nombre": "Responsabilidad por valores en custodia",
+      "padre": "63",
+      "nivel": 3,
+      "tipo": "ORDEN",
+      "naturaleza": "ACREEDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 77,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.499Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "77",
+    "descripcion": "Alta de la cuenta 110101 Caja general",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "110101",
+      "nombre": "Caja general",
+      "padre": "1101",
+      "nivel": 4,
+      "tipo": "ACTIVO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 78,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.509Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "78",
+    "descripcion": "Alta de la cuenta 110102 Caja chica",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "110102",
+      "nombre": "Caja chica",
+      "padre": "1101",
+      "nivel": 4,
+      "tipo": "ACTIVO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 79,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.522Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "79",
+    "descripcion": "Alta de la cuenta 130101 Préstamos de consumo",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "130101",
+      "nombre": "Préstamos de consumo",
+      "padre": "1301",
+      "nivel": 4,
+      "tipo": "ACTIVO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 80,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.534Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "80",
+    "descripcion": "Alta de la cuenta 130102 Préstamos para vivienda",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "130102",
+      "nombre": "Préstamos para vivienda",
+      "padre": "1301",
+      "nivel": 4,
+      "tipo": "ACTIVO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 81,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.547Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "81",
+    "descripcion": "Alta de la cuenta 130103 Préstamos empresariales",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "130103",
+      "nombre": "Préstamos empresariales",
+      "padre": "1301",
+      "nivel": 4,
+      "tipo": "ACTIVO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": true,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 82,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.557Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "82",
+    "descripcion": "Alta de la cuenta 520101 Salarios",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "520101",
+      "nombre": "Salarios",
+      "padre": "5201",
+      "nivel": 4,
+      "tipo": "GASTO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": false,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 83,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.567Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "83",
+    "descripcion": "Alta de la cuenta 520102 Prestaciones sociales",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "520102",
+      "nombre": "Prestaciones sociales",
+      "padre": "5201",
+      "nivel": 4,
+      "tipo": "GASTO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": false,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 84,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.581Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "84",
+    "descripcion": "Alta de la cuenta 520103 Capacitación",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "520103",
+      "nombre": "Capacitación",
+      "padre": "5201",
+      "nivel": 4,
+      "tipo": "GASTO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": false,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 85,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.593Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "85",
+    "descripcion": "Alta de la cuenta 520201 Energía eléctrica",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "520201",
+      "nombre": "Energía eléctrica",
+      "padre": "5202",
+      "nivel": 4,
+      "tipo": "GASTO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": false,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 86,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.606Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "86",
+    "descripcion": "Alta de la cuenta 520202 Agua",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "520202",
+      "nombre": "Agua",
+      "padre": "5202",
+      "nivel": 4,
+      "tipo": "GASTO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": false,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 87,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.619Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "87",
+    "descripcion": "Alta de la cuenta 520203 Telecomunicaciones",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "520203",
+      "nombre": "Telecomunicaciones",
+      "padre": "5202",
+      "nivel": 4,
+      "tipo": "GASTO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": false,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 88,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.633Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "88",
+    "descripcion": "Alta de la cuenta 520204 Alquileres",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "520204",
+      "nombre": "Alquileres",
+      "padre": "5202",
+      "nivel": 4,
+      "tipo": "GASTO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": false,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 89,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.644Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "89",
+    "descripcion": "Alta de la cuenta 520205 Mantenimiento",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "520205",
+      "nombre": "Mantenimiento",
+      "padre": "5202",
+      "nivel": 4,
+      "tipo": "GASTO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": false,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 90,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.655Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "90",
+    "descripcion": "Alta de la cuenta 520206 Seguridad y vigilancia",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "520206",
+      "nombre": "Seguridad y vigilancia",
+      "padre": "5202",
+      "nivel": 4,
+      "tipo": "GASTO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": false,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 91,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.667Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "91",
+    "descripcion": "Alta de la cuenta 520207 Papelería y útiles",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "520207",
+      "nombre": "Papelería y útiles",
+      "padre": "5202",
+      "nivel": 4,
+      "tipo": "GASTO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": false,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 92,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.678Z",
+    "accion": "CREAR",
+    "entidad": "cuenta",
+    "objeto_id": "92",
+    "descripcion": "Alta de la cuenta 520208 Publicidad",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "520208",
+      "nombre": "Publicidad",
+      "padre": "5202",
+      "nivel": 4,
+      "tipo": "GASTO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": false,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 93,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.689Z",
+    "accion": "MODIFICAR",
+    "entidad": "cuenta",
+    "objeto_id": "19",
+    "descripcion": "Modificación de la cuenta 41 Ingresos de operaciones de intermediación",
+    "valor_anterior": {
+      "codigo": "41",
+      "nombre": "Ingresos de operaciones de intermediación",
+      "padre": "4",
+      "nivel": 2,
+      "tipo": "INGRESO",
+      "naturaleza": "ACREEDORA",
+      "acepta_movimientos": false,
+      "exenta_centro_costo": false,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "valor_nuevo": {
+      "codigo": "41",
+      "nombre": "Ingresos de operaciones de intermediación",
+      "padre": "4",
+      "nivel": 2,
+      "tipo": "INGRESO",
+      "naturaleza": "ACREEDORA",
+      "acepta_movimientos": false,
+      "exenta_centro_costo": false,
+      "activa": true,
+      "rubro_resultado": "INGRESO_OPERACION",
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 94,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.701Z",
+    "accion": "MODIFICAR",
+    "entidad": "cuenta",
+    "objeto_id": "20",
+    "descripcion": "Modificación de la cuenta 42 Ingresos por servicios",
+    "valor_anterior": {
+      "codigo": "42",
+      "nombre": "Ingresos por servicios",
+      "padre": "4",
+      "nivel": 2,
+      "tipo": "INGRESO",
+      "naturaleza": "ACREEDORA",
+      "acepta_movimientos": false,
+      "exenta_centro_costo": false,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "valor_nuevo": {
+      "codigo": "42",
+      "nombre": "Ingresos por servicios",
+      "padre": "4",
+      "nivel": 2,
+      "tipo": "INGRESO",
+      "naturaleza": "ACREEDORA",
+      "acepta_movimientos": false,
+      "exenta_centro_costo": false,
+      "activa": true,
+      "rubro_resultado": "INGRESO_OPERACION",
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 95,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.712Z",
+    "accion": "MODIFICAR",
+    "entidad": "cuenta",
+    "objeto_id": "21",
+    "descripcion": "Modificación de la cuenta 43 Otros ingresos",
+    "valor_anterior": {
+      "codigo": "43",
+      "nombre": "Otros ingresos",
+      "padre": "4",
+      "nivel": 2,
+      "tipo": "INGRESO",
+      "naturaleza": "ACREEDORA",
+      "acepta_movimientos": false,
+      "exenta_centro_costo": false,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "valor_nuevo": {
+      "codigo": "43",
+      "nombre": "Otros ingresos",
+      "padre": "4",
+      "nivel": 2,
+      "tipo": "INGRESO",
+      "naturaleza": "ACREEDORA",
+      "acepta_movimientos": false,
+      "exenta_centro_costo": false,
+      "activa": true,
+      "rubro_resultado": "INGRESO_NO_OPERACION",
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 96,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.725Z",
+    "accion": "MODIFICAR",
+    "entidad": "cuenta",
+    "objeto_id": "22",
+    "descripcion": "Modificación de la cuenta 51 Costos de intermediación",
+    "valor_anterior": {
+      "codigo": "51",
+      "nombre": "Costos de intermediación",
+      "padre": "5",
+      "nivel": 2,
+      "tipo": "GASTO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": false,
+      "exenta_centro_costo": false,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "valor_nuevo": {
+      "codigo": "51",
+      "nombre": "Costos de intermediación",
+      "padre": "5",
+      "nivel": 2,
+      "tipo": "GASTO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": false,
+      "exenta_centro_costo": false,
+      "activa": true,
+      "rubro_resultado": "COSTO_INTERMEDIACION",
+      "comportamiento_costo": "VARIABLE",
+      "controlable": true
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 97,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.740Z",
+    "accion": "MODIFICAR",
+    "entidad": "cuenta",
+    "objeto_id": "23",
+    "descripcion": "Modificación de la cuenta 52 Gastos de operación",
+    "valor_anterior": {
+      "codigo": "52",
+      "nombre": "Gastos de operación",
+      "padre": "5",
+      "nivel": 2,
+      "tipo": "GASTO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": false,
+      "exenta_centro_costo": false,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "valor_nuevo": {
+      "codigo": "52",
+      "nombre": "Gastos de operación",
+      "padre": "5",
+      "nivel": 2,
+      "tipo": "GASTO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": false,
+      "exenta_centro_costo": false,
+      "activa": true,
+      "rubro_resultado": "GASTO_OPERACION",
+      "comportamiento_costo": "FIJO",
+      "controlable": true
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 98,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.754Z",
+    "accion": "MODIFICAR",
+    "entidad": "cuenta",
+    "objeto_id": "91",
+    "descripcion": "Modificación de la cuenta 520207 Papelería y útiles",
+    "valor_anterior": {
+      "codigo": "520207",
+      "nombre": "Papelería y útiles",
+      "padre": "5202",
+      "nivel": 4,
+      "tipo": "GASTO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": false,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "valor_nuevo": {
+      "codigo": "520207",
+      "nombre": "Papelería y útiles",
+      "padre": "5202",
+      "nivel": 4,
+      "tipo": "GASTO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": false,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": "VARIABLE",
+      "controlable": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 99,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.765Z",
+    "accion": "MODIFICAR",
+    "entidad": "cuenta",
+    "objeto_id": "88",
+    "descripcion": "Modificación de la cuenta 520204 Alquileres",
+    "valor_anterior": {
+      "codigo": "520204",
+      "nombre": "Alquileres",
+      "padre": "5202",
+      "nivel": 4,
+      "tipo": "GASTO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": false,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "valor_nuevo": {
+      "codigo": "520204",
+      "nombre": "Alquileres",
+      "padre": "5202",
+      "nivel": 4,
+      "tipo": "GASTO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": false,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": false
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 100,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.776Z",
+    "accion": "MODIFICAR",
+    "entidad": "cuenta",
+    "objeto_id": "71",
+    "descripcion": "Modificación de la cuenta 5203 Depreciaciones y amortizaciones",
+    "valor_anterior": {
+      "codigo": "5203",
+      "nombre": "Depreciaciones y amortizaciones",
+      "padre": "52",
+      "nivel": 3,
+      "tipo": "GASTO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": false,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "valor_nuevo": {
+      "codigo": "5203",
+      "nombre": "Depreciaciones y amortizaciones",
+      "padre": "52",
+      "nivel": 3,
+      "tipo": "GASTO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": true,
+      "exenta_centro_costo": false,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": false
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 101,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.788Z",
+    "accion": "MODIFICAR",
+    "entidad": "cuenta",
+    "objeto_id": "24",
+    "descripcion": "Modificación de la cuenta 53 Otros gastos",
+    "valor_anterior": {
+      "codigo": "53",
+      "nombre": "Otros gastos",
+      "padre": "5",
+      "nivel": 2,
+      "tipo": "GASTO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": false,
+      "exenta_centro_costo": false,
+      "activa": true,
+      "rubro_resultado": null,
+      "comportamiento_costo": null,
+      "controlable": null
+    },
+    "valor_nuevo": {
+      "codigo": "53",
+      "nombre": "Otros gastos",
+      "padre": "5",
+      "nivel": 2,
+      "tipo": "GASTO",
+      "naturaleza": "DEUDORA",
+      "acepta_movimientos": false,
+      "exenta_centro_costo": false,
+      "activa": true,
+      "rubro_resultado": "GASTO_NO_OPERACION",
+      "comportamiento_costo": "FIJO",
+      "controlable": false
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 102,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.801Z",
+    "accion": "CREAR",
+    "entidad": "centro_costo",
+    "objeto_id": "1",
+    "descripcion": "Alta del centro de costo 01 Casa matriz",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "01",
+      "nombre": "Casa matriz",
+      "padre": null,
+      "tipo": "UTILIDAD",
+      "clase": "SUCURSAL",
+      "responsable": null,
+      "acepta_movimientos": false,
+      "vigente_desde": "2026-01-01",
+      "vigente_hasta": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 103,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.813Z",
+    "accion": "CREAR",
+    "entidad": "centro_costo",
+    "objeto_id": "2",
+    "descripcion": "Alta del centro de costo 01-01 Gerencia general",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "01-01",
+      "nombre": "Gerencia general",
+      "padre": "01",
+      "tipo": "COSTO",
+      "clase": "DEPARTAMENTO",
+      "responsable": null,
+      "acepta_movimientos": true,
+      "vigente_desde": "2026-01-01",
+      "vigente_hasta": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 104,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.823Z",
+    "accion": "CREAR",
+    "entidad": "centro_costo",
+    "objeto_id": "3",
+    "descripcion": "Alta del centro de costo 01-02 Contabilidad y finanzas",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "01-02",
+      "nombre": "Contabilidad y finanzas",
+      "padre": "01",
+      "tipo": "COSTO",
+      "clase": "DEPARTAMENTO",
+      "responsable": null,
+      "acepta_movimientos": true,
+      "vigente_desde": "2026-01-01",
+      "vigente_hasta": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 105,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.833Z",
+    "accion": "CREAR",
+    "entidad": "centro_costo",
+    "objeto_id": "4",
+    "descripcion": "Alta del centro de costo 01-03 Tecnología de información",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "01-03",
+      "nombre": "Tecnología de información",
+      "padre": "01",
+      "tipo": "COSTO",
+      "clase": "DEPARTAMENTO",
+      "responsable": null,
+      "acepta_movimientos": true,
+      "vigente_desde": "2026-01-01",
+      "vigente_hasta": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 106,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.844Z",
+    "accion": "CREAR",
+    "entidad": "centro_costo",
+    "objeto_id": "5",
+    "descripcion": "Alta del centro de costo 01-04 Recursos humanos",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "01-04",
+      "nombre": "Recursos humanos",
+      "padre": "01",
+      "tipo": "COSTO",
+      "clase": "DEPARTAMENTO",
+      "responsable": null,
+      "acepta_movimientos": true,
+      "vigente_desde": "2026-01-01",
+      "vigente_hasta": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 107,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.856Z",
+    "accion": "CREAR",
+    "entidad": "centro_costo",
+    "objeto_id": "6",
+    "descripcion": "Alta del centro de costo 01-05 Créditos",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "01-05",
+      "nombre": "Créditos",
+      "padre": "01",
+      "tipo": "UTILIDAD",
+      "clase": "DEPARTAMENTO",
+      "responsable": null,
+      "acepta_movimientos": true,
+      "vigente_desde": "2026-01-01",
+      "vigente_hasta": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 108,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.867Z",
+    "accion": "CREAR",
+    "entidad": "centro_costo",
+    "objeto_id": "7",
+    "descripcion": "Alta del centro de costo 01-06 Tesorería e inversiones",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "01-06",
+      "nombre": "Tesorería e inversiones",
+      "padre": "01",
+      "tipo": "INVERSION",
+      "clase": "DEPARTAMENTO",
+      "responsable": null,
+      "acepta_movimientos": true,
+      "vigente_desde": "2026-01-01",
+      "vigente_hasta": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 109,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.876Z",
+    "accion": "CREAR",
+    "entidad": "centro_costo",
+    "objeto_id": "8",
+    "descripcion": "Alta del centro de costo 02 Agencia San Salvador Centro",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "02",
+      "nombre": "Agencia San Salvador Centro",
+      "padre": null,
+      "tipo": "UTILIDAD",
+      "clase": "SUCURSAL",
+      "responsable": null,
+      "acepta_movimientos": false,
+      "vigente_desde": "2026-01-01",
+      "vigente_hasta": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 110,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.887Z",
+    "accion": "CREAR",
+    "entidad": "centro_costo",
+    "objeto_id": "9",
+    "descripcion": "Alta del centro de costo 02-01 Caja y servicio al cliente",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "02-01",
+      "nombre": "Caja y servicio al cliente",
+      "padre": "02",
+      "tipo": "COSTO",
+      "clase": "AREA",
+      "responsable": null,
+      "acepta_movimientos": true,
+      "vigente_desde": "2026-01-01",
+      "vigente_hasta": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 111,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.897Z",
+    "accion": "CREAR",
+    "entidad": "centro_costo",
+    "objeto_id": "10",
+    "descripcion": "Alta del centro de costo 02-02 Negocios",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "02-02",
+      "nombre": "Negocios",
+      "padre": "02",
+      "tipo": "INGRESO",
+      "clase": "AREA",
+      "responsable": null,
+      "acepta_movimientos": true,
+      "vigente_desde": "2026-01-01",
+      "vigente_hasta": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 112,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.906Z",
+    "accion": "CREAR",
+    "entidad": "centro_costo",
+    "objeto_id": "11",
+    "descripcion": "Alta del centro de costo 03 Agencia Santa Ana",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "03",
+      "nombre": "Agencia Santa Ana",
+      "padre": null,
+      "tipo": "UTILIDAD",
+      "clase": "SUCURSAL",
+      "responsable": null,
+      "acepta_movimientos": false,
+      "vigente_desde": "2026-01-01",
+      "vigente_hasta": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 113,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.916Z",
+    "accion": "CREAR",
+    "entidad": "centro_costo",
+    "objeto_id": "12",
+    "descripcion": "Alta del centro de costo 03-01 Caja y servicio al cliente",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "03-01",
+      "nombre": "Caja y servicio al cliente",
+      "padre": "03",
+      "tipo": "COSTO",
+      "clase": "AREA",
+      "responsable": null,
+      "acepta_movimientos": true,
+      "vigente_desde": "2026-01-01",
+      "vigente_hasta": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 114,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.926Z",
+    "accion": "CREAR",
+    "entidad": "centro_costo",
+    "objeto_id": "13",
+    "descripcion": "Alta del centro de costo 03-02 Negocios",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "03-02",
+      "nombre": "Negocios",
+      "padre": "03",
+      "tipo": "INGRESO",
+      "clase": "AREA",
+      "responsable": null,
+      "acepta_movimientos": true,
+      "vigente_desde": "2026-01-01",
+      "vigente_hasta": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 115,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.935Z",
+    "accion": "CREAR",
+    "entidad": "centro_costo",
+    "objeto_id": "14",
+    "descripcion": "Alta del centro de costo 04 Agencia San Miguel",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "04",
+      "nombre": "Agencia San Miguel",
+      "padre": null,
+      "tipo": "UTILIDAD",
+      "clase": "SUCURSAL",
+      "responsable": null,
+      "acepta_movimientos": false,
+      "vigente_desde": "2026-01-01",
+      "vigente_hasta": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 116,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.945Z",
+    "accion": "CREAR",
+    "entidad": "centro_costo",
+    "objeto_id": "15",
+    "descripcion": "Alta del centro de costo 04-01 Caja y servicio al cliente",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "04-01",
+      "nombre": "Caja y servicio al cliente",
+      "padre": "04",
+      "tipo": "COSTO",
+      "clase": "AREA",
+      "responsable": null,
+      "acepta_movimientos": true,
+      "vigente_desde": "2026-01-01",
+      "vigente_hasta": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 117,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.955Z",
+    "accion": "CREAR",
+    "entidad": "centro_costo",
+    "objeto_id": "16",
+    "descripcion": "Alta del centro de costo 04-02 Negocios",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "04-02",
+      "nombre": "Negocios",
+      "padre": "04",
+      "tipo": "INGRESO",
+      "clase": "AREA",
+      "responsable": null,
+      "acepta_movimientos": true,
+      "vigente_desde": "2026-01-01",
+      "vigente_hasta": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 118,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.964Z",
+    "accion": "CREAR",
+    "entidad": "centro_costo",
+    "objeto_id": "17",
+    "descripcion": "Alta del centro de costo 90 Proyectos",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "90",
+      "nombre": "Proyectos",
+      "padre": null,
+      "tipo": "COSTO",
+      "clase": "PROYECTO",
+      "responsable": null,
+      "acepta_movimientos": false,
+      "vigente_desde": "2026-01-01",
+      "vigente_hasta": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 119,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.974Z",
+    "accion": "CREAR",
+    "entidad": "centro_costo",
+    "objeto_id": "18",
+    "descripcion": "Alta del centro de costo 90-01 Transformación digital",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "90-01",
+      "nombre": "Transformación digital",
+      "padre": "90",
+      "tipo": "COSTO",
+      "clase": "PROYECTO",
+      "responsable": null,
+      "acepta_movimientos": true,
+      "vigente_desde": "2026-01-01",
+      "vigente_hasta": null
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 120,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:22.980Z",
+    "accion": "CREAR",
+    "entidad": "ejercicio",
+    "objeto_id": "2026",
+    "descripcion": "Creación del ejercicio 2026 con 12 periodos abiertos",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "anio": 2026,
+      "periodos": 12,
+      "estado": "ABIERTO"
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 121,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:23.001Z",
+    "accion": "CREAR",
+    "entidad": "asiento",
+    "objeto_id": "1",
+    "descripcion": "Borrador de asiento: Aporte de capital inicial",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "Borrador 1",
+      "fecha": "2026-01-02",
+      "concepto": "Aporte de capital inicial",
+      "referencia": "DEMO",
+      "proveedor": null,
+      "tipo": "DIARIO",
+      "estado": "BORRADOR",
+      "total_debe": "500000.00",
+      "total_haber": "500000.00",
+      "lineas": [
+        {
+          "cuenta": "1103",
+          "centro_costo": null,
+          "regla_asignacion": null,
+          "descripcion": "",
+          "debe": "500000.00",
+          "haber": "0.00"
+        },
+        {
+          "cuenta": "31",
+          "centro_costo": null,
+          "regla_asignacion": null,
+          "descripcion": "",
+          "debe": "0.00",
+          "haber": "500000.00"
+        }
+      ]
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 122,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:23.015Z",
+    "accion": "CONTABILIZAR",
+    "entidad": "asiento",
+    "objeto_id": "1",
+    "descripcion": "Contabilización del asiento 2026-000001: Aporte de capital inicial",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "2026-000001",
+      "fecha": "2026-01-02",
+      "concepto": "Aporte de capital inicial",
+      "referencia": "DEMO",
+      "proveedor": null,
+      "tipo": "DIARIO",
+      "estado": "CONTABILIZADO",
+      "total_debe": "500000.00",
+      "total_haber": "500000.00",
+      "lineas": [
+        {
+          "cuenta": "1103",
+          "centro_costo": null,
+          "regla_asignacion": null,
+          "descripcion": "",
+          "debe": "500000.00",
+          "haber": "0.00"
+        },
+        {
+          "cuenta": "31",
+          "centro_costo": null,
+          "regla_asignacion": null,
+          "descripcion": "",
+          "debe": "0.00",
+          "haber": "500000.00"
+        }
+      ]
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 123,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:23.028Z",
+    "accion": "CREAR",
+    "entidad": "asiento",
+    "objeto_id": "2",
+    "descripcion": "Borrador de asiento: Intereses cobrados sobre préstamos",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "Borrador 2",
+      "fecha": "2026-01-15",
+      "concepto": "Intereses cobrados sobre préstamos",
+      "referencia": "DEMO",
+      "proveedor": null,
+      "tipo": "DIARIO",
+      "estado": "BORRADOR",
+      "total_debe": "12500.00",
+      "total_haber": "12500.00",
+      "lineas": [
+        {
+          "cuenta": "1103",
+          "centro_costo": null,
+          "regla_asignacion": null,
+          "descripcion": "",
+          "debe": "12500.00",
+          "haber": "0.00"
+        },
+        {
+          "cuenta": "4101",
+          "centro_costo": "01-01",
+          "regla_asignacion": null,
+          "descripcion": "",
+          "debe": "0.00",
+          "haber": "12500.00"
+        }
+      ]
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 124,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:23.045Z",
+    "accion": "CONTABILIZAR",
+    "entidad": "asiento",
+    "objeto_id": "2",
+    "descripcion": "Contabilización del asiento 2026-000002: Intereses cobrados sobre préstamos",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "2026-000002",
+      "fecha": "2026-01-15",
+      "concepto": "Intereses cobrados sobre préstamos",
+      "referencia": "DEMO",
+      "proveedor": null,
+      "tipo": "DIARIO",
+      "estado": "CONTABILIZADO",
+      "total_debe": "12500.00",
+      "total_haber": "12500.00",
+      "lineas": [
+        {
+          "cuenta": "1103",
+          "centro_costo": null,
+          "regla_asignacion": null,
+          "descripcion": "",
+          "debe": "12500.00",
+          "haber": "0.00"
+        },
+        {
+          "cuenta": "4101",
+          "centro_costo": "01-01",
+          "regla_asignacion": null,
+          "descripcion": "",
+          "debe": "0.00",
+          "haber": "12500.00"
+        }
+      ]
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 125,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:23.059Z",
+    "accion": "CREAR",
+    "entidad": "asiento",
+    "objeto_id": "3",
+    "descripcion": "Borrador de asiento: Pago de gastos de operación de enero",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "Borrador 3",
+      "fecha": "2026-01-31",
+      "concepto": "Pago de gastos de operación de enero",
+      "referencia": "DEMO",
+      "proveedor": null,
+      "tipo": "DIARIO",
+      "estado": "BORRADOR",
+      "total_debe": "4200.00",
+      "total_haber": "4200.00",
+      "lineas": [
+        {
+          "cuenta": "520201",
+          "centro_costo": "01-01",
+          "regla_asignacion": null,
+          "descripcion": "",
+          "debe": "4200.00",
+          "haber": "0.00"
+        },
+        {
+          "cuenta": "1103",
+          "centro_costo": null,
+          "regla_asignacion": null,
+          "descripcion": "",
+          "debe": "0.00",
+          "haber": "4200.00"
+        }
+      ]
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 126,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:23.075Z",
+    "accion": "CONTABILIZAR",
+    "entidad": "asiento",
+    "objeto_id": "3",
+    "descripcion": "Contabilización del asiento 2026-000003: Pago de gastos de operación de enero",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "2026-000003",
+      "fecha": "2026-01-31",
+      "concepto": "Pago de gastos de operación de enero",
+      "referencia": "DEMO",
+      "proveedor": null,
+      "tipo": "DIARIO",
+      "estado": "CONTABILIZADO",
+      "total_debe": "4200.00",
+      "total_haber": "4200.00",
+      "lineas": [
+        {
+          "cuenta": "520201",
+          "centro_costo": "01-01",
+          "regla_asignacion": null,
+          "descripcion": "",
+          "debe": "4200.00",
+          "haber": "0.00"
+        },
+        {
+          "cuenta": "1103",
+          "centro_costo": null,
+          "regla_asignacion": null,
+          "descripcion": "",
+          "debe": "0.00",
+          "haber": "4200.00"
+        }
+      ]
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 127,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:23.091Z",
+    "accion": "CREAR",
+    "entidad": "asiento",
+    "objeto_id": "4",
+    "descripcion": "Borrador de asiento: Intereses cobrados sobre préstamos",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "Borrador 4",
+      "fecha": "2026-02-16",
+      "concepto": "Intereses cobrados sobre préstamos",
+      "referencia": "DEMO",
+      "proveedor": null,
+      "tipo": "DIARIO",
+      "estado": "BORRADOR",
+      "total_debe": "13800.00",
+      "total_haber": "13800.00",
+      "lineas": [
+        {
+          "cuenta": "1103",
+          "centro_costo": null,
+          "regla_asignacion": null,
+          "descripcion": "",
+          "debe": "13800.00",
+          "haber": "0.00"
+        },
+        {
+          "cuenta": "4101",
+          "centro_costo": "01-01",
+          "regla_asignacion": null,
+          "descripcion": "",
+          "debe": "0.00",
+          "haber": "13800.00"
+        }
+      ]
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 128,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:23.109Z",
+    "accion": "CONTABILIZAR",
+    "entidad": "asiento",
+    "objeto_id": "4",
+    "descripcion": "Contabilización del asiento 2026-000004: Intereses cobrados sobre préstamos",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "2026-000004",
+      "fecha": "2026-02-16",
+      "concepto": "Intereses cobrados sobre préstamos",
+      "referencia": "DEMO",
+      "proveedor": null,
+      "tipo": "DIARIO",
+      "estado": "CONTABILIZADO",
+      "total_debe": "13800.00",
+      "total_haber": "13800.00",
+      "lineas": [
+        {
+          "cuenta": "1103",
+          "centro_costo": null,
+          "regla_asignacion": null,
+          "descripcion": "",
+          "debe": "13800.00",
+          "haber": "0.00"
+        },
+        {
+          "cuenta": "4101",
+          "centro_costo": "01-01",
+          "regla_asignacion": null,
+          "descripcion": "",
+          "debe": "0.00",
+          "haber": "13800.00"
+        }
+      ]
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 129,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:23.128Z",
+    "accion": "CREAR",
+    "entidad": "asiento",
+    "objeto_id": "5",
+    "descripcion": "Borrador de asiento: Pago de gastos de operación de febrero (dos áreas)",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "Borrador 5",
+      "fecha": "2026-02-27",
+      "concepto": "Pago de gastos de operación de febrero (dos áreas)",
+      "referencia": "DEMO",
+      "proveedor": null,
+      "tipo": "DIARIO",
+      "estado": "BORRADOR",
+      "total_debe": "3900.00",
+      "total_haber": "3900.00",
+      "lineas": [
+        {
+          "cuenta": "520201",
+          "centro_costo": "01-01",
+          "regla_asignacion": null,
+          "descripcion": "",
+          "debe": "2400.00",
+          "haber": "0.00"
+        },
+        {
+          "cuenta": "520201",
+          "centro_costo": "01-02",
+          "regla_asignacion": null,
+          "descripcion": "",
+          "debe": "1500.00",
+          "haber": "0.00"
+        },
+        {
+          "cuenta": "1103",
+          "centro_costo": null,
+          "regla_asignacion": null,
+          "descripcion": "",
+          "debe": "0.00",
+          "haber": "3900.00"
+        }
+      ]
+    },
+    "ip": null
+  }
+},
+{
+  "model": "usuarios.bitacora",
+  "pk": 130,
+  "fields": {
+    "usuario": [
+      "contador.demo"
+    ],
+    "nombre_usuario": "contador.demo",
+    "fecha": "2026-11-12T03:44:23.148Z",
+    "accion": "CONTABILIZAR",
+    "entidad": "asiento",
+    "objeto_id": "5",
+    "descripcion": "Contabilización del asiento 2026-000005: Pago de gastos de operación de febrero (dos áreas)",
+    "valor_anterior": null,
+    "valor_nuevo": {
+      "codigo": "2026-000005",
+      "fecha": "2026-02-27",
+      "concepto": "Pago de gastos de operación de febrero (dos áreas)",
+      "referencia": "DEMO",
+      "proveedor": null,
+      "tipo": "DIARIO",
+      "estado": "CONTABILIZADO",
+      "total_debe": "3900.00",
+      "total_haber": "3900.00",
+      "lineas": [
+        {
+          "cuenta": "520201",
+          "centro_costo": "01-01",
+          "regla_asignacion": null,
+          "descripcion": "",
+          "debe": "2400.00",
+          "haber": "0.00"
+        },
+        {
+          "cuenta": "520201",
+          "centro_costo": "01-02",
+          "regla_asignacion": null,
+          "descripcion": "",
+          "debe": "1500.00",
+          "haber": "0.00"
+        },
+        {
+          "cuenta": "1103",
+          "centro_costo": null,
+          "regla_asignacion": null,
+          "descripcion": "",
+          "debe": "0.00",
+          "haber": "3900.00"
+        }
+      ]
+    },
+    "ip": null
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 1,
+  "fields": {
+    "codigo": "1",
+    "nombre": "Activo",
+    "padre": null,
+    "nivel": 1,
+    "tipo": "ACTIVO",
+    "naturaleza": "DEUDORA",
+    "acepta_movimientos": false,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:21.569Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:21.569Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 2,
+  "fields": {
+    "codigo": "2",
+    "nombre": "Pasivo",
+    "padre": null,
+    "nivel": 1,
+    "tipo": "PASIVO",
+    "naturaleza": "ACREEDORA",
+    "acepta_movimientos": false,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:21.580Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:21.580Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 3,
+  "fields": {
+    "codigo": "3",
+    "nombre": "Patrimonio",
+    "padre": null,
+    "nivel": 1,
+    "tipo": "PATRIMONIO",
+    "naturaleza": "ACREEDORA",
+    "acepta_movimientos": false,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:21.591Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:21.591Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 4,
+  "fields": {
+    "codigo": "4",
+    "nombre": "Ingresos",
+    "padre": null,
+    "nivel": 1,
+    "tipo": "INGRESO",
+    "naturaleza": "ACREEDORA",
+    "acepta_movimientos": false,
+    "exenta_centro_costo": false,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:21.603Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:21.603Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 5,
+  "fields": {
+    "codigo": "5",
+    "nombre": "Gastos",
+    "padre": null,
+    "nivel": 1,
+    "tipo": "GASTO",
+    "naturaleza": "DEUDORA",
+    "acepta_movimientos": false,
+    "exenta_centro_costo": false,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:21.627Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:21.627Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 6,
+  "fields": {
+    "codigo": "6",
+    "nombre": "Cuentas de orden y contingentes",
+    "padre": null,
+    "nivel": 1,
+    "tipo": "ORDEN",
+    "naturaleza": "DEUDORA",
+    "acepta_movimientos": false,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:21.637Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:21.637Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 7,
+  "fields": {
+    "codigo": "11",
+    "nombre": "Fondos disponibles",
+    "padre": 1,
+    "nivel": 2,
+    "tipo": "ACTIVO",
+    "naturaleza": "DEUDORA",
+    "acepta_movimientos": false,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:21.651Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:21.651Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 8,
+  "fields": {
+    "codigo": "12",
+    "nombre": "Inversiones financieras",
+    "padre": 1,
+    "nivel": 2,
+    "tipo": "ACTIVO",
+    "naturaleza": "DEUDORA",
+    "acepta_movimientos": false,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:21.662Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:21.662Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 9,
+  "fields": {
+    "codigo": "13",
+    "nombre": "Cartera de préstamos",
+    "padre": 1,
+    "nivel": 2,
+    "tipo": "ACTIVO",
+    "naturaleza": "DEUDORA",
+    "acepta_movimientos": false,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:21.674Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:21.675Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 10,
+  "fields": {
+    "codigo": "14",
+    "nombre": "Otros activos",
+    "padre": 1,
+    "nivel": 2,
+    "tipo": "ACTIVO",
+    "naturaleza": "DEUDORA",
+    "acepta_movimientos": false,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:21.685Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:21.685Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 11,
+  "fields": {
+    "codigo": "15",
+    "nombre": "Activo fijo",
+    "padre": 1,
+    "nivel": 2,
+    "tipo": "ACTIVO",
+    "naturaleza": "DEUDORA",
+    "acepta_movimientos": false,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:21.696Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:21.696Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 12,
+  "fields": {
+    "codigo": "21",
+    "nombre": "Depósitos de clientes",
+    "padre": 2,
+    "nivel": 2,
+    "tipo": "PASIVO",
+    "naturaleza": "ACREEDORA",
+    "acepta_movimientos": false,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:21.706Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:21.706Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 13,
+  "fields": {
+    "codigo": "22",
+    "nombre": "Préstamos por pagar",
+    "padre": 2,
+    "nivel": 2,
+    "tipo": "PASIVO",
+    "naturaleza": "ACREEDORA",
+    "acepta_movimientos": false,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:21.720Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:21.720Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 14,
+  "fields": {
+    "codigo": "23",
+    "nombre": "Obligaciones a la vista",
+    "padre": 2,
+    "nivel": 2,
+    "tipo": "PASIVO",
+    "naturaleza": "ACREEDORA",
+    "acepta_movimientos": false,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:21.731Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:21.731Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 15,
+  "fields": {
+    "codigo": "24",
+    "nombre": "Otros pasivos",
+    "padre": 2,
+    "nivel": 2,
+    "tipo": "PASIVO",
+    "naturaleza": "ACREEDORA",
+    "acepta_movimientos": false,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:21.742Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:21.742Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 16,
+  "fields": {
+    "codigo": "31",
+    "nombre": "Capital social pagado",
+    "padre": 3,
+    "nivel": 2,
+    "tipo": "PATRIMONIO",
+    "naturaleza": "ACREEDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:21.754Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:21.754Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 17,
+  "fields": {
+    "codigo": "32",
+    "nombre": "Reservas de capital",
+    "padre": 3,
+    "nivel": 2,
+    "tipo": "PATRIMONIO",
+    "naturaleza": "ACREEDORA",
+    "acepta_movimientos": false,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:21.770Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:21.770Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 18,
+  "fields": {
+    "codigo": "33",
+    "nombre": "Resultados",
+    "padre": 3,
+    "nivel": 2,
+    "tipo": "PATRIMONIO",
+    "naturaleza": "ACREEDORA",
+    "acepta_movimientos": false,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:21.783Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:21.783Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 19,
+  "fields": {
+    "codigo": "41",
+    "nombre": "Ingresos de operaciones de intermediación",
+    "padre": 4,
+    "nivel": 2,
+    "tipo": "INGRESO",
+    "naturaleza": "ACREEDORA",
+    "acepta_movimientos": false,
+    "exenta_centro_costo": false,
+    "activa": true,
+    "rubro_resultado": "INGRESO_OPERACION",
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:21.798Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.687Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 20,
+  "fields": {
+    "codigo": "42",
+    "nombre": "Ingresos por servicios",
+    "padre": 4,
+    "nivel": 2,
+    "tipo": "INGRESO",
+    "naturaleza": "ACREEDORA",
+    "acepta_movimientos": false,
+    "exenta_centro_costo": false,
+    "activa": true,
+    "rubro_resultado": "INGRESO_OPERACION",
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:21.810Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.700Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 21,
+  "fields": {
+    "codigo": "43",
+    "nombre": "Otros ingresos",
+    "padre": 4,
+    "nivel": 2,
+    "tipo": "INGRESO",
+    "naturaleza": "ACREEDORA",
+    "acepta_movimientos": false,
+    "exenta_centro_costo": false,
+    "activa": true,
+    "rubro_resultado": "INGRESO_NO_OPERACION",
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:21.822Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.710Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 22,
+  "fields": {
+    "codigo": "51",
+    "nombre": "Costos de intermediación",
+    "padre": 5,
+    "nivel": 2,
+    "tipo": "GASTO",
+    "naturaleza": "DEUDORA",
+    "acepta_movimientos": false,
+    "exenta_centro_costo": false,
+    "activa": true,
+    "rubro_resultado": "COSTO_INTERMEDIACION",
+    "comportamiento_costo": "VARIABLE",
+    "controlable": true,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:21.832Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.724Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 23,
+  "fields": {
+    "codigo": "52",
+    "nombre": "Gastos de operación",
+    "padre": 5,
+    "nivel": 2,
+    "tipo": "GASTO",
+    "naturaleza": "DEUDORA",
+    "acepta_movimientos": false,
+    "exenta_centro_costo": false,
+    "activa": true,
+    "rubro_resultado": "GASTO_OPERACION",
+    "comportamiento_costo": "FIJO",
+    "controlable": true,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:21.843Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.738Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 24,
+  "fields": {
+    "codigo": "53",
+    "nombre": "Otros gastos",
+    "padre": 5,
+    "nivel": 2,
+    "tipo": "GASTO",
+    "naturaleza": "DEUDORA",
+    "acepta_movimientos": false,
+    "exenta_centro_costo": false,
+    "activa": true,
+    "rubro_resultado": "GASTO_NO_OPERACION",
+    "comportamiento_costo": "FIJO",
+    "controlable": false,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:21.853Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.787Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 25,
+  "fields": {
+    "codigo": "61",
+    "nombre": "Contingentes deudoras",
+    "padre": 6,
+    "nivel": 2,
+    "tipo": "ORDEN",
+    "naturaleza": "DEUDORA",
+    "acepta_movimientos": false,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:21.865Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:21.865Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 26,
+  "fields": {
+    "codigo": "62",
+    "nombre": "Cuentas de orden deudoras",
+    "padre": 6,
+    "nivel": 2,
+    "tipo": "ORDEN",
+    "naturaleza": "DEUDORA",
+    "acepta_movimientos": false,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:21.877Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:21.877Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 27,
+  "fields": {
+    "codigo": "63",
+    "nombre": "Contingentes y cuentas de orden por contra",
+    "padre": 6,
+    "nivel": 2,
+    "tipo": "ORDEN",
+    "naturaleza": "ACREEDORA",
+    "acepta_movimientos": false,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:21.889Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:21.889Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 28,
+  "fields": {
+    "codigo": "1101",
+    "nombre": "Caja",
+    "padre": 7,
+    "nivel": 3,
+    "tipo": "ACTIVO",
+    "naturaleza": "DEUDORA",
+    "acepta_movimientos": false,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:21.902Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:21.902Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 29,
+  "fields": {
+    "codigo": "1102",
+    "nombre": "Depósitos en el Banco Central de Reserva",
+    "padre": 7,
+    "nivel": 3,
+    "tipo": "ACTIVO",
+    "naturaleza": "DEUDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:21.915Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:21.915Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 30,
+  "fields": {
+    "codigo": "1103",
+    "nombre": "Depósitos en bancos locales",
+    "padre": 7,
+    "nivel": 3,
+    "tipo": "ACTIVO",
+    "naturaleza": "DEUDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:21.926Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:21.926Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 31,
+  "fields": {
+    "codigo": "1104",
+    "nombre": "Depósitos en bancos del exterior",
+    "padre": 7,
+    "nivel": 3,
+    "tipo": "ACTIVO",
+    "naturaleza": "DEUDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:21.936Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:21.936Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 32,
+  "fields": {
+    "codigo": "1201",
+    "nombre": "Títulos valores para conservarse hasta el vencimiento",
+    "padre": 8,
+    "nivel": 3,
+    "tipo": "ACTIVO",
+    "naturaleza": "DEUDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:21.950Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:21.950Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 33,
+  "fields": {
+    "codigo": "1202",
+    "nombre": "Títulos valores disponibles para la venta",
+    "padre": 8,
+    "nivel": 3,
+    "tipo": "ACTIVO",
+    "naturaleza": "DEUDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:21.963Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:21.963Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 34,
+  "fields": {
+    "codigo": "1301",
+    "nombre": "Préstamos vigentes",
+    "padre": 9,
+    "nivel": 3,
+    "tipo": "ACTIVO",
+    "naturaleza": "DEUDORA",
+    "acepta_movimientos": false,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:21.976Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:21.976Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 35,
+  "fields": {
+    "codigo": "1302",
+    "nombre": "Préstamos vencidos",
+    "padre": 9,
+    "nivel": 3,
+    "tipo": "ACTIVO",
+    "naturaleza": "DEUDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:21.987Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:21.987Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 36,
+  "fields": {
+    "codigo": "1309",
+    "nombre": "Estimación por incobrabilidad de préstamos",
+    "padre": 9,
+    "nivel": 3,
+    "tipo": "ACTIVO",
+    "naturaleza": "ACREEDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.000Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.000Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 37,
+  "fields": {
+    "codigo": "1401",
+    "nombre": "Cuentas por cobrar diversas",
+    "padre": 10,
+    "nivel": 3,
+    "tipo": "ACTIVO",
+    "naturaleza": "DEUDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.013Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.013Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 38,
+  "fields": {
+    "codigo": "1402",
+    "nombre": "Gastos pagados por anticipado",
+    "padre": 10,
+    "nivel": 3,
+    "tipo": "ACTIVO",
+    "naturaleza": "DEUDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.025Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.025Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 39,
+  "fields": {
+    "codigo": "1403",
+    "nombre": "IVA crédito fiscal",
+    "padre": 10,
+    "nivel": 3,
+    "tipo": "ACTIVO",
+    "naturaleza": "DEUDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.036Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.036Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 40,
+  "fields": {
+    "codigo": "1501",
+    "nombre": "Terrenos",
+    "padre": 11,
+    "nivel": 3,
+    "tipo": "ACTIVO",
+    "naturaleza": "DEUDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.047Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.047Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 41,
+  "fields": {
+    "codigo": "1502",
+    "nombre": "Edificaciones",
+    "padre": 11,
+    "nivel": 3,
+    "tipo": "ACTIVO",
+    "naturaleza": "DEUDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.060Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.060Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 42,
+  "fields": {
+    "codigo": "1503",
+    "nombre": "Mobiliario y equipo",
+    "padre": 11,
+    "nivel": 3,
+    "tipo": "ACTIVO",
+    "naturaleza": "DEUDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.072Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.072Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 43,
+  "fields": {
+    "codigo": "1504",
+    "nombre": "Equipo de cómputo",
+    "padre": 11,
+    "nivel": 3,
+    "tipo": "ACTIVO",
+    "naturaleza": "DEUDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.087Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.087Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 44,
+  "fields": {
+    "codigo": "1509",
+    "nombre": "Depreciación acumulada",
+    "padre": 11,
+    "nivel": 3,
+    "tipo": "ACTIVO",
+    "naturaleza": "ACREEDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.099Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.099Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 45,
+  "fields": {
+    "codigo": "2101",
+    "nombre": "Depósitos en cuenta corriente",
+    "padre": 12,
+    "nivel": 3,
+    "tipo": "PASIVO",
+    "naturaleza": "ACREEDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.111Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.111Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 46,
+  "fields": {
+    "codigo": "2102",
+    "nombre": "Depósitos de ahorro",
+    "padre": 12,
+    "nivel": 3,
+    "tipo": "PASIVO",
+    "naturaleza": "ACREEDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.123Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.123Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 47,
+  "fields": {
+    "codigo": "2103",
+    "nombre": "Depósitos a plazo",
+    "padre": 12,
+    "nivel": 3,
+    "tipo": "PASIVO",
+    "naturaleza": "ACREEDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.135Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.136Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 48,
+  "fields": {
+    "codigo": "2201",
+    "nombre": "Préstamos del Banco Central de Reserva",
+    "padre": 13,
+    "nivel": 3,
+    "tipo": "PASIVO",
+    "naturaleza": "ACREEDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.149Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.149Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 49,
+  "fields": {
+    "codigo": "2202",
+    "nombre": "Préstamos de otros bancos",
+    "padre": 13,
+    "nivel": 3,
+    "tipo": "PASIVO",
+    "naturaleza": "ACREEDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.163Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.163Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 50,
+  "fields": {
+    "codigo": "2301",
+    "nombre": "Cheques de caja y de gerencia",
+    "padre": 14,
+    "nivel": 3,
+    "tipo": "PASIVO",
+    "naturaleza": "ACREEDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.176Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.177Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 51,
+  "fields": {
+    "codigo": "2401",
+    "nombre": "Cuentas por pagar a proveedores",
+    "padre": 15,
+    "nivel": 3,
+    "tipo": "PASIVO",
+    "naturaleza": "ACREEDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.190Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.190Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 52,
+  "fields": {
+    "codigo": "2402",
+    "nombre": "Retenciones y descuentos por pagar",
+    "padre": 15,
+    "nivel": 3,
+    "tipo": "PASIVO",
+    "naturaleza": "ACREEDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.203Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.203Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 53,
+  "fields": {
+    "codigo": "2403",
+    "nombre": "Impuestos por pagar",
+    "padre": 15,
+    "nivel": 3,
+    "tipo": "PASIVO",
+    "naturaleza": "ACREEDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.214Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.214Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 54,
+  "fields": {
+    "codigo": "2404",
+    "nombre": "Provisiones laborales",
+    "padre": 15,
+    "nivel": 3,
+    "tipo": "PASIVO",
+    "naturaleza": "ACREEDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.226Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.226Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 55,
+  "fields": {
+    "codigo": "2405",
+    "nombre": "IVA retenido a terceros por pagar",
+    "padre": 15,
+    "nivel": 3,
+    "tipo": "PASIVO",
+    "naturaleza": "ACREEDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.237Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.237Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 56,
+  "fields": {
+    "codigo": "2406",
+    "nombre": "IVA débito fiscal",
+    "padre": 15,
+    "nivel": 3,
+    "tipo": "PASIVO",
+    "naturaleza": "ACREEDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.249Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.249Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 57,
+  "fields": {
+    "codigo": "3201",
+    "nombre": "Reserva legal",
+    "padre": 17,
+    "nivel": 3,
+    "tipo": "PATRIMONIO",
+    "naturaleza": "ACREEDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.262Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.262Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 58,
+  "fields": {
+    "codigo": "3301",
+    "nombre": "Resultados de ejercicios anteriores",
+    "padre": 18,
+    "nivel": 3,
+    "tipo": "PATRIMONIO",
+    "naturaleza": "ACREEDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.276Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.276Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 59,
+  "fields": {
+    "codigo": "3302",
+    "nombre": "Resultado del presente ejercicio",
+    "padre": 18,
+    "nivel": 3,
+    "tipo": "PATRIMONIO",
+    "naturaleza": "ACREEDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.287Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.287Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 60,
+  "fields": {
+    "codigo": "4101",
+    "nombre": "Intereses sobre préstamos",
+    "padre": 19,
+    "nivel": 3,
+    "tipo": "INGRESO",
+    "naturaleza": "ACREEDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": false,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.301Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.301Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 61,
+  "fields": {
+    "codigo": "4102",
+    "nombre": "Comisiones y recargos sobre préstamos",
+    "padre": 19,
+    "nivel": 3,
+    "tipo": "INGRESO",
+    "naturaleza": "ACREEDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": false,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.312Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.312Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 62,
+  "fields": {
+    "codigo": "4103",
+    "nombre": "Intereses sobre inversiones",
+    "padre": 19,
+    "nivel": 3,
+    "tipo": "INGRESO",
+    "naturaleza": "ACREEDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": false,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.322Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.322Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 63,
+  "fields": {
+    "codigo": "4201",
+    "nombre": "Comisiones por servicios bancarios",
+    "padre": 20,
+    "nivel": 3,
+    "tipo": "INGRESO",
+    "naturaleza": "ACREEDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": false,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.336Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.336Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 64,
+  "fields": {
+    "codigo": "4202",
+    "nombre": "Comisiones por tarjetas",
+    "padre": 20,
+    "nivel": 3,
+    "tipo": "INGRESO",
+    "naturaleza": "ACREEDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": false,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.350Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.350Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 65,
+  "fields": {
+    "codigo": "4301",
+    "nombre": "Ingresos no operacionales",
+    "padre": 21,
+    "nivel": 3,
+    "tipo": "INGRESO",
+    "naturaleza": "ACREEDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": false,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.361Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.361Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 66,
+  "fields": {
+    "codigo": "5101",
+    "nombre": "Intereses sobre depósitos",
+    "padre": 22,
+    "nivel": 3,
+    "tipo": "GASTO",
+    "naturaleza": "DEUDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": false,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.373Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.373Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 67,
+  "fields": {
+    "codigo": "5102",
+    "nombre": "Intereses sobre préstamos recibidos",
+    "padre": 22,
+    "nivel": 3,
+    "tipo": "GASTO",
+    "naturaleza": "DEUDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": false,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.386Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.386Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 68,
+  "fields": {
+    "codigo": "5103",
+    "nombre": "Estimaciones por incobrabilidad",
+    "padre": 22,
+    "nivel": 3,
+    "tipo": "GASTO",
+    "naturaleza": "DEUDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": false,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.396Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.396Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 69,
+  "fields": {
+    "codigo": "5201",
+    "nombre": "Gastos de funcionarios y empleados",
+    "padre": 23,
+    "nivel": 3,
+    "tipo": "GASTO",
+    "naturaleza": "DEUDORA",
+    "acepta_movimientos": false,
+    "exenta_centro_costo": false,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.407Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.407Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 70,
+  "fields": {
+    "codigo": "5202",
+    "nombre": "Gastos generales",
+    "padre": 23,
+    "nivel": 3,
+    "tipo": "GASTO",
+    "naturaleza": "DEUDORA",
+    "acepta_movimientos": false,
+    "exenta_centro_costo": false,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.419Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.419Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 71,
+  "fields": {
+    "codigo": "5203",
+    "nombre": "Depreciaciones y amortizaciones",
+    "padre": 23,
+    "nivel": 3,
+    "tipo": "GASTO",
+    "naturaleza": "DEUDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": false,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": false,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.430Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.775Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 72,
+  "fields": {
+    "codigo": "5301",
+    "nombre": "Gastos no operacionales",
+    "padre": 24,
+    "nivel": 3,
+    "tipo": "GASTO",
+    "naturaleza": "DEUDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": false,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.443Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.443Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 73,
+  "fields": {
+    "codigo": "6101",
+    "nombre": "Garantías otorgadas",
+    "padre": 25,
+    "nivel": 3,
+    "tipo": "ORDEN",
+    "naturaleza": "DEUDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.454Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.454Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 74,
+  "fields": {
+    "codigo": "6201",
+    "nombre": "Valores en custodia",
+    "padre": 26,
+    "nivel": 3,
+    "tipo": "ORDEN",
+    "naturaleza": "DEUDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.467Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.467Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 75,
+  "fields": {
+    "codigo": "6301",
+    "nombre": "Responsabilidad por garantías otorgadas",
+    "padre": 27,
+    "nivel": 3,
+    "tipo": "ORDEN",
+    "naturaleza": "ACREEDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.477Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.477Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 76,
+  "fields": {
+    "codigo": "6302",
+    "nombre": "Responsabilidad por valores en custodia",
+    "padre": 27,
+    "nivel": 3,
+    "tipo": "ORDEN",
+    "naturaleza": "ACREEDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.488Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.488Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 77,
+  "fields": {
+    "codigo": "110101",
+    "nombre": "Caja general",
+    "padre": 28,
+    "nivel": 4,
+    "tipo": "ACTIVO",
+    "naturaleza": "DEUDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.498Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.498Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 78,
+  "fields": {
+    "codigo": "110102",
+    "nombre": "Caja chica",
+    "padre": 28,
+    "nivel": 4,
+    "tipo": "ACTIVO",
+    "naturaleza": "DEUDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.508Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.508Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 79,
+  "fields": {
+    "codigo": "130101",
+    "nombre": "Préstamos de consumo",
+    "padre": 34,
+    "nivel": 4,
+    "tipo": "ACTIVO",
+    "naturaleza": "DEUDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.520Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.520Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 80,
+  "fields": {
+    "codigo": "130102",
+    "nombre": "Préstamos para vivienda",
+    "padre": 34,
+    "nivel": 4,
+    "tipo": "ACTIVO",
+    "naturaleza": "DEUDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.533Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.533Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 81,
+  "fields": {
+    "codigo": "130103",
+    "nombre": "Préstamos empresariales",
+    "padre": 34,
+    "nivel": 4,
+    "tipo": "ACTIVO",
+    "naturaleza": "DEUDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": true,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.546Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.546Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 82,
+  "fields": {
+    "codigo": "520101",
+    "nombre": "Salarios",
+    "padre": 69,
+    "nivel": 4,
+    "tipo": "GASTO",
+    "naturaleza": "DEUDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": false,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.555Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.555Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 83,
+  "fields": {
+    "codigo": "520102",
+    "nombre": "Prestaciones sociales",
+    "padre": 69,
+    "nivel": 4,
+    "tipo": "GASTO",
+    "naturaleza": "DEUDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": false,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.566Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.566Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 84,
+  "fields": {
+    "codigo": "520103",
+    "nombre": "Capacitación",
+    "padre": 69,
+    "nivel": 4,
+    "tipo": "GASTO",
+    "naturaleza": "DEUDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": false,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.580Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.580Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 85,
+  "fields": {
+    "codigo": "520201",
+    "nombre": "Energía eléctrica",
+    "padre": 70,
+    "nivel": 4,
+    "tipo": "GASTO",
+    "naturaleza": "DEUDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": false,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.592Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.592Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 86,
+  "fields": {
+    "codigo": "520202",
+    "nombre": "Agua",
+    "padre": 70,
+    "nivel": 4,
+    "tipo": "GASTO",
+    "naturaleza": "DEUDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": false,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.606Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.606Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 87,
+  "fields": {
+    "codigo": "520203",
+    "nombre": "Telecomunicaciones",
+    "padre": 70,
+    "nivel": 4,
+    "tipo": "GASTO",
+    "naturaleza": "DEUDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": false,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.617Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.617Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 88,
+  "fields": {
+    "codigo": "520204",
+    "nombre": "Alquileres",
+    "padre": 70,
+    "nivel": 4,
+    "tipo": "GASTO",
+    "naturaleza": "DEUDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": false,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": false,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.632Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.763Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 89,
+  "fields": {
+    "codigo": "520205",
+    "nombre": "Mantenimiento",
+    "padre": 70,
+    "nivel": 4,
+    "tipo": "GASTO",
+    "naturaleza": "DEUDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": false,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.643Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.643Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 90,
+  "fields": {
+    "codigo": "520206",
+    "nombre": "Seguridad y vigilancia",
+    "padre": 70,
+    "nivel": 4,
+    "tipo": "GASTO",
+    "naturaleza": "DEUDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": false,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.655Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.655Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 91,
+  "fields": {
+    "codigo": "520207",
+    "nombre": "Papelería y útiles",
+    "padre": 70,
+    "nivel": 4,
+    "tipo": "GASTO",
+    "naturaleza": "DEUDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": false,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": "VARIABLE",
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.666Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.753Z"
+  }
+},
+{
+  "model": "contabilidad.cuenta",
+  "pk": 92,
+  "fields": {
+    "codigo": "520208",
+    "nombre": "Publicidad",
+    "padre": 70,
+    "nivel": 4,
+    "tipo": "GASTO",
+    "naturaleza": "DEUDORA",
+    "acepta_movimientos": true,
+    "exenta_centro_costo": false,
+    "activa": true,
+    "rubro_resultado": null,
+    "comportamiento_costo": null,
+    "controlable": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.677Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.677Z"
+  }
+},
+{
+  "model": "contabilidad.periodocontable",
+  "pk": 1,
+  "fields": {
+    "anio": 2026,
+    "mes": 1,
+    "fecha_inicio": "2026-01-01",
+    "fecha_fin": "2026-01-31",
+    "estado": "ABIERTO",
+    "cerrado_por": null,
+    "cerrado_en": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.978Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.978Z"
+  }
+},
+{
+  "model": "contabilidad.periodocontable",
+  "pk": 2,
+  "fields": {
+    "anio": 2026,
+    "mes": 2,
+    "fecha_inicio": "2026-02-01",
+    "fecha_fin": "2026-02-28",
+    "estado": "ABIERTO",
+    "cerrado_por": null,
+    "cerrado_en": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.978Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.978Z"
+  }
+},
+{
+  "model": "contabilidad.periodocontable",
+  "pk": 3,
+  "fields": {
+    "anio": 2026,
+    "mes": 3,
+    "fecha_inicio": "2026-03-01",
+    "fecha_fin": "2026-03-31",
+    "estado": "ABIERTO",
+    "cerrado_por": null,
+    "cerrado_en": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.978Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.978Z"
+  }
+},
+{
+  "model": "contabilidad.periodocontable",
+  "pk": 4,
+  "fields": {
+    "anio": 2026,
+    "mes": 4,
+    "fecha_inicio": "2026-04-01",
+    "fecha_fin": "2026-04-30",
+    "estado": "ABIERTO",
+    "cerrado_por": null,
+    "cerrado_en": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.978Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.978Z"
+  }
+},
+{
+  "model": "contabilidad.periodocontable",
+  "pk": 5,
+  "fields": {
+    "anio": 2026,
+    "mes": 5,
+    "fecha_inicio": "2026-05-01",
+    "fecha_fin": "2026-05-31",
+    "estado": "ABIERTO",
+    "cerrado_por": null,
+    "cerrado_en": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.978Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.978Z"
+  }
+},
+{
+  "model": "contabilidad.periodocontable",
+  "pk": 6,
+  "fields": {
+    "anio": 2026,
+    "mes": 6,
+    "fecha_inicio": "2026-06-01",
+    "fecha_fin": "2026-06-30",
+    "estado": "ABIERTO",
+    "cerrado_por": null,
+    "cerrado_en": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.978Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.978Z"
+  }
+},
+{
+  "model": "contabilidad.periodocontable",
+  "pk": 7,
+  "fields": {
+    "anio": 2026,
+    "mes": 7,
+    "fecha_inicio": "2026-07-01",
+    "fecha_fin": "2026-07-31",
+    "estado": "ABIERTO",
+    "cerrado_por": null,
+    "cerrado_en": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.978Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.978Z"
+  }
+},
+{
+  "model": "contabilidad.periodocontable",
+  "pk": 8,
+  "fields": {
+    "anio": 2026,
+    "mes": 8,
+    "fecha_inicio": "2026-08-01",
+    "fecha_fin": "2026-08-31",
+    "estado": "ABIERTO",
+    "cerrado_por": null,
+    "cerrado_en": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.978Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.978Z"
+  }
+},
+{
+  "model": "contabilidad.periodocontable",
+  "pk": 9,
+  "fields": {
+    "anio": 2026,
+    "mes": 9,
+    "fecha_inicio": "2026-09-01",
+    "fecha_fin": "2026-09-30",
+    "estado": "ABIERTO",
+    "cerrado_por": null,
+    "cerrado_en": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.978Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.978Z"
+  }
+},
+{
+  "model": "contabilidad.periodocontable",
+  "pk": 10,
+  "fields": {
+    "anio": 2026,
+    "mes": 10,
+    "fecha_inicio": "2026-10-01",
+    "fecha_fin": "2026-10-31",
+    "estado": "ABIERTO",
+    "cerrado_por": null,
+    "cerrado_en": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.978Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.978Z"
+  }
+},
+{
+  "model": "contabilidad.periodocontable",
+  "pk": 11,
+  "fields": {
+    "anio": 2026,
+    "mes": 11,
+    "fecha_inicio": "2026-11-01",
+    "fecha_fin": "2026-11-30",
+    "estado": "ABIERTO",
+    "cerrado_por": null,
+    "cerrado_en": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.978Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.978Z"
+  }
+},
+{
+  "model": "contabilidad.periodocontable",
+  "pk": 12,
+  "fields": {
+    "anio": 2026,
+    "mes": 12,
+    "fecha_inicio": "2026-12-01",
+    "fecha_fin": "2026-12-31",
+    "estado": "ABIERTO",
+    "cerrado_por": null,
+    "cerrado_en": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.978Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.978Z"
+  }
+},
+{
+  "model": "contabilidad.asiento",
+  "pk": 1,
+  "fields": {
+    "ejercicio": 2026,
+    "numero": 1,
+    "fecha": "2026-01-02",
+    "periodo": 1,
+    "concepto": "Aporte de capital inicial",
+    "referencia": "DEMO",
+    "proveedor": null,
+    "tipo": "DIARIO",
+    "estado": "CONTABILIZADO",
+    "total_debe": "500000.00",
+    "total_haber": "500000.00",
+    "reversion_de": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.996Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:23.012Z",
+    "contabilizado_por": [
+      "contador.demo"
+    ],
+    "contabilizado_en": "2026-11-12T03:44:23.007Z"
+  }
+},
+{
+  "model": "contabilidad.asiento",
+  "pk": 2,
+  "fields": {
+    "ejercicio": 2026,
+    "numero": 2,
+    "fecha": "2026-01-15",
+    "periodo": 1,
+    "concepto": "Intereses cobrados sobre préstamos",
+    "referencia": "DEMO",
+    "proveedor": null,
+    "tipo": "DIARIO",
+    "estado": "CONTABILIZADO",
+    "total_debe": "12500.00",
+    "total_haber": "12500.00",
+    "reversion_de": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:23.024Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:23.041Z",
+    "contabilizado_por": [
+      "contador.demo"
+    ],
+    "contabilizado_en": "2026-11-12T03:44:23.034Z"
+  }
+},
+{
+  "model": "contabilidad.asiento",
+  "pk": 3,
+  "fields": {
+    "ejercicio": 2026,
+    "numero": 3,
+    "fecha": "2026-01-31",
+    "periodo": 1,
+    "concepto": "Pago de gastos de operación de enero",
+    "referencia": "DEMO",
+    "proveedor": null,
+    "tipo": "DIARIO",
+    "estado": "CONTABILIZADO",
+    "total_debe": "4200.00",
+    "total_haber": "4200.00",
+    "reversion_de": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:23.055Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:23.073Z",
+    "contabilizado_por": [
+      "contador.demo"
+    ],
+    "contabilizado_en": "2026-11-12T03:44:23.066Z"
+  }
+},
+{
+  "model": "contabilidad.asiento",
+  "pk": 4,
+  "fields": {
+    "ejercicio": 2026,
+    "numero": 4,
+    "fecha": "2026-02-16",
+    "periodo": 2,
+    "concepto": "Intereses cobrados sobre préstamos",
+    "referencia": "DEMO",
+    "proveedor": null,
+    "tipo": "DIARIO",
+    "estado": "CONTABILIZADO",
+    "total_debe": "13800.00",
+    "total_haber": "13800.00",
+    "reversion_de": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:23.087Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:23.105Z",
+    "contabilizado_por": [
+      "contador.demo"
+    ],
+    "contabilizado_en": "2026-11-12T03:44:23.097Z"
+  }
+},
+{
+  "model": "contabilidad.asiento",
+  "pk": 5,
+  "fields": {
+    "ejercicio": 2026,
+    "numero": 5,
+    "fecha": "2026-02-27",
+    "periodo": 2,
+    "concepto": "Pago de gastos de operación de febrero (dos áreas)",
+    "referencia": "DEMO",
+    "proveedor": null,
+    "tipo": "DIARIO",
+    "estado": "CONTABILIZADO",
+    "total_debe": "3900.00",
+    "total_haber": "3900.00",
+    "reversion_de": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:23.122Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:23.144Z",
+    "contabilizado_por": [
+      "contador.demo"
+    ],
+    "contabilizado_en": "2026-11-12T03:44:23.136Z"
+  }
+},
+{
+  "model": "contabilidad.lineaasiento",
+  "pk": 1,
+  "fields": {
+    "asiento": 1,
+    "numero_linea": 1,
+    "cuenta": 30,
+    "descripcion": "",
+    "debe": "500000.00",
+    "haber": "0.00",
+    "linea_origen": null,
+    "centro_costo": null,
+    "regla_asignacion": null
+  }
+},
+{
+  "model": "contabilidad.lineaasiento",
+  "pk": 2,
+  "fields": {
+    "asiento": 1,
+    "numero_linea": 2,
+    "cuenta": 16,
+    "descripcion": "",
+    "debe": "0.00",
+    "haber": "500000.00",
+    "linea_origen": null,
+    "centro_costo": null,
+    "regla_asignacion": null
+  }
+},
+{
+  "model": "contabilidad.lineaasiento",
+  "pk": 3,
+  "fields": {
+    "asiento": 2,
+    "numero_linea": 1,
+    "cuenta": 30,
+    "descripcion": "",
+    "debe": "12500.00",
+    "haber": "0.00",
+    "linea_origen": null,
+    "centro_costo": null,
+    "regla_asignacion": null
+  }
+},
+{
+  "model": "contabilidad.lineaasiento",
+  "pk": 4,
+  "fields": {
+    "asiento": 2,
+    "numero_linea": 2,
+    "cuenta": 60,
+    "descripcion": "",
+    "debe": "0.00",
+    "haber": "12500.00",
+    "linea_origen": null,
+    "centro_costo": 2,
+    "regla_asignacion": null
+  }
+},
+{
+  "model": "contabilidad.lineaasiento",
+  "pk": 5,
+  "fields": {
+    "asiento": 3,
+    "numero_linea": 1,
+    "cuenta": 85,
+    "descripcion": "",
+    "debe": "4200.00",
+    "haber": "0.00",
+    "linea_origen": null,
+    "centro_costo": 2,
+    "regla_asignacion": null
+  }
+},
+{
+  "model": "contabilidad.lineaasiento",
+  "pk": 6,
+  "fields": {
+    "asiento": 3,
+    "numero_linea": 2,
+    "cuenta": 30,
+    "descripcion": "",
+    "debe": "0.00",
+    "haber": "4200.00",
+    "linea_origen": null,
+    "centro_costo": null,
+    "regla_asignacion": null
+  }
+},
+{
+  "model": "contabilidad.lineaasiento",
+  "pk": 7,
+  "fields": {
+    "asiento": 4,
+    "numero_linea": 1,
+    "cuenta": 30,
+    "descripcion": "",
+    "debe": "13800.00",
+    "haber": "0.00",
+    "linea_origen": null,
+    "centro_costo": null,
+    "regla_asignacion": null
+  }
+},
+{
+  "model": "contabilidad.lineaasiento",
+  "pk": 8,
+  "fields": {
+    "asiento": 4,
+    "numero_linea": 2,
+    "cuenta": 60,
+    "descripcion": "",
+    "debe": "0.00",
+    "haber": "13800.00",
+    "linea_origen": null,
+    "centro_costo": 2,
+    "regla_asignacion": null
+  }
+},
+{
+  "model": "contabilidad.lineaasiento",
+  "pk": 9,
+  "fields": {
+    "asiento": 5,
+    "numero_linea": 1,
+    "cuenta": 85,
+    "descripcion": "",
+    "debe": "2400.00",
+    "haber": "0.00",
+    "linea_origen": null,
+    "centro_costo": 2,
+    "regla_asignacion": null
+  }
+},
+{
+  "model": "contabilidad.lineaasiento",
+  "pk": 10,
+  "fields": {
+    "asiento": 5,
+    "numero_linea": 2,
+    "cuenta": 85,
+    "descripcion": "",
+    "debe": "1500.00",
+    "haber": "0.00",
+    "linea_origen": null,
+    "centro_costo": 3,
+    "regla_asignacion": null
+  }
+},
+{
+  "model": "contabilidad.lineaasiento",
+  "pk": 11,
+  "fields": {
+    "asiento": 5,
+    "numero_linea": 3,
+    "cuenta": 30,
+    "descripcion": "",
+    "debe": "0.00",
+    "haber": "3900.00",
+    "linea_origen": null,
+    "centro_costo": null,
+    "regla_asignacion": null
+  }
+},
+{
+  "model": "centros_costo.centrocosto",
+  "pk": 1,
+  "fields": {
+    "codigo": "01",
+    "nombre": "Casa matriz",
+    "padre": null,
+    "nivel": 1,
+    "tipo": "UTILIDAD",
+    "clase": "SUCURSAL",
+    "responsable": null,
+    "acepta_movimientos": false,
+    "vigente_desde": "2026-01-01",
+    "vigente_hasta": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.800Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.800Z"
+  }
+},
+{
+  "model": "centros_costo.centrocosto",
+  "pk": 2,
+  "fields": {
+    "codigo": "01-01",
+    "nombre": "Gerencia general",
+    "padre": 1,
+    "nivel": 2,
+    "tipo": "COSTO",
+    "clase": "DEPARTAMENTO",
+    "responsable": null,
+    "acepta_movimientos": true,
+    "vigente_desde": "2026-01-01",
+    "vigente_hasta": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.812Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.812Z"
+  }
+},
+{
+  "model": "centros_costo.centrocosto",
+  "pk": 3,
+  "fields": {
+    "codigo": "01-02",
+    "nombre": "Contabilidad y finanzas",
+    "padre": 1,
+    "nivel": 2,
+    "tipo": "COSTO",
+    "clase": "DEPARTAMENTO",
+    "responsable": null,
+    "acepta_movimientos": true,
+    "vigente_desde": "2026-01-01",
+    "vigente_hasta": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.822Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.822Z"
+  }
+},
+{
+  "model": "centros_costo.centrocosto",
+  "pk": 4,
+  "fields": {
+    "codigo": "01-03",
+    "nombre": "Tecnología de información",
+    "padre": 1,
+    "nivel": 2,
+    "tipo": "COSTO",
+    "clase": "DEPARTAMENTO",
+    "responsable": null,
+    "acepta_movimientos": true,
+    "vigente_desde": "2026-01-01",
+    "vigente_hasta": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.831Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.831Z"
+  }
+},
+{
+  "model": "centros_costo.centrocosto",
+  "pk": 5,
+  "fields": {
+    "codigo": "01-04",
+    "nombre": "Recursos humanos",
+    "padre": 1,
+    "nivel": 2,
+    "tipo": "COSTO",
+    "clase": "DEPARTAMENTO",
+    "responsable": null,
+    "acepta_movimientos": true,
+    "vigente_desde": "2026-01-01",
+    "vigente_hasta": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.843Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.843Z"
+  }
+},
+{
+  "model": "centros_costo.centrocosto",
+  "pk": 6,
+  "fields": {
+    "codigo": "01-05",
+    "nombre": "Créditos",
+    "padre": 1,
+    "nivel": 2,
+    "tipo": "UTILIDAD",
+    "clase": "DEPARTAMENTO",
+    "responsable": null,
+    "acepta_movimientos": true,
+    "vigente_desde": "2026-01-01",
+    "vigente_hasta": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.853Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.855Z"
+  }
+},
+{
+  "model": "centros_costo.centrocosto",
+  "pk": 7,
+  "fields": {
+    "codigo": "01-06",
+    "nombre": "Tesorería e inversiones",
+    "padre": 1,
+    "nivel": 2,
+    "tipo": "INVERSION",
+    "clase": "DEPARTAMENTO",
+    "responsable": null,
+    "acepta_movimientos": true,
+    "vigente_desde": "2026-01-01",
+    "vigente_hasta": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.866Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.866Z"
+  }
+},
+{
+  "model": "centros_costo.centrocosto",
+  "pk": 8,
+  "fields": {
+    "codigo": "02",
+    "nombre": "Agencia San Salvador Centro",
+    "padre": null,
+    "nivel": 1,
+    "tipo": "UTILIDAD",
+    "clase": "SUCURSAL",
+    "responsable": null,
+    "acepta_movimientos": false,
+    "vigente_desde": "2026-01-01",
+    "vigente_hasta": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.874Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.874Z"
+  }
+},
+{
+  "model": "centros_costo.centrocosto",
+  "pk": 9,
+  "fields": {
+    "codigo": "02-01",
+    "nombre": "Caja y servicio al cliente",
+    "padre": 8,
+    "nivel": 2,
+    "tipo": "COSTO",
+    "clase": "AREA",
+    "responsable": null,
+    "acepta_movimientos": true,
+    "vigente_desde": "2026-01-01",
+    "vigente_hasta": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.886Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.886Z"
+  }
+},
+{
+  "model": "centros_costo.centrocosto",
+  "pk": 10,
+  "fields": {
+    "codigo": "02-02",
+    "nombre": "Negocios",
+    "padre": 8,
+    "nivel": 2,
+    "tipo": "INGRESO",
+    "clase": "AREA",
+    "responsable": null,
+    "acepta_movimientos": true,
+    "vigente_desde": "2026-01-01",
+    "vigente_hasta": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.896Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.896Z"
+  }
+},
+{
+  "model": "centros_costo.centrocosto",
+  "pk": 11,
+  "fields": {
+    "codigo": "03",
+    "nombre": "Agencia Santa Ana",
+    "padre": null,
+    "nivel": 1,
+    "tipo": "UTILIDAD",
+    "clase": "SUCURSAL",
+    "responsable": null,
+    "acepta_movimientos": false,
+    "vigente_desde": "2026-01-01",
+    "vigente_hasta": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.905Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.905Z"
+  }
+},
+{
+  "model": "centros_costo.centrocosto",
+  "pk": 12,
+  "fields": {
+    "codigo": "03-01",
+    "nombre": "Caja y servicio al cliente",
+    "padre": 11,
+    "nivel": 2,
+    "tipo": "COSTO",
+    "clase": "AREA",
+    "responsable": null,
+    "acepta_movimientos": true,
+    "vigente_desde": "2026-01-01",
+    "vigente_hasta": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.915Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.915Z"
+  }
+},
+{
+  "model": "centros_costo.centrocosto",
+  "pk": 13,
+  "fields": {
+    "codigo": "03-02",
+    "nombre": "Negocios",
+    "padre": 11,
+    "nivel": 2,
+    "tipo": "INGRESO",
+    "clase": "AREA",
+    "responsable": null,
+    "acepta_movimientos": true,
+    "vigente_desde": "2026-01-01",
+    "vigente_hasta": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.925Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.925Z"
+  }
+},
+{
+  "model": "centros_costo.centrocosto",
+  "pk": 14,
+  "fields": {
+    "codigo": "04",
+    "nombre": "Agencia San Miguel",
+    "padre": null,
+    "nivel": 1,
+    "tipo": "UTILIDAD",
+    "clase": "SUCURSAL",
+    "responsable": null,
+    "acepta_movimientos": false,
+    "vigente_desde": "2026-01-01",
+    "vigente_hasta": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.934Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.934Z"
+  }
+},
+{
+  "model": "centros_costo.centrocosto",
+  "pk": 15,
+  "fields": {
+    "codigo": "04-01",
+    "nombre": "Caja y servicio al cliente",
+    "padre": 14,
+    "nivel": 2,
+    "tipo": "COSTO",
+    "clase": "AREA",
+    "responsable": null,
+    "acepta_movimientos": true,
+    "vigente_desde": "2026-01-01",
+    "vigente_hasta": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.944Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.944Z"
+  }
+},
+{
+  "model": "centros_costo.centrocosto",
+  "pk": 16,
+  "fields": {
+    "codigo": "04-02",
+    "nombre": "Negocios",
+    "padre": 14,
+    "nivel": 2,
+    "tipo": "INGRESO",
+    "clase": "AREA",
+    "responsable": null,
+    "acepta_movimientos": true,
+    "vigente_desde": "2026-01-01",
+    "vigente_hasta": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.954Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.954Z"
+  }
+},
+{
+  "model": "centros_costo.centrocosto",
+  "pk": 17,
+  "fields": {
+    "codigo": "90",
+    "nombre": "Proyectos",
+    "padre": null,
+    "nivel": 1,
+    "tipo": "COSTO",
+    "clase": "PROYECTO",
+    "responsable": null,
+    "acepta_movimientos": false,
+    "vigente_desde": "2026-01-01",
+    "vigente_hasta": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.963Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.963Z"
+  }
+},
+{
+  "model": "centros_costo.centrocosto",
+  "pk": 18,
+  "fields": {
+    "codigo": "90-01",
+    "nombre": "Transformación digital",
+    "padre": 17,
+    "nivel": 2,
+    "tipo": "COSTO",
+    "clase": "PROYECTO",
+    "responsable": null,
+    "acepta_movimientos": true,
+    "vigente_desde": "2026-01-01",
+    "vigente_hasta": null,
+    "creado_por": [
+      "contador.demo"
+    ],
+    "creado_en": "2026-11-12T03:44:22.972Z",
+    "modificado_por": [
+      "contador.demo"
+    ],
+    "modificado_en": "2026-11-12T03:44:22.972Z"
+  }
+}
+]

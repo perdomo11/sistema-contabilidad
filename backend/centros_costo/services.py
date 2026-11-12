@@ -120,7 +120,7 @@ def actualizar_centro(centro, *, usuario, datos, request=None):
     if desconocidos:
         raise ValidationError({c: "Campo no reconocido." for c in sorted(desconocidos)})
 
-    centro = CentroCosto.objects.select_for_update().select_related("padre", "responsable").get(pk=centro.pk)
+    centro = CentroCosto.objects.select_for_update(of=("self",)).select_related("padre", "responsable").get(pk=centro.pk)
     antes = instantanea(centro)
     for campo, valor in datos.items():
         setattr(centro, campo, valor.strip() if campo == "nombre" else valor)
@@ -174,7 +174,7 @@ def actualizar_centro(centro, *, usuario, datos, request=None):
 
 @transaction.atomic
 def eliminar_centro(centro, *, usuario, request=None):
-    centro = CentroCosto.objects.select_for_update().select_related("padre", "responsable").get(pk=centro.pk)
+    centro = CentroCosto.objects.select_for_update(of=("self",)).select_related("padre", "responsable").get(pk=centro.pk)
     if centro.hijos.exists():
         raise ValidationError("No se puede eliminar una unidad con subunidades.")
     if LineaAsiento.objects.filter(centro_costo=centro).exists():
@@ -336,7 +336,7 @@ def crear_regla(
 
 def _bloquear_regla(regla):
     return (
-        ReglaAsignacion.objects.select_for_update()
+        ReglaAsignacion.objects.select_for_update(of=("self",))
         .select_related("cuenta", "proveedor", "centro_costo")
         .get(pk=regla.pk)
     )

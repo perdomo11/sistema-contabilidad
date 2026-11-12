@@ -1,11 +1,27 @@
+# Secretos y entornos (solo .env.example se versiona)
 .env
+.env.*
+!.env.example
+
+# Datos exportados y bases locales
+*.sqlite3
+datos*.json
+wallet/
+
+# Python
 __pycache__/
 *.pyc
+.venv/
+venv/
+staticfiles/
+
+# Frontend
 node_modules/
 dist/
+build/
+
+# Editor
 .vscode/
-*.sqlite3
-staticfiles/
 
 # Respaldos de la base (scripts/respaldo.sh)
 respaldos/

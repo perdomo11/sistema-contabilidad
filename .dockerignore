@@ -1,0 +1,31 @@
+# Secretos y entornos (en cualquier carpeta)
+**/.env
+**/.env.*
+!.env.example
+
+# Datos exportados y bases locales
+**/*.sqlite3
+**/datos*.json
+**/wallet/
+
+# Python
+**/__pycache__/
+**/*.pyc
+**/.venv/
+**/venv/
+**/staticfiles/
+
+# Frontend (la imagen hace su propio npm ci y build)
+**/node_modules/
+**/dist/
+**/build/
+
+# Repositorio, documentación y herramientas que no entran en la imagen
+.git
+.gitignore
+.gitattributes
+.vscode/
+.claude/
+docs/
+**/*.md
+respaldos/
