@@ -1,4 +1,18 @@
 // Cliente HTTP de la API con manejo de tokens JWT.
+
+// Base de la API: mismo origen ("/api") salvo que se defina VITE_API_URL al compilar.
+export const API_BASE = (import.meta.env.VITE_API_URL || '/api').replace(/\/+$/, '')
+
+/**
+ * Convierte una ruta de la API ("/api/cuentas/") en la URL final según API_BASE.
+ * Las URL absolutas se dejan tal cual.
+ */
+export function urlApi(ruta) {
+  if (/^https?:\/\//i.test(ruta)) return ruta
+  const resto = ruta.replace(/^\/api(?=\/|$)/, '')
+  return `${API_BASE}${resto.startsWith('/') ? resto : `/${resto}`}`
+}
+
 const CLAVE_ACCESS = 'contable.access'
 const CLAVE_REFRESH = 'contable.refresh'
 
@@ -41,7 +55,7 @@ function refrescar() {
   const refresh = tokenRefresh()
   if (!refresh) return Promise.resolve(false)
   if (!refrescoEnCurso) {
-    refrescoEnCurso = fetch('/api/auth/refresh/', {
+    refrescoEnCurso = fetch(urlApi('/api/auth/refresh/'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ refresh }),
@@ -68,7 +82,7 @@ export async function api(url, { body, headers, ...opciones } = {}, reintentar =
   const access = tokenAccess()
   if (access) encabezados.Authorization = `Bearer ${access}`
 
-  const resp = await fetch(url, {
+  const resp = await fetch(urlApi(url), {
     ...opciones,
     headers: encabezados,
     body: body !== undefined ? JSON.stringify(body) : undefined,

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Button, Card, Col, Row, Spinner, Table } from 'react-bootstrap'
 import { Link, useNavigate } from 'react-router-dom'
-import { api } from '../api'
+import { api, urlApi } from '../api'
 import { useAuth } from '../auth/AuthContext'
 import { ROLES, tieneRol } from '../auth/roles'
 import EncabezadoPagina from '../components/EncabezadoPagina'
@@ -62,7 +62,7 @@ export default function Inicio() {
     ]).then(([periodos, delMes, borradores, balanza, recientes]) =>
       setDatos({ periodos: periodos || [], delMes, borradores, balanza, recientes }),
     )
-    fetch('/api/health/')
+    fetch(urlApi('/api/health/'))
       .then((r) => r.json())
       .then(setSalud)
       .catch(() => setSalud({ status: 'error' }))
@@ -217,7 +217,7 @@ export default function Inicio() {
                     <div className="fw-semibold">
                       {salud?.status === 'ok' ? 'Base de datos conectada' : salud ? 'Sin conexión a la base de datos' : 'Verificando…'}
                     </div>
-                    <div className="text-suave">{salud?.version || salud?.detalle}</div>
+                    <div className="text-suave">{salud?.db}</div>
                   </div>
                 </Card.Body>
               </Card>
