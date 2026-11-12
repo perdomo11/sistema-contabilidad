@@ -8,13 +8,13 @@ Especificación: `DEPLOY_SPEC.md` (raíz). Si la sesión se reinicia, continuar 
 - [x] B1 Higiene del repositorio (.gitignore, .dockerignore, renormalize; nada sensible versionado)
 - [x] B2 Dependencias Python (+whitenoise, dj-database-url, psycopg[binary], python-dotenv; −oracledb; .venv Python 3.12)
 - [x] B3 settings.py por variables de entorno (check OK; check --deploy solo W005/W021; migrate OK en SQLite)
-- [ ] B3.5 Triggers en PL/pgSQL (migraciones solo postgresql + pruebas + integridad)
-- [ ] B4 urls.py y vistas (health, SPA)
-- [ ] B5 Frontend
-- [ ] B6 Contenedor y Render
-- [ ] B7 Verificación local
-- [ ] B8 Datos (confirmación antes de tocar Neon)
-- [ ] B9 Entregables (DEPLOY.md, README)
+- [x] B3.5 14 triggers portados a PL/pgSQL (`*_triggers_postgresql.py` en usuarios/contabilidad/presupuesto/tesoreria/ventas, solo vendor postgresql); `integridad.triggers()` revisa pg_trigger; suite completa en PostgreSQL 16 local: 341 pruebas OK
+- [x] B4 urls.py y vistas: health = SELECT 1 → {status, db} / 503 sin detalle; vista SPA (`config/spa.py`) catch-all al final; API ya bajo `api/` (sin cambios de prefijo)
+- [x] B5 Frontend: `API_BASE`/`urlApi` en `src/api.js` (VITE_API_URL || "/api"), JWT intacto; Vite `base` /static/ en build y proxy /api,/admin,/media; build OK; sin URLs absolutas en src
+- [x] B6 Dockerfile multi-stage (node:22-alpine → python:3.12-slim, usuario no root), `backend/entrypoint.sh`, `render.yaml`; Oracle/compose → `docs/legacy/`
+- [x] B7 Verificación SIN Docker (Docker Desktop desapareció del equipo durante la sesión): build OK; check --deploy OK (W005/W021); runserver --nostatic DEBUG=False sobre Postgres local: `/` 200 con #root, health 200, asset 200, ruta React 200, admin 200 + CSS 200; sin secretos ni localhost injustificados. `docker build` NO probado → se prueba en Render
+- [x] B8 Sin datos de origen ni `.env.produccion` → `backend/fixtures/demo.json` (catálogo base, 18 centros, ejercicio 2026, 5 asientos; usuario sin contraseña utilizable) cargado y verificado en SQLite y en Postgres; comandos PowerShell/bash en DEPLOY.md. Pendiente: cargar en Neon tras "OK NEON"
+- [x] B9 DEPLOY.md (7 pasos) y README (Despliegue, diagrama, arranque en frío; desarrollo local sin compose)
 
 ## Hallazgos clave (B0)
 - a) `backend/manage.py`; proyecto `backend/config` (settings/urls/wsgi/asgi). Apps: usuarios, contabilidad,
@@ -42,6 +42,14 @@ Especificación: `DEPLOY_SPEC.md` (raíz). Si la sesión se reinicia, continuar 
 - Variables renombradas: SECRET_KEY→DJANGO_SECRET_KEY, DEBUG→DJANGO_DEBUG, ALLOWED_HOSTS→DJANGO_ALLOWED_HOSTS; DB_* eliminadas.
   `.env` local en `backend/.env` (junto a manage.py).
 - TIME_ZONE: se conserva `America/El_Salvador` (spec: solo si no hay otra definida).
+
+- Carga de fixtures: `loaddata` directo falla con triggers (asiento contabilizado se inserta antes que sus líneas).
+  Nuevo comando `cargar_fixture` (reportes): una transacción, `DISABLE TRIGGER USER` solo en las 11 tablas con triggers,
+  loaddata, `ENABLE`, `integridad.verificar()`; si falla, rollback. `entrypoint.sh` lo usa con LOAD_DEMO_DATA=1.
+- `select_for_update()` + `select_related` en FK anulables → `of=("self",)` (12 llamadas; Postgres no permite FOR UPDATE en outer join).
+- Windows: `dumpdata -o` escribe en cp1252 → usar PYTHONUTF8=1.
+- Pruebas locales en Postgres: `pgserver` (PG 16 embebido) + `tzdata` + `nodejs-wheel` solo en `.venv` (no en requirements).
+- `docker-compose.yml`, Dockerfiles por servicio, `docker/oracle-init`, `scripts/` (Data Pump) → `docs/legacy/` (+README).
 
 ## Warnings justificados (check --deploy)
 - W005 HSTS sin includeSubDomains: el dominio *.onrender.com no es nuestro; no se fuerza a subdominios.
