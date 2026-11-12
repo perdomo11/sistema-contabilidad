@@ -172,7 +172,7 @@ def _estado_por_saldo(cxp):
 
 
 def _bloquear(cxp):
-    return CuentaPorPagar.objects.select_for_update().select_related("proveedor", "asiento").get(pk=cxp.pk)
+    return CuentaPorPagar.objects.select_for_update(of=("self",)).select_related("proveedor", "asiento").get(pk=cxp.pk)
 
 
 # =============================================================================
@@ -349,7 +349,7 @@ def registrar_pago(cxp, *, usuario, fecha, monto, cuenta_banco, referencia="", r
 def anular_pago(pago, *, usuario, motivo, fecha=None, request=None):
     contabilidad, _ = _contabilidad()
     cxp = _bloquear(pago.cuenta_por_pagar)
-    pago = PagoCuentaPorPagar.objects.select_for_update().select_related("asiento").get(pk=pago.pk)
+    pago = PagoCuentaPorPagar.objects.select_for_update(of=("self",)).select_related("asiento").get(pk=pago.pk)
     motivo = _texto(motivo)
     if not motivo:
         raise ValidationError({"motivo": "Indique el motivo de la anulación."})

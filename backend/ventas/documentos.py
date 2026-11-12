@@ -177,7 +177,7 @@ def registrar_documento_venta(
 @transaction.atomic
 def anular_documento_venta(doc, *, usuario, motivo, fecha=None, request=None):
     contabilidad, _ = _contabilidad()
-    doc = DocumentoVenta.objects.select_for_update().select_related("cliente", "asiento").get(pk=doc.pk)
+    doc = DocumentoVenta.objects.select_for_update(of=("self",)).select_related("cliente", "asiento").get(pk=doc.pk)
     motivo = _texto(motivo)
     if not motivo:
         raise ValidationError({"motivo": "Indique el motivo de la anulación."})

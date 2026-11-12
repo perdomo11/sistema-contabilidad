@@ -172,7 +172,7 @@ def actualizar_cuenta(cuenta, *, usuario, datos, request=None):
     if desconocidos:
         raise ValidationError({campo: "Campo no reconocido." for campo in sorted(desconocidos)})
 
-    cuenta = Cuenta.objects.select_for_update().select_related("padre").get(pk=cuenta.pk)
+    cuenta = Cuenta.objects.select_for_update(of=("self",)).select_related("padre").get(pk=cuenta.pk)
     antes = instantanea(cuenta)
 
     for campo, valor in datos.items():
@@ -217,7 +217,7 @@ def actualizar_cuenta(cuenta, *, usuario, datos, request=None):
 
 @transaction.atomic
 def eliminar_cuenta(cuenta, *, usuario, request=None):
-    cuenta = Cuenta.objects.select_for_update().select_related("padre").get(pk=cuenta.pk)
+    cuenta = Cuenta.objects.select_for_update(of=("self",)).select_related("padre").get(pk=cuenta.pk)
     if cuenta.hijos.exists():
         raise ValidationError("No se puede eliminar una cuenta que tiene subcuentas.")
     if cuenta.lineas.exists():

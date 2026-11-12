@@ -159,16 +159,25 @@ def resultados_vs_balanza(anio):
 
 
 def triggers():
-    if connection.vendor != "oracle":
-        return _resultado("TRIGGERS", "Triggers de reglas en Oracle (no aplica fuera de Oracle)", [])
+    motor = {"oracle": "Oracle", "postgresql": "PostgreSQL"}.get(connection.vendor)
+    if motor is None:
+        return _resultado("TRIGGERS", f"Triggers de reglas (no aplica en {connection.vendor})", [])
     with connection.cursor() as cursor:
-        cursor.execute("select trigger_name, status from user_triggers")
-        existentes = dict(cursor.fetchall())
+        if connection.vendor == "oracle":
+            cursor.execute("select trigger_name, status from user_triggers")
+            existentes = dict(cursor.fetchall())
+        else:
+            # En PostgreSQL los nombres van en minúsculas; tgenabled 'D' = deshabilitado.
+            cursor.execute(
+                "select upper(tgname), case when tgenabled = 'D' then 'DISABLED' else 'ENABLED' end"
+                " from pg_trigger where not tgisinternal"
+            )
+            existentes = dict(cursor.fetchall())
     problemas = [
         f"{t}: {'no existe' if t not in existentes else 'deshabilitado'}"
         for t in TRIGGERS if existentes.get(t) != "ENABLED"
     ]
-    return _resultado("TRIGGERS", f"Triggers de reglas en Oracle ({len(TRIGGERS)} esperados, habilitados)", problemas,
+    return _resultado("TRIGGERS", f"Triggers de reglas en {motor} ({len(TRIGGERS)} esperados, habilitados)", problemas,
                       revisados=len(TRIGGERS))
 
 

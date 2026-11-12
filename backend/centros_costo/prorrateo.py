@@ -351,7 +351,7 @@ def actualizar_regla(regla, *, usuario, datos, request=None):
     desconocidos = set(datos) - {"nombre", "orden", "centro_origen", "base", "cuentas", "destinos", "activa"}
     if desconocidos:
         raise ValidationError({c: "Campo no reconocido." for c in sorted(desconocidos)})
-    regla = ReglaProrrateo.objects.select_for_update().select_related("centro_origen", "base").get(pk=regla.pk)
+    regla = ReglaProrrateo.objects.select_for_update(of=("self",)).select_related("centro_origen", "base").get(pk=regla.pk)
     antes = instantanea_regla(regla)
     cuentas = list(datos.pop("cuentas", regla.cuentas.all()))
     destinos = list(datos.pop("destinos", regla.destinos.all()))
@@ -372,7 +372,7 @@ def actualizar_regla(regla, *, usuario, datos, request=None):
 
 @transaction.atomic
 def eliminar_regla(regla, *, usuario, request=None):
-    regla = ReglaProrrateo.objects.select_for_update().select_related("centro_origen", "base").get(pk=regla.pk)
+    regla = ReglaProrrateo.objects.select_for_update(of=("self",)).select_related("centro_origen", "base").get(pk=regla.pk)
     if regla.ejecuciones.exists():
         raise ValidationError("La regla ya se ejecutó: desactívela en lugar de eliminarla.")
     antes = instantanea_regla(regla)
@@ -540,7 +540,7 @@ def _validar_dependencias(regla, periodo):
 
 @transaction.atomic
 def ejecutar(*, usuario, regla, periodo, request=None):
-    regla = ReglaProrrateo.objects.select_for_update().select_related("centro_origen", "base").get(pk=regla.pk)
+    regla = ReglaProrrateo.objects.select_for_update(of=("self",)).select_related("centro_origen", "base").get(pk=regla.pk)
     periodo = PeriodoContable.objects.get(pk=periodo.pk)
     if not regla.activa:
         raise ValidationError(f"La regla «{regla.nombre}» está inactiva.")
@@ -627,7 +627,7 @@ def anular(ejecucion, *, usuario, motivo, request=None):
     if not motivo:
         raise ValidationError({"motivo": "Indique el motivo de la anulación."})
     ejecucion = (
-        EjecucionProrrateo.objects.select_for_update()
+        EjecucionProrrateo.objects.select_for_update(of=("self",))
         .select_related("regla", "periodo", "asiento")
         .get(pk=ejecucion.pk)
     )
