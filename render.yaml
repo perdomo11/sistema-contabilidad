@@ -3,7 +3,7 @@ services:
     name: sistema-contabilidad
     runtime: docker
     plan: free
-    region: oregon
+    region: virginia  # misma zona que Neon (aws-us-east-1)
     dockerfilePath: ./Dockerfile
     dockerContext: .
     healthCheckPath: /api/health/

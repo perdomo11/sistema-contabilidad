@@ -9,8 +9,9 @@ Tiempo total estimado: **45–60 minutos**.
 ---
 
 ## 1. Neon: base de datos  ·  ⏱ 5 min
-- [ ] En https://console.neon.tech abre tu proyecto (o créalo) en la región **AWS US West 2 (Oregon)**,
-      la más cercana a Render `oregon`. Si el proyecto está en otra región funciona igual, con más latencia.
+> ✅ **Hecho** (proyecto existente en **AWS US East 1**, conexión directa, URL en `.env.produccion`).
+- [ ] En https://console.neon.tech abre tu proyecto (o créalo). Su región debe coincidir con la de Render
+      (`render.yaml` usa `virginia` ↔ Neon **AWS US East 1**); si cambias una, cambia la otra.
 - [ ] **Connect** → rama `main`, base `neondb`, rol dueño → desactiva **Connection pooling** (conexión
       directa: el host **no** debe contener `-pooler`) → copia la URL.
 - [ ] Pégala en el archivo **`.env.produccion`** en la raíz del repositorio (ignorado por git), una sola línea:
@@ -25,6 +26,10 @@ la base aparece vacía.
 ---
 
 ## 2. Carga de datos en Neon  ·  ⏱ 5–10 min
+> ✅ **Hecho**: 66 migraciones, `fixtures/demo.json` (269 objetos) cargado; conteos por modelo y
+> debe = haber = 534,400.00 idénticos al origen; integridad `[OK]` y 14 triggers habilitados.
+> Repite estos comandos solo si recreas la base.
+
 Crea las tablas y los 14 triggers contables, y carga los datos: `fixtures/demo.json` (catálogo base,
 18 centros, ejercicio 2026, 5 asientos cuadrados) o tu exportación `datos.json` si la tienes.
 `cargar_fixture` carga en **una transacción**, pausa solo los triggers de reglas mientras inserta (los
@@ -44,10 +49,10 @@ python manage.py verificar_integridad
 Remove-Item Env:DATABASE_URL
 ```
 
-**bash** (la URL solo vive dentro del subshell):
+**bash** (la URL solo vive dentro del subshell; no uses `. .env.produccion`: el `&` de la URL rompe el comando):
 ```bash
 cd backend
-( set -a; . ../.env.produccion; set +a; export PYTHONUTF8=1
+( export DATABASE_URL="$(grep -E '^DATABASE_URL=' ../.env.produccion | cut -d= -f2- | tr -d '\r')" PYTHONUTF8=1
   python manage.py migrate --noinput &&
   python manage.py cargar_fixture fixtures/demo.json &&  # o: ../datos.json
   python manage.py verificar_integridad )
@@ -80,7 +85,7 @@ contiene `.env`, `.env.produccion`, `datos.json` ni `*.sqlite3`.
 
 ## 4. Render: Blueprint  ·  ⏱ 15–20 min (el primer build tarda)
 - [ ] https://dashboard.render.com → **New** → **Blueprint** → conecta el repositorio → rama `main`.
-- [ ] Render lee `render.yaml` (servicio web `sistema-contabilidad`, Docker, plan free, región oregon) y pide
+- [ ] Render lee `render.yaml` (servicio web `sistema-contabilidad`, Docker, plan free, región virginia) y pide
       los valores marcados `sync: false`:
       | Variable | Valor |
       |---|---|

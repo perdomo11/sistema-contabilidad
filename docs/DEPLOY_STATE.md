@@ -13,7 +13,7 @@ Especificación: `DEPLOY_SPEC.md` (raíz). Si la sesión se reinicia, continuar 
 - [x] B5 Frontend: `API_BASE`/`urlApi` en `src/api.js` (VITE_API_URL || "/api"), JWT intacto; Vite `base` /static/ en build y proxy /api,/admin,/media; build OK; sin URLs absolutas en src
 - [x] B6 Dockerfile multi-stage (node:22-alpine → python:3.12-slim, usuario no root), `backend/entrypoint.sh`, `render.yaml`; Oracle/compose → `docs/legacy/`
 - [x] B7 Verificación SIN Docker (Docker Desktop desapareció del equipo durante la sesión): build OK; check --deploy OK (W005/W021); runserver --nostatic DEBUG=False sobre Postgres local: `/` 200 con #root, health 200, asset 200, ruta React 200, admin 200 + CSS 200; sin secretos ni localhost injustificados. `docker build` NO probado → se prueba en Render
-- [x] B8 Sin datos de origen ni `.env.produccion` → `backend/fixtures/demo.json` (catálogo base, 18 centros, ejercicio 2026, 5 asientos; usuario sin contraseña utilizable) cargado y verificado en SQLite y en Postgres; comandos PowerShell/bash en DEPLOY.md. Pendiente: cargar en Neon tras "OK NEON"
+- [x] B8 Neon ("OK NEON" del usuario): PG 18, base vacía → 66 migraciones; `cargar_fixture fixtures/demo.json` (269 objetos) con integridad [OK] y 14 triggers habilitados. Conteos por modelo idénticos a origen; debe = haber = 534,400.00 en ambos; trigger de inmutabilidad verificado
 - [x] B9 DEPLOY.md (7 pasos) y README (Despliegue, diagrama, arranque en frío; desarrollo local sin compose)
 
 ## Hallazgos clave (B0)
@@ -50,6 +50,9 @@ Especificación: `DEPLOY_SPEC.md` (raíz). Si la sesión se reinicia, continuar 
 - Windows: `dumpdata -o` escribe en cp1252 → usar PYTHONUTF8=1.
 - Pruebas locales en Postgres: `pgserver` (PG 16 embebido) + `tzdata` + `nodejs-wheel` solo en `.venv` (no en requirements).
 - `docker-compose.yml`, Dockerfiles por servicio, `docker/oracle-init`, `scripts/` (Data Pump) → `docs/legacy/` (+README).
+
+- Región: Neon ya existía en aws-us-east-1 → `render.yaml` region `virginia` (no oregon) para misma zona.
+- `.env.produccion` con `&channel_binding=require`: no se puede hacer `source` en bash; DEPLOY.md usa `grep | cut`.
 
 ## Warnings justificados (check --deploy)
 - W005 HSTS sin includeSubDomains: el dominio *.onrender.com no es nuestro; no se fuerza a subdominios.

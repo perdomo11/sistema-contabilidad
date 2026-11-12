@@ -22,7 +22,7 @@ el flujo de efectivo.
 └───────────────────────────────────────────────┬────────────────────────────────────────────────┘
                                                 │ DATABASE_URL (TLS, conexión directa)
                                                 ▼
-                                   Neon PostgreSQL (aws-us-west-2)
+                                   Neon PostgreSQL (aws-us-east-1)
                          tablas + 14 triggers de reglas contables (PL/pgSQL)
 ```
 
