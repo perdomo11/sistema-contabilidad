@@ -54,6 +54,11 @@ Especificación: `DEPLOY_SPEC.md` (raíz). Si la sesión se reinicia, continuar 
 - Región: Neon ya existía en aws-us-east-1 → `render.yaml` region `virginia` (no oregon) para misma zona.
 - `.env.produccion` con `&channel_binding=require`: no se puede hacer `source` en bash; DEPLOY.md usa `grep | cut`.
 
+- origin/main trae `libros_excel/` (export Oracle 01-01..30-11-2026: 269 partidas, 34,700,792.82). Nuevo comando
+  `comparar_libros_excel <carpeta>`: catálogo IGUAL en Neon; ventas/compras oct–nov IGUALES regenerando con
+  `cargar_datos_demo --desde 2026-10-01 --hasta 2026-11-30` en PG local. Partidas 000001–000128 (ene–sep) fueron
+  manuales en Oracle → solo se obtienen con dumpdata de esa base. Neon aún tiene solo fixtures/demo.json.
+
 ## Warnings justificados (check --deploy)
 - W005 HSTS sin includeSubDomains: el dominio *.onrender.com no es nuestro; no se fuerza a subdominios.
 - W021 HSTS sin preload: la spec pide explícitamente "sin preload".
