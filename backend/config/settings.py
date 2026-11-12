@@ -1,13 +1,22 @@
 """Configuración de Django para el Sistema Contable.
 
 Todos los valores dependientes del entorno se leen de variables de entorno
-(ver `.env.example`).
+(ver `.env.example`). En desarrollo se cargan de `backend/.env` si existe.
 """
 import os
 from datetime import timedelta
 from pathlib import Path
+from urllib.parse import urlparse
+
+import dj_database_url
+from django.core.exceptions import ImproperlyConfigured
+from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# `.env` junto a manage.py (opcional). Las variables ya definidas en el
+# entorno del proceso tienen prioridad.
+load_dotenv(BASE_DIR / ".env", override=False)
 
 
 def env_bool(nombre, defecto=False):
@@ -18,9 +27,28 @@ def env_list(nombre, defecto=""):
     return [v.strip() for v in os.environ.get(nombre, defecto).split(",") if v.strip()]
 
 
-SECRET_KEY = os.environ.get("SECRET_KEY", "clave-insegura-solo-desarrollo")
-DEBUG = env_bool("DEBUG", False)
-ALLOWED_HOSTS = env_list("ALLOWED_HOSTS", "localhost,127.0.0.1")
+CLAVE_DESARROLLO = "clave-insegura-solo-desarrollo"
+
+DEBUG = env_bool("DJANGO_DEBUG", False)
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "").strip()
+if not SECRET_KEY or SECRET_KEY == CLAVE_DESARROLLO or SECRET_KEY.startswith("django-insecure"):
+    if not DEBUG:
+        raise ImproperlyConfigured(
+            "DJANGO_SECRET_KEY no está definida o es la clave de desarrollo; es obligatoria con DJANGO_DEBUG=False."
+        )
+    SECRET_KEY = SECRET_KEY or CLAVE_DESARROLLO
+
+RENDER_EXTERNAL_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME", "").strip()
+
+ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS")
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+if DEBUG:
+    ALLOWED_HOSTS += ["localhost", "127.0.0.1"]
+
+CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS")
+if RENDER_EXTERNAL_HOSTNAME:
+    CSRF_TRUSTED_ORIGINS.append(f"https://{RENDER_EXTERNAL_HOSTNAME}")
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -42,6 +70,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -69,24 +98,27 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
-# Base de datos: Oracle XE 21c con python-oracledb en modo thin.
-# Se usa la cadena Easy Connect "host:puerto/servicio" para conectar por
-# SERVICE NAME (XEPDB1); si se pasaran HOST/PORT por separado, Django
-# interpretaría NAME como SID y la conexión a la PDB fallaría.
-DB_HOST = os.environ.get("DB_HOST", "localhost")
-DB_PORT = os.environ.get("DB_PORT", "1521")
-DB_NAME = os.environ.get("DB_NAME", "XEPDB1")
-
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.oracle",
-        "NAME": f"{DB_HOST}:{DB_PORT}/{DB_NAME}",
-        "USER": os.environ.get("DB_USER", "contable"),
-        "PASSWORD": os.environ.get("DB_PASSWORD", ""),
-        "HOST": "",
-        "PORT": "",
+# Base de datos: PostgreSQL (Neon en producción) vía DATABASE_URL;
+# sin DATABASE_URL se usa SQLite local.
+DATABASE_URL = os.environ.get("DATABASE_URL", "").strip()
+if DATABASE_URL:
+    _host = (urlparse(DATABASE_URL).hostname or "").lower()
+    _host_local = _host in ("", "localhost", "127.0.0.1", "::1") or "." not in _host
+    DATABASES = {
+        "default": dj_database_url.parse(
+            DATABASE_URL,
+            conn_max_age=60,
+            conn_health_checks=True,
+            ssl_require=not _host_local,
+        )
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
 
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
@@ -100,10 +132,27 @@ TIME_ZONE = "America/El_Salvador"
 USE_I18N = True
 USE_TZ = True
 
-STATIC_URL = "static/"
+# Estáticos: WhiteNoise sirve el admin y el build de React bajo /static/.
+STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+FRONTEND_DIST = Path(os.environ.get("FRONTEND_DIST", BASE_DIR.parent / "frontend" / "dist"))
+STATICFILES_DIRS = [FRONTEND_DIST] if FRONTEND_DIST.is_dir() else []
+STORAGES = {
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
+}
+WHITENOISE_MANIFEST_STRICT = False
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    SECURE_SSL_REDIRECT = env_bool("DJANGO_SECURE_SSL_REDIRECT", True)
+    SECURE_REDIRECT_EXEMPT = [r"^api/health/$"]
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 3600
+    SECURE_CONTENT_TYPE_NOSNIFF = True
 
 REST_FRAMEWORK = {
     "DEFAULT_RENDERER_CLASSES": [
@@ -128,6 +177,14 @@ SIMPLE_JWT = {
     "BLACKLIST_AFTER_ROTATION": True,
     "UPDATE_LAST_LOGIN": True,
     "AUTH_HEADER_TYPES": ("Bearer",),
+}
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {"simple": {"format": "%(asctime)s %(levelname)s %(name)s: %(message)s"}},
+    "handlers": {"console": {"class": "logging.StreamHandler", "formatter": "simple"}},
+    "root": {"handlers": ["console"], "level": "INFO"},
 }
 
 # Datos de la empresa para el encabezado de los libros y reportes exportados (T7.1).

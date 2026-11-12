@@ -3,11 +3,12 @@
 Especificación: `DEPLOY_SPEC.md` (raíz). Si la sesión se reinicia, continuar en el primer ítem pendiente.
 
 ## Checklist
-- [x] B0 Diagnóstico — **PUERTA 1 activada** (triggers PL/SQL). En espera de decisión del usuario.
+- [x] B0 Diagnóstico — PUERTA 1 activada (triggers PL/SQL) → usuario eligió portarlos (B3.5).
 - [!] B0.5 Exportación temprana — Oracle no accesible (contenedores apagados, sin `.env` local). B8 creará fixture demo.
 - [x] B1 Higiene del repositorio (.gitignore, .dockerignore, renormalize; nada sensible versionado)
-- [ ] B2 Dependencias Python
-- [ ] B3 settings.py por variables de entorno
+- [x] B2 Dependencias Python (+whitenoise, dj-database-url, psycopg[binary], python-dotenv; −oracledb; .venv Python 3.12)
+- [x] B3 settings.py por variables de entorno (check OK; check --deploy solo W005/W021; migrate OK en SQLite)
+- [ ] B3.5 Triggers en PL/pgSQL (migraciones solo postgresql + pruebas + integridad)
 - [ ] B4 urls.py y vistas (health, SPA)
 - [ ] B5 Frontend
 - [ ] B6 Contenedor y Render
@@ -38,7 +39,13 @@ Especificación: `DEPLOY_SPEC.md` (raíz). Si la sesión se reinicia, continuar 
 - PUERTA 1 (usuario): **portar los 14 triggers a PL/pgSQL** en migraciones nuevas solo para `postgresql`, con pruebas.
   Bloque extra B3.5 (después de B3, cuando DATABASE_URL funcione) y agregar los triggers PG a `integridad.py`.
 - Neon (usuario): **el usuario pega la URL directa (sin pooler) en `.env.produccion`**; no se usa `neon init`.
+- Variables renombradas: SECRET_KEY→DJANGO_SECRET_KEY, DEBUG→DJANGO_DEBUG, ALLOWED_HOSTS→DJANGO_ALLOWED_HOSTS; DB_* eliminadas.
+  `.env` local en `backend/.env` (junto a manage.py).
 - TIME_ZONE: se conserva `America/El_Salvador` (spec: solo si no hay otra definida).
+
+## Warnings justificados (check --deploy)
+- W005 HSTS sin includeSubDomains: el dominio *.onrender.com no es nuestro; no se fuerza a subdominios.
+- W021 HSTS sin preload: la spec pide explícitamente "sin preload".
 
 ## Secretos a rotar
 - Ninguno detectado en git (actual ni historial).
