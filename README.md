@@ -5,8 +5,8 @@ distribuye el presupuesto institucional, genera estados de resultados segmentado
 el flujo de efectivo.
 
 ## Despliegue
-- **URL:** `https://TU-SERVICIO.onrender.com` *(marcador de posición)*
-- **Usuario de evaluación:** `USUARIO_EVALUACION` *(marcador de posición; la contraseña se entrega por separado)*
+- **URL:** https://sistema-contabilidad-d9u6.onrender.com/
+- **Usuario de evaluación:** contador
 - Guía paso a paso: [`DEPLOY.md`](DEPLOY.md)
 
 ```
