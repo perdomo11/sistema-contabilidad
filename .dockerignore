@@ -1,24 +1,24 @@
-# Secretos y entornos
-.env
-.env.*
+# Secretos y entornos (en cualquier carpeta)
+**/.env
+**/.env.*
 !.env.example
 
 # Datos exportados y bases locales
-*.sqlite3
-datos*.json
-wallet/
+**/*.sqlite3
+**/datos*.json
+**/wallet/
 
 # Python
-__pycache__/
-*.pyc
-.venv/
-venv/
-staticfiles/
+**/__pycache__/
+**/*.pyc
+**/.venv/
+**/venv/
+**/staticfiles/
 
-# Frontend
-node_modules/
-dist/
-build/
+# Frontend (la imagen hace su propio npm ci y build)
+**/node_modules/
+**/dist/
+**/build/
 
 # Repositorio, documentación y herramientas que no entran en la imagen
 .git
@@ -27,8 +27,5 @@ build/
 .vscode/
 .claude/
 docs/
-*.md
+**/*.md
 respaldos/
-docker-compose.yml
-docker/
-scripts/
