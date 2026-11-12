@@ -1,0 +1,34 @@
+# Secretos y entornos
+.env
+.env.*
+!.env.example
+
+# Datos exportados y bases locales
+*.sqlite3
+datos*.json
+wallet/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+staticfiles/
+
+# Frontend
+node_modules/
+dist/
+build/
+
+# Repositorio, documentación y herramientas que no entran en la imagen
+.git
+.gitignore
+.gitattributes
+.vscode/
+.claude/
+docs/
+*.md
+respaldos/
+docker-compose.yml
+docker/
+scripts/

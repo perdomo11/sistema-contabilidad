@@ -5,7 +5,7 @@ Especificación: `DEPLOY_SPEC.md` (raíz). Si la sesión se reinicia, continuar 
 ## Checklist
 - [x] B0 Diagnóstico — **PUERTA 1 activada** (triggers PL/SQL). En espera de decisión del usuario.
 - [!] B0.5 Exportación temprana — Oracle no accesible (contenedores apagados, sin `.env` local). B8 creará fixture demo.
-- [ ] B1 Higiene del repositorio
+- [x] B1 Higiene del repositorio (.gitignore, .dockerignore, renormalize; nada sensible versionado)
 - [ ] B2 Dependencias Python
 - [ ] B3 settings.py por variables de entorno
 - [ ] B4 urls.py y vistas (health, SPA)
