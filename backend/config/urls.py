@@ -1,7 +1,8 @@
 from django.contrib import admin
-from django.urls import include, path
+from django.urls import include, path, re_path
 
 from .health import health
+from .spa import spa
 
 admin.site.site_header = "Sistema Contable: administración"
 admin.site.site_title = "Sistema Contable"
@@ -16,4 +17,6 @@ urlpatterns = [
     path("api/", include("presupuesto.urls")),
     path("api/", include("ventas.urls")),
     path("api/reportes/", include("reportes.urls")),
+    # Catch-all del frontend (React Router): siempre al final.
+    re_path(r"^(?!(?:api|admin|static|media)(?:/|$))(?P<ruta>.*)$", spa, name="spa"),
 ]
